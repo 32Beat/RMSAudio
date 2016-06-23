@@ -1,0 +1,308 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1357202D1D1BEF22002FFE64 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357202C1D1BEF22002FFE64 /* AppDelegate.m */; };
+		135720301D1BEF22002FFE64 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357202F1D1BEF22002FFE64 /* main.m */; };
+		135720331D1BEF22002FFE64 /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720321D1BEF22002FFE64 /* Document.m */; };
+		135720361D1BEF22002FFE64 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 135720341D1BEF22002FFE64 /* Document.xib */; };
+		135720381D1BEF22002FFE64 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 135720371D1BEF22002FFE64 /* Assets.xcassets */; };
+		1357203B1D1BEF22002FFE64 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 135720391D1BEF22002FFE64 /* MainMenu.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		135720281D1BEF22002FFE64 /* RMSAudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RMSAudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1357202B1D1BEF22002FFE64 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		1357202C1D1BEF22002FFE64 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		1357202F1D1BEF22002FFE64 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		135720311D1BEF22002FFE64 /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
+		135720321D1BEF22002FFE64 /* Document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Document.m; sourceTree = "<group>"; };
+		135720351D1BEF22002FFE64 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
+		135720371D1BEF22002FFE64 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1357203A1D1BEF22002FFE64 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		1357203C1D1BEF22002FFE64 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		135720251D1BEF22002FFE64 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1357201F1D1BEF22002FFE64 = {
+			isa = PBXGroup;
+			children = (
+				1357202A1D1BEF22002FFE64 /* RMSAudio */,
+				135720291D1BEF22002FFE64 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		135720291D1BEF22002FFE64 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				135720281D1BEF22002FFE64 /* RMSAudio.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1357202A1D1BEF22002FFE64 /* RMSAudio */ = {
+			isa = PBXGroup;
+			children = (
+				1357202B1D1BEF22002FFE64 /* AppDelegate.h */,
+				1357202C1D1BEF22002FFE64 /* AppDelegate.m */,
+				135720311D1BEF22002FFE64 /* Document.h */,
+				135720321D1BEF22002FFE64 /* Document.m */,
+				135720341D1BEF22002FFE64 /* Document.xib */,
+				135720371D1BEF22002FFE64 /* Assets.xcassets */,
+				135720391D1BEF22002FFE64 /* MainMenu.xib */,
+				1357203C1D1BEF22002FFE64 /* Info.plist */,
+				1357202E1D1BEF22002FFE64 /* Supporting Files */,
+			);
+			path = RMSAudio;
+			sourceTree = "<group>";
+		};
+		1357202E1D1BEF22002FFE64 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				1357202F1D1BEF22002FFE64 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		135720271D1BEF22002FFE64 /* RMSAudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1357203F1D1BEF22002FFE64 /* Build configuration list for PBXNativeTarget "RMSAudio" */;
+			buildPhases = (
+				135720241D1BEF22002FFE64 /* Sources */,
+				135720251D1BEF22002FFE64 /* Frameworks */,
+				135720261D1BEF22002FFE64 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RMSAudio;
+			productName = RMSAudio;
+			productReference = 135720281D1BEF22002FFE64 /* RMSAudio.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		135720201D1BEF22002FFE64 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = 32BT;
+				TargetAttributes = {
+					135720271D1BEF22002FFE64 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 135720231D1BEF22002FFE64 /* Build configuration list for PBXProject "RMSAudio" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1357201F1D1BEF22002FFE64;
+			productRefGroup = 135720291D1BEF22002FFE64 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				135720271D1BEF22002FFE64 /* RMSAudio */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		135720261D1BEF22002FFE64 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				135720381D1BEF22002FFE64 /* Assets.xcassets in Resources */,
+				135720361D1BEF22002FFE64 /* Document.xib in Resources */,
+				1357203B1D1BEF22002FFE64 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		135720241D1BEF22002FFE64 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				135720331D1BEF22002FFE64 /* Document.m in Sources */,
+				135720301D1BEF22002FFE64 /* main.m in Sources */,
+				1357202D1D1BEF22002FFE64 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		135720341D1BEF22002FFE64 /* Document.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				135720351D1BEF22002FFE64 /* Base */,
+			);
+			name = Document.xib;
+			sourceTree = "<group>";
+		};
+		135720391D1BEF22002FFE64 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1357203A1D1BEF22002FFE64 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1357203D1D1BEF22002FFE64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		1357203E1D1BEF22002FFE64 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		135720401D1BEF22002FFE64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = RMSAudio/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.32BT.RMSAudio;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		135720411D1BEF22002FFE64 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = RMSAudio/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.32BT.RMSAudio;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		135720231D1BEF22002FFE64 /* Build configuration list for PBXProject "RMSAudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1357203D1D1BEF22002FFE64 /* Debug */,
+				1357203E1D1BEF22002FFE64 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1357203F1D1BEF22002FFE64 /* Build configuration list for PBXNativeTarget "RMSAudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				135720401D1BEF22002FFE64 /* Debug */,
+				135720411D1BEF22002FFE64 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 135720201D1BEF22002FFE64 /* Project object */;
+}

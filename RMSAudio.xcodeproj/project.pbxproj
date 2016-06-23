@@ -13,6 +13,15 @@
 		135720361D1BEF22002FFE64 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 135720341D1BEF22002FFE64 /* Document.xib */; };
 		135720381D1BEF22002FFE64 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 135720371D1BEF22002FFE64 /* Assets.xcassets */; };
 		1357203B1D1BEF22002FFE64 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 135720391D1BEF22002FFE64 /* MainMenu.xib */; };
+		135720551D1BF63A002FFE64 /* RMSUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720541D1BF63A002FFE64 /* RMSUtilities.m */; };
+		135720811D1BF8C7002FFE64 /* RMSCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357206A1D1BF8C7002FFE64 /* RMSCallback.m */; };
+		135720821D1BF8C7002FFE64 /* RMSSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357206C1D1BF8C7002FFE64 /* RMSSource.m */; };
+		135720831D1BF8C7002FFE64 /* RMSAudioUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720701D1BF8C7002FFE64 /* RMSAudioUnit.m */; };
+		135720841D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720741D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.m */; };
+		135720851D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720771D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.m */; };
+		135720871D1BF8C7002FFE64 /* RMSOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357207B1D1BF8C7002FFE64 /* RMSOutput.m */; };
+		135720881D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357207E1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m */; };
+		1357208C1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357208B1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +35,25 @@
 		135720371D1BEF22002FFE64 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1357203A1D1BEF22002FFE64 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		1357203C1D1BEF22002FFE64 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		135720511D1BF375002FFE64 /* RMSAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudio.h; sourceTree = "<group>"; };
+		135720531D1BF63A002FFE64 /* RMSUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSUtilities.h; sourceTree = "<group>"; };
+		135720541D1BF63A002FFE64 /* RMSUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSUtilities.m; sourceTree = "<group>"; };
+		135720691D1BF8C7002FFE64 /* RMSCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSCallback.h; sourceTree = "<group>"; };
+		1357206A1D1BF8C7002FFE64 /* RMSCallback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSCallback.m; sourceTree = "<group>"; };
+		1357206B1D1BF8C7002FFE64 /* RMSSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSSource.h; sourceTree = "<group>"; };
+		1357206C1D1BF8C7002FFE64 /* RMSSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSSource.m; sourceTree = "<group>"; };
+		1357206F1D1BF8C7002FFE64 /* RMSAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnit.h; sourceTree = "<group>"; };
+		135720701D1BF8C7002FFE64 /* RMSAudioUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnit.m; sourceTree = "<group>"; };
+		135720731D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnitFilePlayer.h; sourceTree = "<group>"; };
+		135720741D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitFilePlayer.m; sourceTree = "<group>"; };
+		135720761D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnitPlatformIO.h; sourceTree = "<group>"; };
+		135720771D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitPlatformIO.m; sourceTree = "<group>"; };
+		1357207A1D1BF8C7002FFE64 /* RMSOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSOutput.h; sourceTree = "<group>"; };
+		1357207B1D1BF8C7002FFE64 /* RMSOutput.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSOutput.m; sourceTree = "<group>"; };
+		1357207D1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnitVarispeed.h; sourceTree = "<group>"; };
+		1357207E1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitVarispeed.m; sourceTree = "<group>"; };
+		1357208A1D1BF95D002FFE64 /* RMSAudiounitUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudiounitUtilities.h; sourceTree = "<group>"; };
+		1357208B1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitUtilities.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +86,7 @@
 		1357202A1D1BEF22002FFE64 /* RMSAudio */ = {
 			isa = PBXGroup;
 			children = (
+				135720421D1BF307002FFE64 /* RMSAudio */,
 				1357202B1D1BEF22002FFE64 /* AppDelegate.h */,
 				1357202C1D1BEF22002FFE64 /* AppDelegate.m */,
 				135720311D1BEF22002FFE64 /* Document.h */,
@@ -77,6 +106,120 @@
 				1357202F1D1BEF22002FFE64 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		135720421D1BF307002FFE64 /* RMSAudio */ = {
+			isa = PBXGroup;
+			children = (
+				135720511D1BF375002FFE64 /* RMSAudio.h */,
+				135720681D1BF8C7002FFE64 /* RMSSource */,
+				135720521D1BF52A002FFE64 /* RMSUtilities */,
+			);
+			path = RMSAudio;
+			sourceTree = "<group>";
+		};
+		135720521D1BF52A002FFE64 /* RMSUtilities */ = {
+			isa = PBXGroup;
+			children = (
+				135720531D1BF63A002FFE64 /* RMSUtilities.h */,
+				135720541D1BF63A002FFE64 /* RMSUtilities.m */,
+			);
+			path = RMSUtilities;
+			sourceTree = "<group>";
+		};
+		135720681D1BF8C7002FFE64 /* RMSSource */ = {
+			isa = PBXGroup;
+			children = (
+				135720691D1BF8C7002FFE64 /* RMSCallback.h */,
+				1357206A1D1BF8C7002FFE64 /* RMSCallback.m */,
+				1357206B1D1BF8C7002FFE64 /* RMSSource.h */,
+				1357206C1D1BF8C7002FFE64 /* RMSSource.m */,
+				1357206D1D1BF8C7002FFE64 /* RMSSourceTypes */,
+			);
+			path = RMSSource;
+			sourceTree = "<group>";
+		};
+		1357206D1D1BF8C7002FFE64 /* RMSSourceTypes */ = {
+			isa = PBXGroup;
+			children = (
+				1357206E1D1BF8C7002FFE64 /* RMSAudioUnit */,
+				1357207F1D1BF8C7002FFE64 /* RMSFilter */,
+				135720801D1BF8C7002FFE64 /* RMSMonitor */,
+			);
+			path = RMSSourceTypes;
+			sourceTree = "<group>";
+		};
+		1357206E1D1BF8C7002FFE64 /* RMSAudioUnit */ = {
+			isa = PBXGroup;
+			children = (
+				1357206F1D1BF8C7002FFE64 /* RMSAudioUnit.h */,
+				135720701D1BF8C7002FFE64 /* RMSAudioUnit.m */,
+				135720711D1BF8C7002FFE64 /* RMSAudioUnitTypes */,
+				135720891D1BF95D002FFE64 /* RMSAudioUnitUtilities */,
+			);
+			path = RMSAudioUnit;
+			sourceTree = "<group>";
+		};
+		135720711D1BF8C7002FFE64 /* RMSAudioUnitTypes */ = {
+			isa = PBXGroup;
+			children = (
+				135720721D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer */,
+				135720751D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO */,
+				1357207C1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed */,
+			);
+			path = RMSAudioUnitTypes;
+			sourceTree = "<group>";
+		};
+		135720721D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer */ = {
+			isa = PBXGroup;
+			children = (
+				135720731D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.h */,
+				135720741D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.m */,
+			);
+			path = RMSAudioUnitFilePlayer;
+			sourceTree = "<group>";
+		};
+		135720751D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO */ = {
+			isa = PBXGroup;
+			children = (
+				135720761D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.h */,
+				135720771D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.m */,
+				1357207A1D1BF8C7002FFE64 /* RMSOutput.h */,
+				1357207B1D1BF8C7002FFE64 /* RMSOutput.m */,
+			);
+			path = RMSAudioUnitPlatformIO;
+			sourceTree = "<group>";
+		};
+		1357207C1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed */ = {
+			isa = PBXGroup;
+			children = (
+				1357207D1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.h */,
+				1357207E1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m */,
+			);
+			path = RMSAudioUnitVarispeed;
+			sourceTree = "<group>";
+		};
+		1357207F1D1BF8C7002FFE64 /* RMSFilter */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = RMSFilter;
+			sourceTree = "<group>";
+		};
+		135720801D1BF8C7002FFE64 /* RMSMonitor */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = RMSMonitor;
+			sourceTree = "<group>";
+		};
+		135720891D1BF95D002FFE64 /* RMSAudioUnitUtilities */ = {
+			isa = PBXGroup;
+			children = (
+				1357208A1D1BF95D002FFE64 /* RMSAudiounitUtilities.h */,
+				1357208B1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m */,
+			);
+			path = RMSAudioUnitUtilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,9 +292,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1357208C1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m in Sources */,
+				135720831D1BF8C7002FFE64 /* RMSAudioUnit.m in Sources */,
 				135720331D1BEF22002FFE64 /* Document.m in Sources */,
+				135720551D1BF63A002FFE64 /* RMSUtilities.m in Sources */,
+				135720871D1BF8C7002FFE64 /* RMSOutput.m in Sources */,
 				135720301D1BEF22002FFE64 /* main.m in Sources */,
+				135720851D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.m in Sources */,
+				135720841D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.m in Sources */,
+				135720821D1BF8C7002FFE64 /* RMSSource.m in Sources */,
+				135720881D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m in Sources */,
 				1357202D1D1BEF22002FFE64 /* AppDelegate.m in Sources */,
+				135720811D1BF8C7002FFE64 /* RMSCallback.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,6 +453,7 @@
 				135720411D1BEF22002FFE64 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

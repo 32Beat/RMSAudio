@@ -10,6 +10,7 @@
 
 @interface Document : NSDocument
 
+@property (nonatomic) IBOutlet NSTextView *logView;
 
 @end
 

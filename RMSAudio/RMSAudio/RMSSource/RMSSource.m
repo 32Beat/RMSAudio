@@ -130,6 +130,7 @@ OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	(__bridge __unsafe_unretained RMSSource *)rmsObject;
 
 
+
 	// Communicate prerender trash to main
 	if (rmsSource->mTrash != nil)
 	{
@@ -144,6 +145,8 @@ OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	// Run the callback for self
 	OSStatus result = RunRMSCallback(rmsObject, infoPtr);
 	if (result != noErr) return result;
+	
+	
 	
 	// Run the filters if available
 	void *filter = RMSSourceGetFilter(rmsObject);

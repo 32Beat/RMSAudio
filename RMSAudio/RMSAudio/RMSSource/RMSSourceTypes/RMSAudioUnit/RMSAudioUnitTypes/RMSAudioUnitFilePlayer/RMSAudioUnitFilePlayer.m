@@ -93,7 +93,7 @@
 	if (result != noErr)
 	{ NSLog(@"Failed to set file ID: %d", result); return result; }
 
-
+	// Get source format
 	UInt32 size = sizeof(mFileFormat);
 	result = AudioFileGetProperty(mFileID, kAudioFilePropertyDataFormat, &size, &mFileFormat);
 	if (result != noErr)

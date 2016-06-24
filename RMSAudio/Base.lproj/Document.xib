@@ -37,7 +37,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="didSelectFileButton:" target="-2" id="ZS1-hE-ck8"/>
+                            <action selector="didSelectAudioFileButton:" target="-2" id="d3y-St-Siq"/>
                         </connections>
                     </button>
                 </subviews>

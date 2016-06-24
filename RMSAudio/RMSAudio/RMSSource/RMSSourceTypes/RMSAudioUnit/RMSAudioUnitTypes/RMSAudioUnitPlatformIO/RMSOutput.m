@@ -127,11 +127,11 @@ static OSStatus outputCallback(
 	Render callback for this RMS object
 	
 	The outputCallback has translated the parameterlist to RMSCallbackInfo, 
-	and the renderCallback is now being called from RMSSourceRun right before 
+	and the renderCallback is now being called from RunRMSSource right before
 	the filters and monitors will be called. 
 	
 	Generally, RMSOutput is the root of a rendertree attached to mSource. 
-	We therefore need to call RMSSourceRun on mSource which should render 
+	We therefore need to call RunRMSSource on mSource which should render 
 	something into the bufferList
 */
 

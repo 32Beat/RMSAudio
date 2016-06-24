@@ -35,47 +35,33 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
-#pragma mark Select File
-////////////////////////////////////////////////////////////////////////////////
-
-- (IBAction) didSelectFileButton:(NSButton *)button
-{
-//*
-	[self didSelectAudioFileButton:button];
-/*/
-	[self didSelectImageFileButton:button];
-/*/
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark
 #pragma mark Select Audio File
 ////////////////////////////////////////////////////////////////////////////////
 /*
 	Select an audio file and play it.
-	
-	Note that the RMSAudioUnitVarispeed is attached if necessary.
-	
-	sampleRate always refers to the output samplerate of an RMSSource.
-	Where appropriate, the input sampleRate should be set by a specific method, 
-	unless the sampleRate is implicated.
 */
 
 - (IBAction) didSelectAudioFileButton:(NSButton *)button
 {
 	NSOpenPanel *panel = [NSOpenPanel openPanel];
 	
+	// Since RMSAudioUnitFilePlayer will be used for playing the audiofile
+	// it should also provide the filetypes it can read
 	panel.allowedFileTypes = [RMSAudioUnitFilePlayer readableTypes];
 	
-	// start selection sheet
-	[panel beginSheetModalForWindow:self.windowForSheet completionHandler:
-		// with result block
-		^(NSInteger result)
+	// start selection sheet ...
+	[panel beginSheetModalForWindow:self.windowForSheet
+
+		// ... with result block
+		completionHandler:^(NSInteger result)
 		{
-			if (result != 0)
+			if (result == NSFileHandlingPanelOKButton)
 			{
-				NSURL *url = [panel URLs][0];
-				[self startFileWithURL:url];
+				if ([panel URLs].count != 0)
+				{
+					NSURL *url = [panel URLs][0];
+					[self startFileWithURL:url];
+				}
 			}
 		}];
 }
@@ -89,7 +75,7 @@
 	{
 		if (source.sampleRate != self.audioOutput.sampleRate)
 		{
-			//source = [RMSAudioUnitVarispeed instanceWithSource:source];
+			source = [RMSAudioUnitVarispeed instanceWithSource:source];
 		}
 	}
 	
@@ -98,45 +84,11 @@
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-+ (BOOL)autosavesInPlace {
-	return YES;
-}
-
-- (NSString *)windowNibName {
-	// Override returning the nib file name of the document
-	// If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
-	return @"Document";
-}
-
-- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
-	// Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error when returning nil.
-	// You can also choose to override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-	[NSException raise:@"UnimplementedMethod" format:@"%@ is unimplemented", NSStringFromSelector(_cmd)];
-	return nil;
-}
-
-- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-	// Insert code here to read your document from the given data of the specified type. If outError != NULL, ensure that you create and set an appropriate error when returning NO.
-	// You can also choose to override -readFromFileWrapper:ofType:error: or -readFromURL:ofType:error: instead.
-	// If you override either of these, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
-	[NSException raise:@"UnimplementedMethod" format:@"%@ is unimplemented", NSStringFromSelector(_cmd)];
-	return YES;
-}
-
 @end
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+

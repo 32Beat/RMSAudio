@@ -15,6 +15,7 @@
 
 @interface RMSAudioUnitVarispeed ()
 {
+	RMSCallbackInfo mInfo;
 }
 @end
 
@@ -36,10 +37,31 @@ static OSStatus renderCallback(
 	UInt32							frameCount,
 	AudioBufferList 				*bufferList)
 {
-	__unsafe_unretained RMSAudioUnit *rmsSource = \
-	(__bridge __unsafe_unretained RMSAudioUnit *)inRefCon;
+// may need to translate timeStamp to sampleTime
+// for now, return error
 
-	return RunRMSSource((__bridge void *)rmsSource->mSource, nil);
+	AudioTimeStamp sampleTime;
+	if ((timeStamp->mFlags & kAudioTimeStampSampleTimeValid)==0)
+	{
+		//
+		timeStamp = &sampleTime;
+		return paramErr;
+	}
+
+
+	__unsafe_unretained RMSAudioUnitVarispeed *rmsSource = \
+	(__bridge __unsafe_unretained RMSAudioUnitVarispeed *)inRefCon;
+
+	RMSCallbackInfo *infoPtr = &rmsSource->mInfo;
+	infoPtr->frameIndex = timeStamp->mSampleTime;
+	infoPtr->frameCount = frameCount;
+	infoPtr->bufferListPtr = bufferList;
+	
+	OSStatus result = noErr;
+	
+	result = RunRMSSource((__bridge void *)rmsSource->mSource, infoPtr);
+	
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

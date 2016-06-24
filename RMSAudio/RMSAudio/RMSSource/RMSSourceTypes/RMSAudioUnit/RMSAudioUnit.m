@@ -11,7 +11,6 @@
 #import "RMSAudioUnitUtilities.h"
 #import "RMSAudio.h"
 
-
 @interface RMSAudioUnit ()
 {
 	BOOL mAudioUnitIsInitialized;
@@ -24,10 +23,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSAudioUnit
 ////////////////////////////////////////////////////////////////////////////////
-
-//static inline void AudioTimeStampWithSampleTime(AudioTimeStamp& outATS, Float64 inSampleTime)    { outATS.mSampleTime = inSampleTime; outATS.mHostTime = 0; outATS.mRateScalar = 0; outATS.mWordClockTime = 0; memset(&outATS.mSMPTETime, 0, sizeof(SMPTETime)); outATS.mFlags = kAudioTimeStampSampleTimeValid; }
-
-
 /*
 	The RMSCallback for an RMSAudioUnit defaults to calling AudioUnitRender
 */

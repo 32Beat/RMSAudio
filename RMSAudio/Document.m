@@ -78,6 +78,7 @@
 	@"avg time = %lfs \rmax time = %lfs \r", avgTime, maxTime];
 	
 	[self.logView.textStorage.mutableString insertString:str atIndex:0];
+	[self.logView setNeedsDisplay:YES];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -130,6 +130,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
+
 - (OSStatus) initializeAudioUnit
 {
 	OSStatus result = AudioUnitInitialize(mAudioUnit);

@@ -10,5 +10,11 @@
 #import "RMSAudioUnitPlatformIO.h"
 
 @interface RMSOutput : RMSAudioUnitPlatformIO
+
 + (instancetype) defaultOutput;
+
+- (NSTimeInterval) averageRenderTime;
+- (NSTimeInterval) maximumRenderTime;
+- (void) resetTimingInfo;
+
 @end

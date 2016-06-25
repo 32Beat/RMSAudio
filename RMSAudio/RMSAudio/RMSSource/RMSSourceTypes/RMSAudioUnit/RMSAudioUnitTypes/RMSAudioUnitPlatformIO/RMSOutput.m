@@ -15,12 +15,30 @@
 #import <mach/mach_time.h>
 
 
+
+/* 
+	Following is used in Debugmode only
+	(which generally means non-optimized code btw)
+*/
+typedef struct RMSTimingInfo
+{
+	UInt64 startTime;
+	UInt64 finishTime;
+	
+	double avgTime;
+	double maxTime;
+
+	bool reset;
+}
+RMSTimingInfo;
+
+
 @interface RMSOutput ()
 {
+	RMSTimingInfo mTimingInfo;
 	RMSCallbackInfo mCallbackInfo;
 }
 @end
-
 
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSOutput
@@ -38,51 +56,51 @@ static OSStatus notifyCallback(
 	UInt32							inNumberFrames,
 	AudioBufferList * __nullable	ioData)
 {
-	static UInt64 startTime = 0;
-	static UInt64 finishTime = 0;
+	RMSTimingInfo *infoPtr = (RMSTimingInfo *)inRefCon;
 	
 	if (*ioActionFlags & kAudioUnitRenderAction_PreRender)
 	{
-		startTime = mach_absolute_time();
+		infoPtr->startTime = mach_absolute_time();
 	}
 	else
 	if (*ioActionFlags & kAudioUnitRenderAction_PostRender)
 	{
-		finishTime = mach_absolute_time();
+		infoPtr->finishTime = mach_absolute_time();
 		
-		double renderTime = RMSHostTimeToSeconds(finishTime - startTime);
+		double renderTime =
+		RMSHostTimeToSeconds(infoPtr->finishTime - infoPtr->startTime);
+		
+		if (infoPtr->reset)
+		{
+			infoPtr->avgTime = renderTime;
+			infoPtr->maxTime = renderTime;
+			infoPtr->reset = 0;
+		}
 		
 		// Compute short term average time
-		static double avgTime = 0;
-		avgTime += 0.1 * (renderTime - avgTime);
+		infoPtr->avgTime += 0.1 * (renderTime - infoPtr->avgTime);
 		
 		// Compute maximum time since last report
-		static double maxTime = 0;
-		if (maxTime < renderTime)
-		{ maxTime = renderTime; }
-		
-		// Check report frequency
-		static double lastTime = 0;
-		double time = RMSCurrentHostTimeInSeconds();
-		if (lastTime + RMS_REPORT_TIME <= time)
-		{
-			lastTime = time;
-			double reportTime1 = avgTime;
-			double reportTime2 = maxTime;
-			dispatch_async(dispatch_get_main_queue(), \
-			^{
-				NSLog(@"Render time avg = %lfs)", reportTime1);
-				NSLog(@"Render time max = %lfs)", reportTime2);
-			});
-			
-			maxTime = 0;
-		}
+		if (infoPtr->maxTime < renderTime)
+		{ infoPtr->maxTime = renderTime; }
 	}
 	
 	return noErr;
 }
 
 #endif
+
+- (NSTimeInterval) averageRenderTime
+{ return mTimingInfo.avgTime; }
+
+- (NSTimeInterval) maximumRenderTime;
+{ return mTimingInfo.maxTime; }
+
+- (void) resetTimingInfo
+{
+	if (mTimingInfo.reset == NO)
+	{ mTimingInfo.reset = YES; }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -92,7 +110,7 @@ static OSStatus notifyCallback(
 	
 	This merely translates the parameterlist of an AURenderCallback 
 	to the internal CallbackInfo struct which is used by the RMS code. 
-	It then calls RMSSourceRun on self, which runs the renderCallback below
+	It then calls RunRMSSource on self, which runs the renderCallback below
 	and possible attachments like filters and monitors.
 */
 static OSStatus outputCallback(
@@ -271,11 +289,34 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
+
+static void FormatChanged(
+void *inRefCon,
+AudioUnit inUnit,
+AudioUnitPropertyID	inID,
+AudioUnitScope		inScope,
+AudioUnitElement	inElement)
+{
+	NSLog(@"Format Changed: scope: %d, bus %d", inScope, inElement);
+}
+
+- (void) prepareMessaging
+{
+	AudioUnitAddPropertyListener(self->mAudioUnit,
+	kAudioUnitProperty_StreamFormat, FormatChanged, (__bridge void *)self);
+//	kAudioUnitProperty_SampleRate, SampleRateChanged, (__bridge void *)self);
+}
+
+
+
+
 - (OSStatus) prepareAudioUnit
 {
 #if RMS_REPORT_TIME
-	AudioUnitAddRenderNotify(mAudioUnit, notifyCallback, nil);
+	AudioUnitAddRenderNotify(mAudioUnit, notifyCallback, &mTimingInfo);
 #endif
+
+//	[self prepareMessaging];
 
 	OSStatus result = noErr;
 

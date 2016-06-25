@@ -13,6 +13,7 @@
 
 @interface Document ()
 {
+	NSTimer *mReportTimer;
 }
 
 @property (nonatomic) RMSOutput *audioOutput;
@@ -23,14 +24,60 @@
 @implementation Document
 ////////////////////////////////////////////////////////////////////////////////
 
+- (NSString *)windowNibName
+{ return @"Document"; }
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (RMSOutput *) audioOutput
 {
 	if (_audioOutput == nil)
 	{
 		_audioOutput = [RMSOutput defaultOutput];
+		
+		[self startRenderTimingReports];
 	}
 	
 	return _audioOutput;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) startRenderTimingReports
+{
+	if (mReportTimer == nil)
+	{
+		// set timer for 2 second updates
+		mReportTimer = [NSTimer timerWithTimeInterval:2.0
+		target:self selector:@selector(reportRenderTime:) userInfo:nil repeats:YES];
+		
+		// add tolerance to reduced system strain
+		[mReportTimer setTolerance:.1];
+		
+		// add to runloop
+		[[NSRunLoop currentRunLoop] addTimer:mReportTimer
+        forMode:NSRunLoopCommonModes];
+		
+		/*
+			Note that a scheduledTimer will only run in default runloopmode,
+			which means it doesn't fire during tracking or modal panels, etc...
+		*/
+	}
+	
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) reportRenderTime:(id)sender
+{
+	double avgTime = [_audioOutput averageRenderTime];
+	double maxTime = [_audioOutput maximumRenderTime];
+	[_audioOutput resetTimingInfo];
+	
+	NSString *str = [NSString stringWithFormat:
+	@"avg time = %lfs \rmax time = %lfs \r", avgTime, maxTime];
+	
+	[self.logView.textStorage.mutableString insertString:str atIndex:0];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +125,7 @@
 			source = [RMSAudioUnitVarispeed instanceWithSource:source];
 		}
 	}
-	
+		
 	// Attaching automatically sets the output sampleRate for source
 	[self.audioOutput setSource:source];
 }
@@ -86,7 +133,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 @end
 ////////////////////////////////////////////////////////////////////////////////
-
 
 
 

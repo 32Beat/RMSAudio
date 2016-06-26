@@ -43,6 +43,27 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void) dealloc
+{
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) close
+{
+	[mReportTimer invalidate];
+	mReportTimer = nil;
+
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+	
+	[super close];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (void) startRenderTimingReports
 {
 	if (mReportTimer == nil)
@@ -74,10 +95,16 @@
 	double maxTime = [_audioOutput maximumRenderTime];
 	[_audioOutput resetTimingInfo];
 	
-	NSString *str = [NSString stringWithFormat:
-	@"avg time = %lfs \rmax time = %lfs \r", avgTime, maxTime];
-	
-	[self.logView.textStorage.mutableString insertString:str atIndex:0];
+	[self logText:[NSString stringWithFormat:@"avg remdertime = %lfs", avgTime]];
+	[self logText:[NSString stringWithFormat:@"max remdertime = %lfs", maxTime]];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) logText:(NSString *)text
+{
+	[self.logView.textStorage.mutableString insertString:@"\r" atIndex:0];
+	[self.logView.textStorage.mutableString insertString:text atIndex:0];
 	[self.logView setNeedsDisplay:YES];
 }
 
@@ -118,6 +145,8 @@
 
 - (void) startFileWithURL:(NSURL *)url
 {
+	[self logText:[NSString stringWithFormat:@"Start file: %@", url.lastPathComponent]];
+	
 	RMSSource *source = [RMSAudioUnitFilePlayer instanceWithURL:url];
 	if (source != nil)
 	{

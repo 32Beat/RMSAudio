@@ -91,6 +91,22 @@ OSStatus AudioUnitAttachDevice(AudioUnit audioUnit, AudioDeviceID deviceID)
 	kAudioUnitScope_Global, 0, &deviceID, size);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool AudioUnitIsRunning(AudioUnit audioUnit)
+{
+	UInt32 size = sizeof(UInt32);
+	UInt32 state = 0;
+	
+	OSStatus result = AudioUnitGetProperty(audioUnit, kAudioOutputUnitProperty_IsRunning,
+	kAudioUnitScope_Global, 0, &state, &size);
+	if (result != noErr)
+	{}
+	
+	return state;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +186,7 @@ AudioUnitElement streamIndex, Float64 *sampleRatePtr)
 { return RMSAudioUnitGetSampleRateAtIndex(audioUnit, kAudioUnitScope_Output, streamIndex, sampleRatePtr); }
 
 ////////////////////////////////////////////////////////////////////////////////
+
 
 OSStatus RMSAudioUnitGetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 *maxFrames)
 {

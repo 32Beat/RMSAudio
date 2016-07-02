@@ -145,7 +145,7 @@
 	RMSSource *source = [RMSAudioUnitFilePlayer instanceWithURL:url];
 	if (source != nil)
 	{
-		if (source.sampleRate != self.audioOutput.sampleRate)
+		//if (source.sampleRate != self.audioOutput.sampleRate)
 		{
 			source = [RMSVarispeed instanceWithSource:source];
 			//source = [RMSAudioUnitVarispeed instanceWithSource:source];

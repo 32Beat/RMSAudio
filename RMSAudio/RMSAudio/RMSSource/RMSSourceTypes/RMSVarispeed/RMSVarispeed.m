@@ -27,23 +27,37 @@
 @end
 
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSVarispeed
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus fetchSample(void *rmsObject, UInt64 index, Float32 *resultPtr)
+static OSStatus fetchSampleNN(void *rmsObject, UInt64 index, Float32 *ptrL, Float32 *ptrR)
 {
+	OSStatus result = noErr;
+
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 
 	if (index >= rmsSource->mSrcListIndex+rmsSource->mSrcListCount)
 	{
+		rmsSource->mSrcSamplesL[0] = rmsSource->mSrcSamplesL[512];
+		rmsSource->mSrcSamplesL[1] = rmsSource->mSrcSamplesL[513];
+		rmsSource->mSrcSamplesL[2] = rmsSource->mSrcSamplesL[514];
+		rmsSource->mSrcSamplesL[3] = rmsSource->mSrcSamplesL[515];
+
+		rmsSource->mSrcSamplesR[0] = rmsSource->mSrcSamplesR[512];
+		rmsSource->mSrcSamplesR[1] = rmsSource->mSrcSamplesR[513];
+		rmsSource->mSrcSamplesR[2] = rmsSource->mSrcSamplesR[514];
+		rmsSource->mSrcSamplesR[3] = rmsSource->mSrcSamplesR[515];
+		
 		RMSCallbackInfo info;
 		info.frameIndex = index&(~511);
 		info.frameCount = 512;
 		info.bufferListPtr = (AudioBufferList *)&rmsSource->mSrcList;
 		
-		OSStatus result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
+		result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
 		if (result != noErr)
 		{}
 		
@@ -51,32 +65,31 @@ static OSStatus fetchSample(void *rmsObject, UInt64 index, Float32 *resultPtr)
 		rmsSource->mSrcListCount = info.frameCount;
 	}
 	
-	resultPtr[0] = rmsSource->mSrcSamplesL[index&511];
-	resultPtr[1] = rmsSource->mSrcSamplesR[index&511];
+	index &= 511;
+	index += 2;
 	
-	return noErr;
+	ptrL[0] = rmsSource->mSrcSamplesL[index];
+	ptrR[0] = rmsSource->mSrcSamplesR[index];
+	
+	return result;
 }
 
 
 static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
+	OSStatus result = noErr;
+
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
-	
-	void *source = (__bridge void *)rmsSource->mSource;
-	
-	OSStatus result = noErr;
 	
 	Float32 *dstPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
 	Float32 *dstPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
-		Float32 stereoSample[2] = { 0.0, 0.0 };
-		fetchSample(rmsObject, rmsSource->mSrcIndex, stereoSample);
-		dstPtrL[n] = stereoSample[0];
-		dstPtrR[n] = stereoSample[1];
-		
+		fetchSampleNN(rmsObject, round(rmsSource->mSrcIndex), dstPtrL, dstPtrR);
 		rmsSource->mSrcIndex += rmsSource->mSrcStep;
+		dstPtrL += 1;
+		dstPtrR += 1;
 	}
 	
 	return result;
@@ -105,10 +118,10 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		mSrcList.bufferCount = 2;
 		mSrcList.buffer[0].mNumberChannels = 1;
 		mSrcList.buffer[0].mDataByteSize = 516*sizeof(float);
-		mSrcList.buffer[0].mData = mSrcSamplesL;
+		mSrcList.buffer[0].mData = mSrcSamplesL+4; // 2+2 padding
 		mSrcList.buffer[1].mNumberChannels = 1;
 		mSrcList.buffer[1].mDataByteSize = 516*sizeof(float);
-		mSrcList.buffer[1].mData = mSrcSamplesR;
+		mSrcList.buffer[1].mData = mSrcSamplesR+4; // 2+2 padding
 	}
 	
 	return self;

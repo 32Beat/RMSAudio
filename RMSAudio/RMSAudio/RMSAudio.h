@@ -11,6 +11,7 @@
 
 #import "RMSCallback.h"
 #import "RMSSource.h"
+#import "RMSVarispeed.h"
 
 #import "RMSAudioUnit.h"
 #import "RMSAudioUnitUtilities.h"

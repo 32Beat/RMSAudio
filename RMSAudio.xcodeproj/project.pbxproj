@@ -22,6 +22,7 @@
 		135720871D1BF8C7002FFE64 /* RMSOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357207B1D1BF8C7002FFE64 /* RMSOutput.m */; };
 		135720881D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357207E1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m */; };
 		1357208C1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357208B1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m */; };
+		139B04071D27D17700A754A6 /* RMSVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 139B04061D27D17700A754A6 /* RMSVarispeed.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,8 @@
 		1357207E1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitVarispeed.m; sourceTree = "<group>"; };
 		1357208A1D1BF95D002FFE64 /* RMSAudiounitUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudiounitUtilities.h; sourceTree = "<group>"; };
 		1357208B1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitUtilities.m; sourceTree = "<group>"; };
+		139B04051D27D17700A754A6 /* RMSVarispeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSVarispeed.h; sourceTree = "<group>"; };
+		139B04061D27D17700A754A6 /* RMSVarispeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSVarispeed.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +145,7 @@
 		1357206D1D1BF8C7002FFE64 /* RMSSourceTypes */ = {
 			isa = PBXGroup;
 			children = (
+				139B04041D27D17700A754A6 /* RMSVarispeed */,
 				1357206E1D1BF8C7002FFE64 /* RMSAudioUnit */,
 				1357207F1D1BF8C7002FFE64 /* RMSFilter */,
 				135720801D1BF8C7002FFE64 /* RMSMonitor */,
@@ -222,6 +226,15 @@
 			path = RMSAudioUnitUtilities;
 			sourceTree = "<group>";
 		};
+		139B04041D27D17700A754A6 /* RMSVarispeed */ = {
+			isa = PBXGroup;
+			children = (
+				139B04051D27D17700A754A6 /* RMSVarispeed.h */,
+				139B04061D27D17700A754A6 /* RMSVarispeed.m */,
+			);
+			path = RMSVarispeed;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -297,6 +310,7 @@
 				135720331D1BEF22002FFE64 /* Document.m in Sources */,
 				135720551D1BF63A002FFE64 /* RMSUtilities.m in Sources */,
 				135720871D1BF8C7002FFE64 /* RMSOutput.m in Sources */,
+				139B04071D27D17700A754A6 /* RMSVarispeed.m in Sources */,
 				135720301D1BEF22002FFE64 /* main.m in Sources */,
 				135720851D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.m in Sources */,
 				135720841D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.m in Sources */,

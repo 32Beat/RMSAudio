@@ -72,17 +72,12 @@
 		mReportTimer = [NSTimer timerWithTimeInterval:2.0
 		target:self selector:@selector(reportRenderTime:) userInfo:nil repeats:YES];
 		
-		// add tolerance to reduced system strain
+		// add tolerance to reduce system strain
 		[mReportTimer setTolerance:.1];
 		
 		// add to runloop
 		[[NSRunLoop currentRunLoop] addTimer:mReportTimer
         forMode:NSRunLoopCommonModes];
-		
-		/*
-			Note that a scheduledTimer will only run in default runloopmode,
-			which means it doesn't fire during tracking or modal panels, etc...
-		*/
 	}
 	
 }
@@ -152,7 +147,8 @@
 	{
 		if (source.sampleRate != self.audioOutput.sampleRate)
 		{
-			source = [RMSAudioUnitVarispeed instanceWithSource:source];
+			source = [RMSVarispeed instanceWithSource:source];
+			//source = [RMSAudioUnitVarispeed instanceWithSource:source];
 		}
 	}
 		

@@ -36,7 +36,8 @@ RMSTimingInfo;
 @interface RMSOutput ()
 {
 	RMSTimingInfo mTimingInfo;
-	RMSCallbackInfo mCallbackInfo;
+	
+	BOOL mShouldChangeSampleRate;
 }
 @end
 
@@ -103,6 +104,8 @@ static OSStatus notifyCallback(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 /*
 	outputCallback
 	--------------
@@ -112,6 +115,10 @@ static OSStatus notifyCallback(
 	to the internal CallbackInfo struct which is used by the RMS code. 
 	It then calls RunRMSSource on self, which runs the renderCallback below
 	and possible attachments like filters and monitors.
+	
+	The actual renderCallback for this RMSSource overwrites the default 
+	callback for an RMSAudioUnit which would call AudioUnitRender again, 
+	creating an infinite loop.
 */
 static OSStatus outputCallback(
 	void *							refCon,
@@ -121,19 +128,12 @@ static OSStatus outputCallback(
 	UInt32							frameCount,
 	AudioBufferList * __nullable	bufferListPtr)
 {
-	// get the RMSSource object
-	__unsafe_unretained RMSOutput *rmsObject =
-	(__bridge __unsafe_unretained RMSOutput *)refCon;
-
-	RMSCallbackInfo *infoPtr = &rmsObject->mCallbackInfo;
+	RMSCallbackInfo info;
+	info.frameIndex = timeStampPtr->mSampleTime;
+	info.frameCount = frameCount;
+	info.bufferListPtr = bufferListPtr;
 	
-	infoPtr->frameCount = frameCount;
-	infoPtr->bufferListPtr = bufferListPtr;
-	
-	OSStatus result = RunRMSSource(refCon, infoPtr);
-	
-	infoPtr->sliceIndex += 1;
-	infoPtr->frameIndex += frameCount;
+	OSStatus result = RunRMSSource(refCon, &info);
 	
 	return result;
 }
@@ -174,7 +174,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 			A device samplerate change is typically destructive, 
 			produce silence + error until the management thread 
 			has had a chance to incorporate the change.
-		*/
+		*/		
 		return paramErr;
 	}
 	
@@ -392,6 +392,18 @@ AudioUnitElement	inElement)
 {
 	[mSource setSampleRate:sampleRate];
 	[super setSampleRate:sampleRate];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setInputSampleRate:(Float64)sampleRate
+{
+	Float64 srcRate = [self inputScopeSampleRate];
+	if (srcRate != sampleRate)
+	{
+		[mSource setSampleRate:sampleRate];
+		[super setInputSampleRate:sampleRate];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

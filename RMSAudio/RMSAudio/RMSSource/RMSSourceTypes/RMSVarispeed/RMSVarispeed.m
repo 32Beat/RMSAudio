@@ -33,6 +33,43 @@
 @implementation RMSVarispeed
 ////////////////////////////////////////////////////////////////////////////////
 
+static OSStatus RefreshBuffer(void *rmsObject, UInt64 index)
+{
+	OSStatus result = noErr;
+
+	__unsafe_unretained RMSVarispeed *rmsSource = \
+	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
+	
+	rmsSource->mSrcSamplesL[0] = rmsSource->mSrcSamplesL[512];
+	rmsSource->mSrcSamplesL[1] = rmsSource->mSrcSamplesL[513];
+	rmsSource->mSrcSamplesL[2] = rmsSource->mSrcSamplesL[514];
+	rmsSource->mSrcSamplesL[3] = rmsSource->mSrcSamplesL[515];
+
+	rmsSource->mSrcSamplesR[0] = rmsSource->mSrcSamplesR[512];
+	rmsSource->mSrcSamplesR[1] = rmsSource->mSrcSamplesR[513];
+	rmsSource->mSrcSamplesR[2] = rmsSource->mSrcSamplesR[514];
+	rmsSource->mSrcSamplesR[3] = rmsSource->mSrcSamplesR[515];
+	
+	RMSCallbackInfo info;
+	info.frameIndex = index&(~511);
+	info.frameCount = 512;
+	info.bufferListPtr = (AudioBufferList *)&rmsSource->mSrcList;
+
+	rmsSource->mSrcList.buffer[0].mData = &rmsSource->mSrcSamplesL[4]; // 2+2 padding
+	rmsSource->mSrcList.buffer[1].mData = &rmsSource->mSrcSamplesR[4]; // 2+2 padding
+	
+	result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
+	if (result == noErr)
+	{
+		rmsSource->mSrcListIndex = info.frameIndex;
+		rmsSource->mSrcListCount = info.frameCount;
+	}
+	
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 static OSStatus PrepareFetch(void *rmsObject, UInt64 index)
 {
 	OSStatus result = noErr;
@@ -42,30 +79,7 @@ static OSStatus PrepareFetch(void *rmsObject, UInt64 index)
 	
 	if (index >= rmsSource->mSrcListIndex+rmsSource->mSrcListCount)
 	{
-		rmsSource->mSrcSamplesL[0] = rmsSource->mSrcSamplesL[512];
-		rmsSource->mSrcSamplesL[1] = rmsSource->mSrcSamplesL[513];
-		rmsSource->mSrcSamplesL[2] = rmsSource->mSrcSamplesL[514];
-		rmsSource->mSrcSamplesL[3] = rmsSource->mSrcSamplesL[515];
-
-		rmsSource->mSrcSamplesR[0] = rmsSource->mSrcSamplesR[512];
-		rmsSource->mSrcSamplesR[1] = rmsSource->mSrcSamplesR[513];
-		rmsSource->mSrcSamplesR[2] = rmsSource->mSrcSamplesR[514];
-		rmsSource->mSrcSamplesR[3] = rmsSource->mSrcSamplesR[515];
-		
-		RMSCallbackInfo info;
-		info.frameIndex = index&(~511);
-		info.frameCount = 512;
-		info.bufferListPtr = (AudioBufferList *)&rmsSource->mSrcList;
-
-		rmsSource->mSrcList.buffer[0].mData = &rmsSource->mSrcSamplesL[4]; // 2+2 padding
-		rmsSource->mSrcList.buffer[1].mData = &rmsSource->mSrcSamplesR[4]; // 2+2 padding
-		
-		result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
-		if (result != noErr)
-		{}
-		
-		rmsSource->mSrcListIndex = info.frameIndex;
-		rmsSource->mSrcListCount = info.frameCount;
+		result = RefreshBuffer(rmsObject, index);
 	}
 	
 	return result;
@@ -85,12 +99,12 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 	Float64 srcIndex = rmsSource->mSrcIndex;
 	Float64 srcStep = rmsSource->mSrcStep;
-
+	Float64 m = 1.0/srcStep;
+	
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
 		Float64 L = 0.0;
 		Float64 R = 0.0;
-		Float64 s = 0.0;
 		
 		UInt64 index = srcIndex;
 
@@ -102,7 +116,6 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 			L += (1.0-x) * rmsSource->mSrcSamplesL[index&511];
 			R += (1.0-x) * rmsSource->mSrcSamplesR[index&511];
-			s += (1.0-x);
 			x -= 1.0;
 		}
 
@@ -116,7 +129,6 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 			L += rmsSource->mSrcSamplesL[index&511];
 			R += rmsSource->mSrcSamplesR[index&511];
-			s += 1.0;
 			x -= 1.0;
 		}
 
@@ -129,11 +141,10 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 			L += x * rmsSource->mSrcSamplesL[index&511];
 			R += x * rmsSource->mSrcSamplesR[index&511];
-			s += x;
 		}
 
-		dstPtrL[n] = L/s;
-		dstPtrR[n] = R/s;
+		dstPtrL[n] = m*L;
+		dstPtrR[n] = m*R;
 		
 		srcIndex += srcStep;
 	}

@@ -173,6 +173,38 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (Float64) inputScopeSampleRate
+{
+	// Get inputscope format for this->audiounit
+	AudioStreamBasicDescription streamFormat;
+	OSStatus result = [self getSourceFormat:&streamFormat];
+	if (result == noErr)
+	{ return streamFormat.mSampleRate; }
+	
+	return 0.0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setInputSampleRate:(Float64)sampleRate
+{
+	// Get inputscope format for this->audiounit
+	AudioStreamBasicDescription streamFormat;
+	OSStatus result = [self getSourceFormat:&streamFormat];
+	if (result == noErr)
+	{
+		// Check for actual change of sampleRate
+		if (streamFormat.mSampleRate != sampleRate)
+		{
+			// Set inputscope format for this->audiounit with new sampleRate
+			streamFormat.mSampleRate = sampleRate;
+			result = [self setSourceFormat:&streamFormat];
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (OSStatus) getSourceFormat:(AudioStreamBasicDescription *)streamInfoPtr
 {
 	OSStatus result = RMSAudioUnitGetInputScopeFormatAtIndex

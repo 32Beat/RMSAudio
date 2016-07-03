@@ -30,7 +30,6 @@
 
 typedef struct RMSCallbackInfo
 {
-	UInt64 				sliceIndex;
 	UInt64				frameIndex;
 	UInt32				frameCount;
 	AudioBufferList 	*bufferListPtr;
@@ -40,7 +39,8 @@ RMSCallbackInfo;
 typedef OSStatus (*RMSCallbackProcPtr)
 (void *objectPtr, const RMSCallbackInfo *info);
 
-OSStatus RunRMSCallback(void *objectPtr, const RMSCallbackInfo *prmPtr);
+OSStatus RunRMSCallback
+(void *objectPtr, const RMSCallbackInfo *info);
 
 // macro for condensed, unmanaged access to the RMSCallback object
 // for use by the audiothread

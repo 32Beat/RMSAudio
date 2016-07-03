@@ -52,9 +52,14 @@
 
 - (OSStatus) startAudioUnit
 {
-	OSStatus result = AudioOutputUnitStart(mAudioUnit);
-	if (result == noErr)
-	{ mAudioUnitIsRunning = YES; }
+	OSStatus result = noErr;
+	
+	if (mAudioUnitIsRunning == NO)
+	{
+		result = AudioOutputUnitStart(mAudioUnit);
+		if (result == noErr)
+		{ mAudioUnitIsRunning = YES; }
+	}
 	
 	return result;
 }
@@ -63,9 +68,14 @@
 
 - (OSStatus) stopAudioUnit
 {
-	OSStatus result = AudioOutputUnitStop(mAudioUnit);
-	if (result == noErr)
-	{ mAudioUnitIsRunning = NO; }
+	OSStatus result = noErr;
+	
+	if (mAudioUnitIsRunning == YES)
+	{
+		result = AudioOutputUnitStop(mAudioUnit);
+		if (result == noErr)
+		{ mAudioUnitIsRunning = NO; }
+	}
 	
 	return result;
 }

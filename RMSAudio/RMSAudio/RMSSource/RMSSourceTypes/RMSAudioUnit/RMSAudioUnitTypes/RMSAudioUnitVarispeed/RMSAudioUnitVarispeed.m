@@ -15,7 +15,6 @@
 
 @interface RMSAudioUnitVarispeed ()
 {
-	RMSCallbackInfo mInfo;
 }
 @end
 
@@ -52,14 +51,12 @@ static OSStatus renderCallback(
 	__unsafe_unretained RMSAudioUnitVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSAudioUnitVarispeed *)inRefCon;
 
-	RMSCallbackInfo *infoPtr = &rmsSource->mInfo;
-	infoPtr->frameIndex = timeStamp->mSampleTime;
-	infoPtr->frameCount = frameCount;
-	infoPtr->bufferListPtr = bufferList;
-	
-	OSStatus result = noErr;
-	
-	result = RunRMSSource((__bridge void *)rmsSource->mSource, infoPtr);
+	RMSCallbackInfo info;
+	info.frameIndex = timeStamp->mSampleTime;
+	info.frameCount = frameCount;
+	info.bufferListPtr = bufferList;
+		
+	OSStatus result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
 	
 	return result;
 }
@@ -127,27 +124,6 @@ static OSStatus renderCallback(
 		[self setSourceFormat:&streamFormat];
 		//[self setInputSampleRate:[source sampleRate]];
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (OSStatus) setInputSampleRate:(Float64)sampleRate
-{
-	// Get inputscope format for this->audiounit
-	AudioStreamBasicDescription streamFormat;
-	OSStatus result = [self getSourceFormat:&streamFormat];
-	if (result == noErr)
-	{
-		// Check for actual change of sampleRate
-		if (streamFormat.mSampleRate != sampleRate)
-		{
-			// Set inputscope format for this->audiounit with new sampleRate
-			streamFormat.mSampleRate = sampleRate;
-			result = [self setSourceFormat:&streamFormat];
-		}
-	}
-	
-	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

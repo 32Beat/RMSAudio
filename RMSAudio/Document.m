@@ -43,6 +43,27 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void) dealloc
+{
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) close
+{
+	[mReportTimer invalidate];
+	mReportTimer = nil;
+
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+	
+	[super close];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (void) startRenderTimingReports
 {
 	if (mReportTimer == nil)
@@ -51,17 +72,12 @@
 		mReportTimer = [NSTimer timerWithTimeInterval:2.0
 		target:self selector:@selector(reportRenderTime:) userInfo:nil repeats:YES];
 		
-		// add tolerance to reduced system strain
+		// add tolerance to reduce system strain
 		[mReportTimer setTolerance:.1];
 		
 		// add to runloop
 		[[NSRunLoop currentRunLoop] addTimer:mReportTimer
         forMode:NSRunLoopCommonModes];
-		
-		/*
-			Note that a scheduledTimer will only run in default runloopmode,
-			which means it doesn't fire during tracking or modal panels, etc...
-		*/
 	}
 	
 }
@@ -74,10 +90,16 @@
 	double maxTime = [_audioOutput maximumRenderTime];
 	[_audioOutput resetTimingInfo];
 	
-	NSString *str = [NSString stringWithFormat:
-	@"avg time = %lfs \rmax time = %lfs \r", avgTime, maxTime];
-	
-	[self.logView.textStorage.mutableString insertString:str atIndex:0];
+	[self logText:[NSString stringWithFormat:@"avg rendertime = %lfs", avgTime]];
+	[self logText:[NSString stringWithFormat:@"max rendertime = %lfs", maxTime]];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) logText:(NSString *)text
+{
+	[self.logView.textStorage.mutableString insertString:@"\r" atIndex:0];
+	[self.logView.textStorage.mutableString insertString:text atIndex:0];
 	[self.logView setNeedsDisplay:YES];
 }
 
@@ -118,12 +140,15 @@
 
 - (void) startFileWithURL:(NSURL *)url
 {
+	[self logText:[NSString stringWithFormat:@"Start file: %@", url.lastPathComponent]];
+	
 	RMSSource *source = [RMSAudioUnitFilePlayer instanceWithURL:url];
 	if (source != nil)
 	{
 		if (source.sampleRate != self.audioOutput.sampleRate)
 		{
-			source = [RMSAudioUnitVarispeed instanceWithSource:source];
+			source = [RMSVarispeed instanceWithSource:source];
+			//source = [RMSAudioUnitVarispeed instanceWithSource:source];
 		}
 	}
 		

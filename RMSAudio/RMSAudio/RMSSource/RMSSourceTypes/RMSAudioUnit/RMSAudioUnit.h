@@ -28,4 +28,8 @@
 - (OSStatus) initializeAudioUnit;
 - (OSStatus) uninitializeAudioUnit;
 
+- (Float64) inputScopeSampleRate;
+//- (Float64) inputScopeSampleRateAtIndex:(UInt32)busIndex;
+- (void) setInputSampleRate:(Float64)sampleRate;
+
 @end

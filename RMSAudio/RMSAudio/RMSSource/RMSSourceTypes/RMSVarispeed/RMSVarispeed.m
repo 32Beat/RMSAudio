@@ -40,6 +40,7 @@ static OSStatus RefreshBuffer(void *rmsObject, UInt64 index)
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 	
+	// move final 4 samples to start of buffer
 	rmsSource->mSrcSamplesL[0] = rmsSource->mSrcSamplesL[512];
 	rmsSource->mSrcSamplesL[1] = rmsSource->mSrcSamplesL[513];
 	rmsSource->mSrcSamplesL[2] = rmsSource->mSrcSamplesL[514];
@@ -49,15 +50,19 @@ static OSStatus RefreshBuffer(void *rmsObject, UInt64 index)
 	rmsSource->mSrcSamplesR[1] = rmsSource->mSrcSamplesR[513];
 	rmsSource->mSrcSamplesR[2] = rmsSource->mSrcSamplesR[514];
 	rmsSource->mSrcSamplesR[3] = rmsSource->mSrcSamplesR[515];
+
+	// ensure AudioBufferList pointers are valid
+	// (may have changed in audio unit calls)
+	rmsSource->mSrcList.buffer[0].mData = &rmsSource->mSrcSamplesL[4]; // 2+2 padding
+	rmsSource->mSrcList.buffer[1].mData = &rmsSource->mSrcSamplesR[4]; // 2+2 padding
 	
+	// create RMSCallbackInfo
 	RMSCallbackInfo info;
 	info.frameIndex = index&(~511);
 	info.frameCount = 512;
 	info.bufferListPtr = (AudioBufferList *)&rmsSource->mSrcList;
 
-	rmsSource->mSrcList.buffer[0].mData = &rmsSource->mSrcSamplesL[4]; // 2+2 padding
-	rmsSource->mSrcList.buffer[1].mData = &rmsSource->mSrcSamplesR[4]; // 2+2 padding
-	
+	// fetch source samples
 	result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
 	if (result == noErr)
 	{
@@ -69,6 +74,11 @@ static OSStatus RefreshBuffer(void *rmsObject, UInt64 index)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+	PrepareFetch
+	------------
+	Test whether a source sample at index is available
+*/
 
 static OSStatus PrepareFetch(void *rmsObject, UInt64 index)
 {
@@ -86,7 +96,97 @@ static OSStatus PrepareFetch(void *rmsObject, UInt64 index)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark Interpolation
+////////////////////////////////////////////////////////////////////////////////
 
+
+static inline double Bezier(Float32 *srcPtr, Float64 t)
+{
+	double P0 = srcPtr[0];
+	double P1 = srcPtr[1];
+	double P2 = srcPtr[2];
+	double P3 = srcPtr[3];
+	double C1 = P1+0.25*(P2-P0);
+	double C2 = P2-0.25*(P3-P1);
+	
+	P1 += t * (C1-P1);
+	C1 += t * (C2-C1);
+	C2 += t * (P2-C2);
+
+	P1 += t * (C1-P1);
+	C1 += t * (C2-C1);
+
+	P1 += t * (C1-P1);
+	
+	return P1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+static void interpolate(
+AudioBufferList *srcList, double srcIndex,
+AudioBufferList *dstList, UInt64 dstIndex, UInt32 bufferCount)
+{
+	SInt64 index = srcIndex;
+	index &= 511;
+	index -= 2; // offset for srcList
+	index -= 1; // offset for Bezier
+
+	double t = srcIndex - trunc(srcIndex);
+	
+	for (UInt32 n=0; n!=bufferCount; n++)
+	{
+		Float32 *srcPtr = srcList->mBuffers[n].mData;
+		Float32 *dstPtr = dstList->mBuffers[n].mData;
+		
+		dstPtr[dstIndex] = Bezier(&srcPtr[index], t);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+	InterpolateSource
+	-----------------
+	Upsampling algorithm (CRB interpolation)
+*/
+
+static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus result = noErr;
+
+	__unsafe_unretained RMSVarispeed *rmsSource = \
+	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
+
+	Float64 srcIndex = rmsSource->mSrcIndex;
+	Float64 srcStep = rmsSource->mSrcStep;
+	
+	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
+	{
+		UInt64 index = srcIndex;
+		
+		result = PrepareFetch(rmsObject, index);
+		if (result != noErr) return result;
+		
+		interpolate((AudioBufferList *)&rmsSource->mSrcList, srcIndex, infoPtr->bufferListPtr, n, 2);
+		
+		srcIndex += srcStep;
+	}
+	
+	rmsSource->mSrcIndex = srcIndex;
+	
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark Decimation
+////////////////////////////////////////////////////////////////////////////////
+/*
+	DecimateSource
+	--------------
+	Downsampling algorithm (weighted average)
+*/
 static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
@@ -155,78 +255,8 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-static inline double Bezier(Float32 *srcPtr, Float64 t)
-{
-	double P0 = srcPtr[0];
-	double P1 = srcPtr[1];
-	double P2 = srcPtr[2];
-	double P3 = srcPtr[3];
-	double C1 = P1+0.25*(P2-P0);
-	double C2 = P2-0.25*(P3-P1);
-	
-	P1 += t * (C1-P1);
-	C1 += t * (C2-C1);
-	C2 += t * (P2-C2);
-
-	P1 += t * (C1-P1);
-	C1 += t * (C2-C1);
-
-	P1 += t * (C1-P1);
-	
-	return P1;
-}
-
+#pragma mark
 ////////////////////////////////////////////////////////////////////////////////
-
-static void interpolate(
-AudioBufferList *srcList, double srcIndex,
-AudioBufferList *dstList, UInt64 dstIndex, UInt32 bufferCount)
-{
-	SInt64 index = srcIndex;
-	index &= 511;
-	index -= 2; // offset for srcList
-	index -= 1; // offset for Bezier
-
-	double t = srcIndex - trunc(srcIndex);
-	
-	for (UInt32 n=0; n!=bufferCount; n++)
-	{
-		Float32 *srcPtr = srcList->mBuffers[n].mData;
-		Float32 *dstPtr = dstList->mBuffers[n].mData;
-		
-		dstPtr[dstIndex] = Bezier(&srcPtr[index], t);
-	}
-}
-
-static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
-{
-	OSStatus result = noErr;
-
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
-
-	Float64 srcIndex = rmsSource->mSrcIndex;
-	Float64 srcStep = rmsSource->mSrcStep;
-	
-	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
-	{
-		UInt64 index = srcIndex;
-		
-		result = PrepareFetch(rmsObject, index);
-		if (result != noErr) return result;
-		
-		interpolate((AudioBufferList *)&rmsSource->mSrcList, srcIndex, infoPtr->bufferListPtr, n, 2);
-		
-		srcIndex += srcStep;
-	}
-	
-	rmsSource->mSrcIndex = srcIndex;
-	
-	return result;
-}
-
 
 static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
@@ -308,7 +338,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	double dstRate = [self sampleRate];
 	
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
-	if ((mSrcIndex == 0.0) && (mSrcStep < 1.0))
+	if ((mSrcIndex < mSrcStep) && (mSrcStep < 1.0))
 	{
 		mSrcIndex += 0.5 * mSrcStep;
 	}

@@ -90,8 +90,8 @@
 	double maxTime = [_audioOutput maximumRenderTime];
 	[_audioOutput resetTimingInfo];
 	
-	[self logText:[NSString stringWithFormat:@"avg remdertime = %lfs", avgTime]];
-	[self logText:[NSString stringWithFormat:@"max remdertime = %lfs", maxTime]];
+	[self logText:[NSString stringWithFormat:@"avg rendertime = %lfs", avgTime]];
+	[self logText:[NSString stringWithFormat:@"max rendertime = %lfs", maxTime]];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,9 +145,9 @@
 	RMSSource *source = [RMSAudioUnitFilePlayer instanceWithURL:url];
 	if (source != nil)
 	{
-		//if (source.sampleRate != self.audioOutput.sampleRate)
+		if (source.sampleRate != self.audioOutput.sampleRate)
 		{
-			source = [RMSVarispeed instanceWithSource:source];
+			//source = [RMSVarispeed instanceWithSource:source];
 			//source = [RMSAudioUnitVarispeed instanceWithSource:source];
 		}
 	}

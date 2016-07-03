@@ -147,7 +147,7 @@
 	{
 		if (source.sampleRate != self.audioOutput.sampleRate)
 		{
-			//source = [RMSVarispeed instanceWithSource:source];
+			source = [RMSVarispeed instanceWithSource:source];
 			//source = [RMSAudioUnitVarispeed instanceWithSource:source];
 		}
 	}

@@ -200,42 +200,42 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	Float64 srcIndex = rmsSource->mSrcIndex;
 	Float64 srcStep = rmsSource->mSrcStep;
 	Float64 m = 1.0/srcStep;
+
+	Float64 x = srcIndex - trunc(srcIndex);
+	UInt64 index = srcIndex;
 	
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
 		Float64 L = 0.0;
 		Float64 R = 0.0;
 		
-		UInt64 index = srcIndex;
-
-		Float64 x = srcIndex - trunc(srcIndex);
 		if (x > 0.0)
 		{
-			result = PrepareFetch(rmsObject, index);
-			if (result != noErr) return result;
+			//result = PrepareFetch(rmsObject, index);
+			//if (result != noErr) return result;
 
 			L += (1.0-x) * rmsSource->mSrcSamplesL[index&511];
 			R += (1.0-x) * rmsSource->mSrcSamplesR[index&511];
 			x -= 1.0;
+			
+			index += 1;
 		}
 
 		x += srcStep;
 		while (x >= 1.0)
 		{
-			index += 1;
-			
 			result = PrepareFetch(rmsObject, index);
 			if (result != noErr) return result;
 
 			L += rmsSource->mSrcSamplesL[index&511];
 			R += rmsSource->mSrcSamplesR[index&511];
 			x -= 1.0;
+
+			index += 1;
 		}
 
 		if (x > 0.0)
 		{
-			index += 1;
-			
 			result = PrepareFetch(rmsObject, index);
 			if (result != noErr) return result;
 
@@ -249,7 +249,7 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		srcIndex += srcStep;
 	}
 
-	rmsSource->mSrcIndex = srcIndex;
+	rmsSource->mSrcIndex = srcIndex;// + srcStep * infoPtr->frameCount;
 	
 	return noErr;
 }

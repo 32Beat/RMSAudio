@@ -1,0 +1,34 @@
+////////////////////////////////////////////////////////////////////////////////
+/*
+	RMSBezierInterpolator
+	
+	Created by 32BT on 15/11/15.
+	Copyright © 2015 32BT. All rights reserved.
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef RMSBezierInterpolator_h
+#define RMSBezierInterpolator_h
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef struct rmscatmullrom_t
+{
+	double P0;
+	double P1;
+	double C1;
+	double C2;
+	double P2;
+	double P3;
+}
+rmscatmullrom_t;
+
+void RMSCatmullRomUpdate(rmscatmullrom_t *ptr, double S);
+double RMSCatmullRomFetch(rmscatmullrom_t *ptr, double t);
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif
+
+
+

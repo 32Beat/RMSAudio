@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1352B8CE1D2B68ED00A26252 /* RMSBezierInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 1352B8CD1D2B68ED00A26252 /* RMSBezierInterpolator.m */; };
 		1357202D1D1BEF22002FFE64 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357202C1D1BEF22002FFE64 /* AppDelegate.m */; };
 		135720301D1BEF22002FFE64 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357202F1D1BEF22002FFE64 /* main.m */; };
 		135720331D1BEF22002FFE64 /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720321D1BEF22002FFE64 /* Document.m */; };
@@ -26,6 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1352B8CC1D2B68ED00A26252 /* RMSBezierInterpolator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSBezierInterpolator.h; sourceTree = "<group>"; };
+		1352B8CD1D2B68ED00A26252 /* RMSBezierInterpolator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSBezierInterpolator.m; sourceTree = "<group>"; };
 		135720281D1BEF22002FFE64 /* RMSAudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RMSAudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1357202B1D1BEF22002FFE64 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1357202C1D1BEF22002FFE64 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -70,6 +73,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1352B8CB1D2B68ED00A26252 /* RMSInterpolators */ = {
+			isa = PBXGroup;
+			children = (
+				1352B8CC1D2B68ED00A26252 /* RMSBezierInterpolator.h */,
+				1352B8CD1D2B68ED00A26252 /* RMSBezierInterpolator.m */,
+			);
+			path = RMSInterpolators;
+			sourceTree = "<group>";
+		};
 		1357201F1D1BEF22002FFE64 = {
 			isa = PBXGroup;
 			children = (
@@ -124,6 +136,7 @@
 		135720521D1BF52A002FFE64 /* RMSUtilities */ = {
 			isa = PBXGroup;
 			children = (
+				1352B8CB1D2B68ED00A26252 /* RMSInterpolators */,
 				135720531D1BF63A002FFE64 /* RMSUtilities.h */,
 				135720541D1BF63A002FFE64 /* RMSUtilities.m */,
 			);
@@ -317,6 +330,7 @@
 				135720821D1BF8C7002FFE64 /* RMSSource.m in Sources */,
 				135720881D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m in Sources */,
 				1357202D1D1BEF22002FFE64 /* AppDelegate.m in Sources */,
+				1352B8CE1D2B68ED00A26252 /* RMSBezierInterpolator.m in Sources */,
 				135720811D1BF8C7002FFE64 /* RMSCallback.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

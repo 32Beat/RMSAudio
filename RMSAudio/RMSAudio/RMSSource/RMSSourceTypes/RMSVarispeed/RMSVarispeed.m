@@ -10,6 +10,38 @@
 
 #import "RMSVarispeed.h"
 #import "RMSUtilities.h"
+#import "RMSBezierInterpolator.h"
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef struct RMSStereoInterpolator
+{
+	rmscatmullrom_t L;
+	rmscatmullrom_t R;
+}
+RMSStereoInterpolator;
+
+static void RMSStereoInterpolatorUpdate
+(RMSStereoInterpolator *ptr, RMSStereoBufferList *src, UInt32 index)
+{
+	Float32 *srcPtrL = src->buffer[0].mData;
+	RMSCatmullRomUpdate(&ptr->L, srcPtrL[index]);
+
+	Float32 *srcPtrR = src->buffer[1].mData;
+	RMSCatmullRomUpdate(&ptr->R, srcPtrR[index]);
+}
+
+static void RMSStereoInterpolatorFetch
+(RMSStereoInterpolator *ptr, double t, AudioBufferList *dst, UInt32 index)
+{
+	Float32 *dstPtrL = dst->mBuffers[0].mData;
+	dstPtrL[index] = RMSCatmullRomFetch(&ptr->L, t);
+
+	Float32 *dstPtrR = dst->mBuffers[1].mData;
+	dstPtrR[index] = RMSCatmullRomFetch(&ptr->R, t);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -18,11 +50,13 @@
 	Float64 mSrcIndex;
 	Float64 mSrcStep;
 	
+	RMSStereoInterpolator mInterpolator;
+	
 	UInt64 mSrcListIndex;
 	UInt64 mSrcListCount;
 	RMSStereoBufferList mSrcList;
-	Float32 mSrcSamplesL[516];
-	Float32 mSrcSamplesR[516];
+	Float32 mSrcSamplesL[512];
+	Float32 mSrcSamplesR[512];
 }
 @end
 
@@ -40,21 +74,10 @@ static OSStatus RefreshBuffer(void *rmsObject, UInt64 index)
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 	
-	// move final 4 samples to start of buffer
-	rmsSource->mSrcSamplesL[0] = rmsSource->mSrcSamplesL[512];
-	rmsSource->mSrcSamplesL[1] = rmsSource->mSrcSamplesL[513];
-	rmsSource->mSrcSamplesL[2] = rmsSource->mSrcSamplesL[514];
-	rmsSource->mSrcSamplesL[3] = rmsSource->mSrcSamplesL[515];
-
-	rmsSource->mSrcSamplesR[0] = rmsSource->mSrcSamplesR[512];
-	rmsSource->mSrcSamplesR[1] = rmsSource->mSrcSamplesR[513];
-	rmsSource->mSrcSamplesR[2] = rmsSource->mSrcSamplesR[514];
-	rmsSource->mSrcSamplesR[3] = rmsSource->mSrcSamplesR[515];
-
 	// ensure AudioBufferList pointers are valid
 	// (may have changed in audio unit calls)
-	rmsSource->mSrcList.buffer[0].mData = &rmsSource->mSrcSamplesL[4]; // 2+2 padding
-	rmsSource->mSrcList.buffer[1].mData = &rmsSource->mSrcSamplesR[4]; // 2+2 padding
+	rmsSource->mSrcList.buffer[0].mData = &rmsSource->mSrcSamplesL[0];
+	rmsSource->mSrcList.buffer[1].mData = &rmsSource->mSrcSamplesR[0];
 	
 	// create RMSCallbackInfo
 	RMSCallbackInfo info;
@@ -100,15 +123,15 @@ static OSStatus PrepareFetch(void *rmsObject, UInt64 index)
 #pragma mark Interpolation
 ////////////////////////////////////////////////////////////////////////////////
 
-
-static inline double Bezier(Float32 *srcPtr, Float64 t)
+static inline Float32 Bezier(Float32 *srcPtr, Float32 t)
 {
-	double P0 = srcPtr[0];
-	double P1 = srcPtr[1];
-	double P2 = srcPtr[2];
-	double P3 = srcPtr[3];
-	double C1 = P1+0.25*(P2-P0);
-	double C2 = P2-0.25*(P3-P1);
+	Float32 P0 = srcPtr[0];
+	Float32 P1 = srcPtr[1];
+	Float32 P2 = srcPtr[2];
+	Float32 P3 = srcPtr[3];
+
+	Float32 C1 = P1+0.25*(P2-P0);
+	Float32 C2 = P2-0.25*(P3-P1);
 	
 	P1 += t * (C1-P1);
 	C1 += t * (C2-C1);
@@ -118,7 +141,7 @@ static inline double Bezier(Float32 *srcPtr, Float64 t)
 	C1 += t * (C2-C1);
 
 	P1 += t * (C1-P1);
-	
+
 	return P1;
 }
 
@@ -158,18 +181,61 @@ static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPt
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 
+	// prime interpolator with first 3 samples
+	if (rmsSource->mSrcListCount == 0)
+	{
+		result = RefreshBuffer(rmsObject, 0);
+		if (result != noErr) return result;
+
+		RMSStereoInterpolatorUpdate
+		(&rmsSource->mInterpolator, &rmsSource->mSrcList, 0);
+		RMSStereoInterpolatorUpdate
+		(&rmsSource->mInterpolator, &rmsSource->mSrcList, 1);
+		RMSStereoInterpolatorUpdate
+		(&rmsSource->mInterpolator, &rmsSource->mSrcList, 2);
+	}
+
+
 	Float64 srcIndex = rmsSource->mSrcIndex;
 	Float64 srcStep = rmsSource->mSrcStep;
 	
+	Float64 t = srcIndex - trunc(srcIndex);
+	UInt64 index = srcIndex;
+	
+	
+	index += 2;
+	
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
-		UInt64 index = srcIndex;
+		// test if next src sample is needed
+		if (t >= 1.0)
+		{
+			// update src index
+			index += 1;
+			
+			// test if buffer needs refresh
+			if ((index & 511) == 0)
+			{
+				result = RefreshBuffer(rmsObject, index);
+				if (result != noErr) return result;
+			}
+			
+			// add new sample to interpolator
+			RMSStereoInterpolatorUpdate
+			(&rmsSource->mInterpolator, &rmsSource->mSrcList, index&511);
+			
+			// reset fraction
+			t -= 1.0;
+		}
 		
-		result = PrepareFetch(rmsObject, index);
-		if (result != noErr) return result;
+		// fetch interpolated value
+		RMSStereoInterpolatorFetch
+		(&rmsSource->mInterpolator, t, infoPtr->bufferListPtr, n);
 		
-		interpolate((AudioBufferList *)&rmsSource->mSrcList, srcIndex, infoPtr->bufferListPtr, n, 2);
+		// increase fraction by 1 src sample
+		t += srcStep;
 		
+		// TODO: use int index, and fraction?
 		srcIndex += srcStep;
 	}
 	

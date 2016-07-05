@@ -207,13 +207,13 @@ static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPt
 	
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
-		// test if next src sample is needed
+		// test if next src sample is required
 		if (t >= 1.0)
 		{
 			// update src index
 			index += 1;
 			
-			// test if buffer needs refresh
+			// test if next buffer is required
 			if ((index & 511) == 0)
 			{
 				result = RefreshBuffer(rmsObject, index);
@@ -275,18 +275,17 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		Float64 L = 0.0;
 		Float64 R = 0.0;
 		
+		// test for remainder from previous cycle
+		// can only be true after a buffer refresh and with valid index
 		if (x > 0.0)
 		{
-			//result = PrepareFetch(rmsObject, index);
-			//if (result != noErr) return result;
-
 			L += (1.0-x) * rmsSource->mSrcSamplesL[index&511];
 			R += (1.0-x) * rmsSource->mSrcSamplesR[index&511];
 			x -= 1.0;
 			
 			index += 1;
 		}
-
+		
 		x += srcStep;
 		while (x >= 1.0)
 		{
@@ -299,7 +298,7 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 			index += 1;
 		}
-
+		
 		if (x > 0.0)
 		{
 			result = PrepareFetch(rmsObject, index);

@@ -47,6 +47,9 @@ static void RMSStereoInterpolatorFetch
 
 @interface RMSVarispeed ()
 {
+	UInt64 mIndex;
+	Float64 mT;
+
 	Float64 mSrcIndex;
 	Float64 mSrcStep;
 	
@@ -122,52 +125,6 @@ static OSStatus PrepareFetch(void *rmsObject, UInt64 index)
 #pragma mark
 #pragma mark Interpolation
 ////////////////////////////////////////////////////////////////////////////////
-
-static inline Float32 Bezier(Float32 *srcPtr, Float32 t)
-{
-	Float32 P0 = srcPtr[0];
-	Float32 P1 = srcPtr[1];
-	Float32 P2 = srcPtr[2];
-	Float32 P3 = srcPtr[3];
-
-	Float32 C1 = P1+0.25*(P2-P0);
-	Float32 C2 = P2-0.25*(P3-P1);
-	
-	P1 += t * (C1-P1);
-	C1 += t * (C2-C1);
-	C2 += t * (P2-C2);
-
-	P1 += t * (C1-P1);
-	C1 += t * (C2-C1);
-
-	P1 += t * (C1-P1);
-
-	return P1;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-static void interpolate(
-AudioBufferList *srcList, double srcIndex,
-AudioBufferList *dstList, UInt64 dstIndex, UInt32 bufferCount)
-{
-	SInt64 index = srcIndex;
-	index &= 511;
-	index -= 2; // offset for srcList
-	index -= 1; // offset for Bezier
-
-	double t = srcIndex - trunc(srcIndex);
-	
-	for (UInt32 n=0; n!=bufferCount; n++)
-	{
-		Float32 *srcPtr = srcList->mBuffers[n].mData;
-		Float32 *dstPtr = dstList->mBuffers[n].mData;
-		
-		dstPtr[dstIndex] = Bezier(&srcPtr[index], t);
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
 /*
 	InterpolateSource
 	-----------------
@@ -181,30 +138,28 @@ static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPt
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 
-	// prime interpolator with first 3 samples
+	UInt64 index = rmsSource->mIndex;
+	Float64 t = rmsSource->mT;
+	Float64 srcStep = rmsSource->mSrcStep;
+
+	// test if buffer is empty 
 	if (rmsSource->mSrcListCount == 0)
 	{
+		// render source buffer
 		result = RefreshBuffer(rmsObject, 0);
 		if (result != noErr) return result;
 
+		// prime interpolator with first 3 samples
 		RMSStereoInterpolatorUpdate
 		(&rmsSource->mInterpolator, &rmsSource->mSrcList, 0);
 		RMSStereoInterpolatorUpdate
 		(&rmsSource->mInterpolator, &rmsSource->mSrcList, 1);
 		RMSStereoInterpolatorUpdate
 		(&rmsSource->mInterpolator, &rmsSource->mSrcList, 2);
+
+		index += 2;
 	}
 
-
-	Float64 srcIndex = rmsSource->mSrcIndex;
-	Float64 srcStep = rmsSource->mSrcStep;
-	
-	Float64 t = srcIndex - trunc(srcIndex);
-	UInt64 index = srcIndex;
-	
-	
-	index += 2;
-	
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
 		// test if next src sample is required
@@ -234,12 +189,10 @@ static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPt
 		
 		// increase fraction by 1 src sample
 		t += srcStep;
-		
-		// TODO: use int index, and fraction?
-		srcIndex += srcStep;
 	}
 	
-	rmsSource->mSrcIndex = srcIndex;
+	rmsSource->mIndex = index;
+	rmsSource->mT = t;
 	
 	return result;
 }
@@ -330,7 +283,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 	
-	if (rmsSource->mSrcStep < 1.0)
+	if (rmsSource->mSrcStep <= 1.0)
 	{
 		result = InterpolateSource(rmsObject, infoPtr);
 	}
@@ -365,10 +318,10 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		mSrcList.bufferCount = 2;
 		mSrcList.buffer[0].mNumberChannels = 1;
 		mSrcList.buffer[0].mDataByteSize = 512*sizeof(float);
-		mSrcList.buffer[0].mData = &mSrcSamplesL[4]; // 2+2 padding
+		mSrcList.buffer[0].mData = &mSrcSamplesL[0];
 		mSrcList.buffer[1].mNumberChannels = 1;
 		mSrcList.buffer[1].mDataByteSize = 512*sizeof(float);
-		mSrcList.buffer[1].mData = &mSrcSamplesR[4]; // 2+2 padding
+		mSrcList.buffer[1].mData = &mSrcSamplesR[0];
 	}
 	
 	return self;
@@ -405,7 +358,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
 	if ((mSrcIndex < mSrcStep) && (mSrcStep < 1.0))
 	{
-		mSrcIndex += 0.5 * mSrcStep;
+		mSrcIndex = 0.5 * mSrcStep;
 	}
 }
 

@@ -43,7 +43,8 @@ void RMSCatmullRomUpdate(rmscatmullrom_t *ptr, double S)
 	ptr->P3 = S;
 
 	ptr->C1 = ptr->P1 - (ptr->C2 - ptr->P1);
-	ptr->C2 = ptr->P2 - (ptr->P3 - ptr->P1)*(1.0/6.0);
+	ptr->C2 = ptr->P2 - (ptr->P3 - ptr->P1)*(5.0/24.0);
+	//(5.0/12.0) = good approximation of sinc2
 }
 
 ////////////////////////////////////////////////////////////////////////////////

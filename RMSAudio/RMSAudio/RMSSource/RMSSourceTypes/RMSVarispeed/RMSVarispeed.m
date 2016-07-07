@@ -16,8 +16,8 @@
 
 typedef struct RMSStereoInterpolator
 {
-	rmscatmullrom_t L;
-	rmscatmullrom_t R;
+	rmscrb_t L;
+	rmscrb_t R;
 }
 RMSStereoInterpolator;
 
@@ -25,20 +25,20 @@ static void RMSStereoInterpolatorUpdate
 (RMSStereoInterpolator *ptr, RMSStereoBufferList *src, UInt32 index)
 {
 	Float32 *srcPtrL = src->buffer[0].mData;
-	RMSCatmullRomUpdate(&ptr->L, srcPtrL[index]);
+	RMSResamplerWrite(&ptr->L, srcPtrL[index]);
 
 	Float32 *srcPtrR = src->buffer[1].mData;
-	RMSCatmullRomUpdate(&ptr->R, srcPtrR[index]);
+	RMSResamplerWrite(&ptr->R, srcPtrR[index]);
 }
 
 static void RMSStereoInterpolatorFetch
 (RMSStereoInterpolator *ptr, double t, AudioBufferList *dst, UInt32 index)
 {
 	Float32 *dstPtrL = dst->mBuffers[0].mData;
-	dstPtrL[index] = RMSCatmullRomFetch(&ptr->L, t);
+	dstPtrL[index] = RMSResamplerFetch(&ptr->L, t);
 
 	Float32 *dstPtrR = dst->mBuffers[1].mData;
-	dstPtrR[index] = RMSCatmullRomFetch(&ptr->R, t);
+	dstPtrR[index] = RMSResamplerFetch(&ptr->R, t);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,10 +47,8 @@ static void RMSStereoInterpolatorFetch
 
 @interface RMSVarispeed ()
 {
-	UInt64 mIndex;
-	Float64 mT;
-
-	Float64 mSrcIndex;
+	UInt64 mSrcIndex;
+	Float64 mSrcFraction;
 	Float64 mSrcStep;
 	
 	RMSStereoInterpolator mInterpolator;
@@ -138,9 +136,10 @@ static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPt
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 
-	UInt64 index = rmsSource->mIndex;
-	Float64 t = rmsSource->mT;
-	Float64 srcStep = rmsSource->mSrcStep;
+	// TODO: need better var naming
+	UInt64 srcIndex = rmsSource->mSrcIndex;
+	Float64 srcFraction = rmsSource->mSrcFraction;
+	const Float64 srcStep = rmsSource->mSrcStep;
 
 	// test if buffer is empty 
 	if (rmsSource->mSrcListCount == 0)
@@ -157,42 +156,42 @@ static OSStatus InterpolateSource(void *rmsObject, const RMSCallbackInfo *infoPt
 		RMSStereoInterpolatorUpdate
 		(&rmsSource->mInterpolator, &rmsSource->mSrcList, 2);
 
-		index += 2;
+		srcIndex += 2;
 	}
 
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
 		// test if next src sample is required
-		if (t >= 1.0)
+		if (srcFraction >= 1.0)
 		{
 			// update src index
-			index += 1;
+			srcIndex += 1;
 			
 			// test if next buffer is required
-			if ((index & 511) == 0)
+			if ((srcIndex & 511) == 0)
 			{
-				result = RefreshBuffer(rmsObject, index);
+				result = RefreshBuffer(rmsObject, srcIndex);
 				if (result != noErr) return result;
 			}
 			
 			// add new sample to interpolator
 			RMSStereoInterpolatorUpdate
-			(&rmsSource->mInterpolator, &rmsSource->mSrcList, index&511);
+			(&rmsSource->mInterpolator, &rmsSource->mSrcList, srcIndex&511);
 			
 			// reset fraction
-			t -= 1.0;
+			srcFraction -= 1.0;
 		}
 		
 		// fetch interpolated value
 		RMSStereoInterpolatorFetch
-		(&rmsSource->mInterpolator, t, infoPtr->bufferListPtr, n);
+		(&rmsSource->mInterpolator, srcFraction, infoPtr->bufferListPtr, n);
 		
-		// increase fraction by 1 src sample
-		t += srcStep;
+		// increase fraction by 1 dst sample
+		srcFraction += srcStep;
 	}
 	
-	rmsSource->mIndex = index;
-	rmsSource->mT = t;
+	rmsSource->mSrcIndex = srcIndex;
+	rmsSource->mSrcFraction = srcFraction;
 	
 	return result;
 }
@@ -216,12 +215,10 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	Float32 *dstPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
 	Float32 *dstPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
 
-	Float64 srcIndex = rmsSource->mSrcIndex;
-	Float64 srcStep = rmsSource->mSrcStep;
-	Float64 m = 1.0/srcStep;
-
-	Float64 x = srcIndex - trunc(srcIndex);
-	UInt64 index = srcIndex;
+	UInt64 index = rmsSource->mSrcIndex;
+	Float64 x = rmsSource->mSrcFraction;
+	const Float64 s = rmsSource->mSrcStep;
+	const Float64 m = 1.0/s;
 	
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
@@ -229,7 +226,7 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		Float64 R = 0.0;
 		
 		// test for remainder from previous cycle
-		// can only be true after a buffer refresh and with valid index
+		// will only be true after a buffer refresh and with valid index
 		if (x > 0.0)
 		{
 			L += (1.0-x) * rmsSource->mSrcSamplesL[index&511];
@@ -239,7 +236,7 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 			index += 1;
 		}
 		
-		x += srcStep;
+		x += s;
 		while (x >= 1.0)
 		{
 			result = PrepareFetch(rmsObject, index);
@@ -263,11 +260,10 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 		dstPtrL[n] = m*L;
 		dstPtrR[n] = m*R;
-		
-		srcIndex += srcStep;
 	}
 
-	rmsSource->mSrcIndex = srcIndex;// + srcStep * infoPtr->frameCount;
+	rmsSource->mSrcIndex = index;
+	rmsSource->mSrcFraction = x;
 	
 	return noErr;
 }
@@ -315,6 +311,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		[self setSource:source];
 		
 		mSrcListIndex = 0;
+		
 		mSrcList.bufferCount = 2;
 		mSrcList.buffer[0].mNumberChannels = 1;
 		mSrcList.buffer[0].mDataByteSize = 512*sizeof(float);

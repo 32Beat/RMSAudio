@@ -7,24 +7,27 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef RMSBezierInterpolator_h
-#define RMSBezierInterpolator_h
+#ifndef RMSInterpolator_h
+#define RMSInterpolator_h
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct rmscatmullrom_t
+typedef struct rmscrb_t
 {
 	double P0;
 	double P1;
-	double C1;
-	double C2;
 	double P2;
 	double P3;
-}
-rmscatmullrom_t;
 
-void RMSCatmullRomUpdate(rmscatmullrom_t *ptr, double S);
-double RMSCatmullRomFetch(rmscatmullrom_t *ptr, double t);
+	double C1;
+	double C2;
+}
+rmscrb_t;
+
+void RMSResamplerWrite(rmscrb_t *ptr, double S);
+double RMSResamplerFetch(rmscrb_t *ptr, double t);
 
 ////////////////////////////////////////////////////////////////////////////////
 

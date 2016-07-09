@@ -32,8 +32,8 @@ void RMSLevelsSetResponse(rmslevels_t *levels, double milliSeconds, double sampl
 {
 	double decayRate = 0.001 * milliSeconds * sampleRate;
 	
-	levels->mAvgM = 1.0 / (1.0 + decayRate);
-	levels->mMaxM = decayRate / (decayRate + 1.0);
+	levels->avgM = 1.0 / (1.0 + decayRate);
+	levels->maxM = decayRate / (decayRate + 1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,21 +51,17 @@ rmslevels_t RMSLevelsInit(double sampleRate)
 
 inline void RMSLevelsUpdateWithSample(rmslevels_t *levels, double sample)
 {
-	// Compute absolute value
-	sample = fabs(sample);
-	
-	// Update maximum
-	if (levels->mMax < sample)
-		levels->mMax = sample;
-	else
-		levels->mMax *= levels->mMaxM;
-
-
 	// the s in rms
 	sample *= sample;
 	
-	// Update short term rms average
-	levels->mAvg = rms_add(levels->mAvg, levels->mAvgM, sample);
+	// Update short term average
+	levels->avg = rms_add(levels->avg, levels->avgM, sample);
+
+	// Update maximum
+	if (levels->max < sample)
+		levels->max = sample;
+	else
+		levels->max *= levels->maxM;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,17 +74,17 @@ void RMSLevelsUpdateWithSamples32(rmslevels_t *levels, float *srcPtr, uint32_t n
 
 ////////////////////////////////////////////////////////////////////////////////
 
-rmslevels_t RMSLevelsFetchResult(const rmslevels_t *levelsPtr)
+rmsresult_t RMSLevelsFetchResult(const rmslevels_t *levelsPtr)
 {
-	rmslevels_t levels = { 0.0, 0.0, 0.0, 0.0 };
+	rmsresult_t result = { 0.0, 0.0 };
 	
 	if (levelsPtr != NULL)
 	{
-		levels.mAvg = sqrt(levelsPtr->mAvg);
-		levels.mMax = levelsPtr->mMax;
+		result.avg = sqrt(levelsPtr->avg);
+		result.max = sqrt(levelsPtr->max);
 	}
 	
-	return levels;
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

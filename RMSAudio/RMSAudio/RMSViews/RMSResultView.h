@@ -40,7 +40,7 @@ enum RMSViewDirection
 
 @property (nonatomic, assign) NSUInteger direction;
 
-- (void) setLevels:(rmslevels_t)result;
+- (void) setLevels:(rmsresult_t)result;
 
 @end
 

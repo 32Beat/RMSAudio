@@ -9,7 +9,7 @@
 
 #import "RMSSampleMonitor.h"
 #import "RMSTimer.h"
-#import "rmsbuffer_t.h"
+#import "rmsbuffer.h"
 #import <Accelerate/Accelerate.h>
 
 

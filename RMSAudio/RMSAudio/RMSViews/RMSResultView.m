@@ -14,7 +14,7 @@
 @interface RMSResultView ()
 {
 	// Represented data
-	rmslevels_t mLevels;
+	rmsresult_t mLevels;
 	
 	RMSIndexView *mIndexView;
 }
@@ -24,7 +24,7 @@
 @implementation RMSResultView
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) setLevels:(rmslevels_t)levels
+- (void) setLevels:(rmsresult_t)levels
 {	
 	dispatch_async(dispatch_get_main_queue(),
 	^{
@@ -157,7 +157,7 @@
 - (void) drawHorizontal
 {
 	// Source = mLevels
-	rmslevels_t levels = mLevels;
+	rmsresult_t levels = mLevels;
 	// Destination = frame
 	NSRect frame = self.bounds;
 	
@@ -166,12 +166,12 @@
 	
 	// Average
 	[[self avgColor] set];
-	frame.size.width = round(W * RMS2DISPLAY(levels.mAvg));
+	frame.size.width = round(W * RMS2DISPLAY(levels.avg));
 	NSRectFill(frame);
 
 	[[self maxColor] set];
 	frame.origin.x += frame.size.width;
-	frame.size.width = round(W * RMS2DISPLAY(levels.mMax));
+	frame.size.width = round(W * RMS2DISPLAY(levels.max));
 	frame.size.width -= frame.origin.x;
 	NSRectFill(frame);
 /*
@@ -198,7 +198,7 @@
 - (void) drawVertical
 {
 	// Source = mLevels
-	rmslevels_t levels = mLevels;
+	rmsresult_t levels = mLevels;
 	// Destination = frame
 	NSRect frame = self.bounds;
 	
@@ -207,12 +207,12 @@
 	
 	// Average
 	[[self avgColor] set];
-	frame.size.height = round(S * RMS2DISPLAY(levels.mAvg));
+	frame.size.height = round(S * RMS2DISPLAY(levels.avg));
 	NSRectFill(frame);
 
 	[[self maxColor] set];
 	frame.origin.y += frame.size.height;
-	frame.size.height = round(S * RMS2DISPLAY(levels.mMax));
+	frame.size.height = round(S * RMS2DISPLAY(levels.max));
 	frame.size.height -= frame.origin.y;
 	NSRectFill(frame);
 /*

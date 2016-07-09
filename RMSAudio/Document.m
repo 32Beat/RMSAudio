@@ -130,8 +130,8 @@
 	^{
 		[self.outputMonitor updateLevels:&mLevels];
 		
-		self.resultViewL.levels = mLevels.L;
-		self.resultViewR.levels = mLevels.R;
+		self.resultViewL.levels = RMSLevelsFetchResult(&mLevels.L);
+		self.resultViewR.levels = RMSLevelsFetchResult(&mLevels.R);
 	});
 }
 

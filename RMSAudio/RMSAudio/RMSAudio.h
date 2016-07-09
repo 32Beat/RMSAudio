@@ -29,7 +29,7 @@
 #import "RMSUtilities.h"
 #import "RMSTimer.h"
 
-#import "rmsbuffer_t.h"
+#import "rmsbuffer.h"
 #import "rmslevels.h"
 
 

@@ -17,14 +17,14 @@
 /*
 	usage indication:
 	
-	// initialize engine struct with samplerate
-	rmsengine_t engine = RMSEngineInit(44100);
+	// initialize levels struct with samplerate
+	rmslevels_t levels = RMSLevelsInit(44100);
 	
 	// on audio thread, for each sample call:
-	RMSEngineAddSample(&engine, sample);
+	RMSLevelsUpdateWithSample(&levels, sample);
 	
 	// on main thread, periodically call:
-	rmsresult_t levels = RMSEngineFetchResult(&engine);
+	rmsresult_t levels = RMSLevelsFetchResult(&levels);
 	
 	
 */
@@ -33,14 +33,22 @@
 // Structure for intermediate sample processing
 typedef struct rmslevels_t
 {
-	double mAvg;
-	double mMax;
+	double avg;
+	double max;
 
 	// multipliers based on samplerate
-	double mAvgM;
-	double mMaxM;
+	double avgM;
+	double maxM;
 }
 rmslevels_t;
+
+// Structure for communicating result
+typedef struct rmsresult_t
+{
+	double avg;
+	double max;
+}
+rmsresult_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +62,7 @@ void RMSLevelsUpdateWithSample(rmslevels_t *levels, double sample);
 void RMSLevelsUpdateWithSamples32(rmslevels_t *levels, float *srcPtr, uint32_t n);
 
 // Get sqrt results. Save to call with levelsPtr == nil
-rmslevels_t RMSLevelsFetchResult(const rmslevels_t *levelsPtr);
+rmsresult_t RMSLevelsFetchResult(const rmslevels_t *levels);
 
 ////////////////////////////////////////////////////////////////////////////////
 #endif // rmslevels_h

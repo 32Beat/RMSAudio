@@ -9,14 +9,20 @@
 #import "Document.h"
 
 #import "RMSAudio.h"
+#import "RMSResultView.h"
 
 
-@interface Document ()
+@interface Document () <RMSTimerProtocol>
 {
 	NSTimer *mReportTimer;
+	
+	RMSStereoLevels mLevels;
 }
 
 @property (nonatomic) RMSOutput *audioOutput;
+@property (nonatomic) RMSSampleMonitor *outputMonitor;
+@property (nonatomic, weak) IBOutlet RMSResultView *resultViewL;
+@property (nonatomic, weak) IBOutlet RMSResultView *resultViewR;
 
 @end
 
@@ -34,6 +40,13 @@
 	if (_audioOutput == nil)
 	{
 		_audioOutput = [RMSOutput defaultOutput];
+		
+		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
+		[_audioOutput addMonitor:_outputMonitor];
+		
+		mLevels.L = RMSLevelsInit(_audioOutput.sampleRate);
+		mLevels.R = RMSLevelsInit(_audioOutput.sampleRate);
+		[RMSTimer addRMSTimerObserver:self];
 		
 		[self startRenderTimingReports];
 	}
@@ -53,9 +66,13 @@
 
 - (void) close
 {
+	// break circular reference
 	[mReportTimer invalidate];
 	mReportTimer = nil;
 
+	[RMSTimer removeRMSTimerObserver:self];
+
+	// stop audiounit
 	[_audioOutput stopRunning];
 	_audioOutput = nil;
 	
@@ -101,6 +118,21 @@
 	[self.logView.textStorage.mutableString insertString:@"\r" atIndex:0];
 	[self.logView.textStorage.mutableString insertString:text atIndex:0];
 	[self.logView setNeedsDisplay:YES];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) globalRMSTimerDidFire
+{
+	dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+	^{
+		[self.outputMonitor updateLevels:&mLevels];
+		
+		self.resultViewL.levels = mLevels.L;
+		self.resultViewR.levels = mLevels.R;
+	});
 }
 
 ////////////////////////////////////////////////////////////////////////////////

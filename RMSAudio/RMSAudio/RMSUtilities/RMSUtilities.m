@@ -65,7 +65,7 @@ AudioBufferList *AudioBufferListCreate32f(bool interleaved, UInt32 channelCount,
 		AudioBufferList *bufferListPtr = malloc(size);
 		
 		bufferListPtr->mNumberBuffers = 1;
-		AudioBufferPrepare32f(&bufferListPtr->mBuffers[0], channelCount, frameCount);
+		RMSAudioBufferPrepare(&bufferListPtr->mBuffers[0], channelCount, frameCount);
 	}
 	else
 	{
@@ -74,7 +74,7 @@ AudioBufferList *AudioBufferListCreate32f(bool interleaved, UInt32 channelCount,
 		
 		bufferListPtr->mNumberBuffers = channelCount;
 		for (UInt32 n=0; n!=channelCount; n++)
-		{ AudioBufferPrepare32f(&bufferListPtr->mBuffers[n], 1, frameCount); }
+		{ RMSAudioBufferPrepare(&bufferListPtr->mBuffers[n], 1, frameCount); }
 	}
 	
 	return bufferListPtr;
@@ -87,7 +87,7 @@ void AudioBufferListRelease(AudioBufferList *bufferListPtr)
 	if (bufferListPtr != nil)
 	{
 		for (UInt32 n=0; n!=bufferListPtr->mNumberBuffers; n++)
-		{ AudioBufferReleaseMemory(&bufferListPtr->mBuffers[n]); }
+		{ RMSAudioBufferReleaseMemory(&bufferListPtr->mBuffers[n]); }
 		
 		free(bufferListPtr);
 	}
@@ -95,7 +95,7 @@ void AudioBufferListRelease(AudioBufferList *bufferListPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSStatus AudioBufferPrepare32f(AudioBuffer *bufferPtr, UInt32 channelCount, UInt32 frameCount)
+OSStatus RMSAudioBufferPrepare(AudioBuffer *bufferPtr, UInt32 channelCount, UInt32 frameCount)
 {
 	if (bufferPtr == nil) return paramErr;
 	if (channelCount == 0) return paramErr;
@@ -111,7 +111,7 @@ OSStatus AudioBufferPrepare32f(AudioBuffer *bufferPtr, UInt32 channelCount, UInt
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AudioBufferReleaseMemory(AudioBuffer *bufferPtr)
+void RMSAudioBufferReleaseMemory(AudioBuffer *bufferPtr)
 {
 	if (bufferPtr != nil)
 	{
@@ -127,7 +127,28 @@ void AudioBufferReleaseMemory(AudioBuffer *bufferPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-void AudioBufferList_ClearBuffers(AudioBufferList *bufferList)
+OSStatus RMSStereoBufferListPrepare(RMSStereoBufferList32f *stereoBuffer, UInt32 frameCount)
+{
+	OSStatus result = noErr;
+	
+	stereoBuffer->bufferCount = 0;
+	
+	result = RMSAudioBufferPrepare(&stereoBuffer->buffer[0], 1, frameCount);
+	if (result != noErr) return result;
+	
+	stereoBuffer->bufferCount = 1;
+	
+	result = RMSAudioBufferPrepare(&stereoBuffer->buffer[1], 1, frameCount);
+	if (result != noErr) return result;
+
+	stereoBuffer->bufferCount = 2;
+	
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSAudioBufferList_ClearBuffers(AudioBufferList *bufferList)
 {
 	UInt32 n = bufferList->mNumberBuffers;
 	while (n != 0)
@@ -140,7 +161,7 @@ void AudioBufferList_ClearBuffers(AudioBufferList *bufferList)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AudioBufferList_ClearFrames(AudioBufferList *bufferList, UInt32 frameCount)
+void RMSAudioBufferList_ClearFrames(AudioBufferList *bufferList, UInt32 frameCount)
 {
 	UInt32 n = bufferList->mNumberBuffers;
 	while (n != 0)

@@ -159,7 +159,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	OSStatus result = noErr;
 
 	// silence outputbuffers
-	AudioBufferList_ClearFrames(infoPtr->bufferListPtr, infoPtr->frameCount);
+	RMSAudioBufferList_ClearFrames(infoPtr->bufferListPtr, infoPtr->frameCount);
 
 	// get the RMSSource object
 	__unsafe_unretained RMSOutput *rmsOutput =

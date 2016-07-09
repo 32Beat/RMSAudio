@@ -11,7 +11,6 @@
 
 #import "RMSCallback.h"
 #import "RMSSource.h"
-#import "RMSVarispeed.h"
 
 #import "RMSAudioUnit.h"
 #import "RMSAudioUnitUtilities.h"
@@ -21,7 +20,18 @@
 //#import "RMSInput.h"
 #import "RMSOutput.h"
 
+#import "RMSVarispeed.h"
+
+#import "RMSSampleMonitor.h"
+
+
+
 #import "RMSUtilities.h"
+#import "RMSTimer.h"
+
+#import "rmsbuffer_t.h"
+#import "rmslevels.h"
+
 
 
 CF_ENUM(AudioFormatFlags)

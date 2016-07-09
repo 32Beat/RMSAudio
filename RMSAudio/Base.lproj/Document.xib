@@ -8,6 +8,8 @@
         <customObject id="-2" userLabel="File's Owner" customClass="Document">
             <connections>
                 <outlet property="logView" destination="gFb-O5-cO1" id="RRe-FU-gwk"/>
+                <outlet property="resultViewL" destination="AYM-L1-uCH" id="zy1-f6-NbD"/>
+                <outlet property="resultViewR" destination="yiF-NL-xrQ" id="JxH-Wn-kRI"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
         </customObject>
@@ -46,7 +48,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <size key="minSize" width="465" height="133"/>
-                                    <size key="maxSize" width="465" height="10000000"/>
+                                    <size key="maxSize" width="467" height="10000000"/>
                                     <attributedString key="textStorage">
                                         <fragment content="Text">
                                             <attributes>
@@ -57,7 +59,7 @@
                                     </attributedString>
                                     <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <size key="minSize" width="465" height="133"/>
-                                    <size key="maxSize" width="465" height="10000000"/>
+                                    <size key="maxSize" width="467" height="10000000"/>
                                 </textView>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -71,12 +73,24 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
+                    <customView id="AYM-L1-uCH" customClass="RMSResultView">
+                        <rect key="frame" x="20" y="330" width="467" height="15"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    </customView>
+                    <customView id="szA-77-K8U" customClass="RMSIndexView">
+                        <rect key="frame" x="20" y="325" width="467" height="5"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    </customView>
+                    <customView id="yiF-NL-xrQ" customClass="RMSResultView">
+                        <rect key="frame" x="20" y="310" width="467" height="15"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    </customView>
                 </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="-64.5" y="251.5"/>
+            <point key="canvasLocation" x="-415.5" y="263.5"/>
         </window>
     </objects>
 </document>

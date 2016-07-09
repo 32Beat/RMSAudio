@@ -31,8 +31,8 @@ double RMSHostTimeToSeconds(double hostTime);
 AudioBufferList *AudioBufferListCreate32f(bool interleaved, UInt32 channelCount, UInt32 frameCount);
 void AudioBufferListRelease(AudioBufferList *bufferListPtr);
 
-OSStatus AudioBufferPrepare32f(AudioBuffer *bufferPtr, UInt32 channelCount, UInt32 frameCount);
-void AudioBufferReleaseMemory(AudioBuffer *bufferPtr);
+OSStatus RMSAudioBufferPrepare(AudioBuffer *bufferPtr, UInt32 channelCount, UInt32 frameCount);
+void RMSAudioBufferReleaseMemory(AudioBuffer *bufferPtr);
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -52,17 +52,12 @@ typedef RMSStereoBufferList RMSStereoBufferList32f;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus RMSStereoBufferListPrepare32f(RMSStereoBufferList32f *stereoBuffer, UInt32 frameCount)
-{
-	stereoBuffer->bufferCount = 2;
-	return
-	AudioBufferPrepare32f(&stereoBuffer->buffer[0], 1, frameCount)||
-	AudioBufferPrepare32f(&stereoBuffer->buffer[1], 1, frameCount);
-}
+OSStatus RMSStereoBufferListPrepare(RMSStereoBufferList32f *stereoBuffer, UInt32 frameCount);
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AudioBufferList_ClearBuffers(AudioBufferList *bufferList);
+void RMSAudioBufferList_ClearBuffers(AudioBufferList *bufferList);
 
 /*
 	Following call is important: 
@@ -71,7 +66,7 @@ void AudioBufferList_ClearBuffers(AudioBufferList *bufferList);
 	mDataByteSize field, which obviously doesn't go well with global 
 	bufferList pointers.
 */
-void AudioBufferList_ClearFrames(AudioBufferList *bufferList, UInt32 frameCount);
+void RMSAudioBufferList_ClearFrames(AudioBufferList *bufferList, UInt32 frameCount);
 
 ////////////////////////////////////////////////////////////////////////////////
 

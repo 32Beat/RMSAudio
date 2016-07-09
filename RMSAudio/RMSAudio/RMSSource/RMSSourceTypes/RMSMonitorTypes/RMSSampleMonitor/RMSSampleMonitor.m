@@ -215,19 +215,24 @@ static void RMSLevelsUpdateWithBuffer
 	rmsbuffer_t *L = [self bufferAtIndex:0];
 	rmsbuffer_t *R = [self bufferAtIndex:1];
 	
-	uint64_t indexL = L->index;
-	uint64_t indexR = R->index;
-	uint64_t index = MIN(indexL, indexR);
+	uint64_t maxIndex = self.maxIndex;
+	uint64_t maxCount = self.length >> 1;
 	
-	if (index > levels->index)
-	{
-		rmsrange_t range = { levels->index+1, index-(levels->index+1)+1 };
-				
-		RMSLevelsUpdateWithBuffer(&levels->L, L, &range);
-		RMSLevelsUpdateWithBuffer(&levels->R, R, &range);
+	if (levels->index > maxIndex)
+	{ levels->index = 0; }
+	
+	rmsrange_t range = { levels->index, maxIndex-levels->index+1 };
 		
-		levels->index = index;
+	if (range.count > maxCount)
+	{
+		range.index = maxIndex - maxCount + 1;
+		range.count = maxCount;
 	}
+
+	RMSLevelsUpdateWithBuffer(&levels->L, L, &range);
+	RMSLevelsUpdateWithBuffer(&levels->R, R, &range);
+	
+	levels->index = maxIndex;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document">
             <connections>
+                <outlet property="fileProgressIndicator" destination="uYu-VS-Dx4" id="YEt-EF-lUy"/>
                 <outlet property="logView" destination="gFb-O5-cO1" id="RRe-FU-gwk"/>
                 <outlet property="resultViewL" destination="IYx-wO-ckQ" id="4VA-WJ-vKY"/>
                 <outlet property="resultViewR" destination="AYM-L1-uCH" id="4X8-hJ-xUf"/>
@@ -95,12 +96,16 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
+                    <progressIndicator wantsLayer="YES" maxValue="1" style="bar" id="uYu-VS-Dx4">
+                        <rect key="frame" x="131" y="279" width="356" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
                 </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="-684.5" y="220"/>
+            <point key="canvasLocation" x="-813.5" y="220"/>
         </window>
     </objects>
 </document>

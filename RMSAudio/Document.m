@@ -20,6 +20,9 @@
 	RMSStereoLevels mLevels;
 }
 
+@property (nonatomic) RMSAudioUnitFilePlayer *filePlayer;
+@property (nonatomic, weak) IBOutlet NSProgressIndicator *fileProgressIndicator;
+
 @property (nonatomic) RMSOutput *audioOutput;
 @property (nonatomic) RMSSampleMonitor *outputMonitor;
 @property (nonatomic, weak) IBOutlet RMSResultView *resultViewL;
@@ -45,6 +48,7 @@
 		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
 		[_audioOutput addMonitor:_outputMonitor];
 		
+		// initialize RMSStereoLevels
 		mLevels.L = RMSLevelsInit(_audioOutput.sampleRate);
 		mLevels.R = RMSLevelsInit(_audioOutput.sampleRate);
 		[RMSTimer addRMSTimerObserver:self];
@@ -57,14 +61,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) dealloc
-{
-	[_audioOutput stopRunning];
-	_audioOutput = nil;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
+// break any self-inflicted strong references
 - (void) close
 {
 	// break circular reference
@@ -80,6 +77,16 @@
 	[super close];
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) dealloc
+{
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) startRenderTimingReports
@@ -127,20 +134,43 @@
 
 - (void) globalRMSTimerDidFire
 {
+	[self updateProgress];
+	[self triggerLevelsUpdate];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) triggerLevelsUpdate
+{
 	if (mProcessingLevels == NO)
 	{
 		mProcessingLevels = YES;
 		
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
 		^{
-			[self.outputMonitor updateLevels:&mLevels];
-			
-			self.resultViewL.levels = RMSLevelsFetchResult(&mLevels.L);
-			self.resultViewR.levels = RMSLevelsFetchResult(&mLevels.R);
+			[self updateOutputLevels];
 			
 			mProcessingLevels = NO;
 		});
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) updateOutputLevels
+{
+	[self.outputMonitor updateLevels:&mLevels];
+	
+	self.resultViewL.levels = RMSLevelsFetchResult(&mLevels.L);
+	self.resultViewR.levels = RMSLevelsFetchResult(&mLevels.R);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) updateProgress
+{
+	Float32 R = [self.filePlayer getRelativePlayTime];
+	[self.fileProgressIndicator setDoubleValue:R];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,6 +215,8 @@
 	RMSSource *source = [RMSAudioUnitFilePlayer instanceWithURL:url];
 	if (source != nil)
 	{
+		self.filePlayer = (RMSAudioUnitFilePlayer *)source;
+		
 		if (source.sampleRate != self.audioOutput.sampleRate)
 		{
 			source = [RMSVarispeed instanceWithSource:source];

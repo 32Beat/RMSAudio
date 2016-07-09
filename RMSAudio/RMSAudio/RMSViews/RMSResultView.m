@@ -145,6 +145,9 @@
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
 #if !TARGET_OS_IPHONE
 - (BOOL) isOpaque
 { return !(self.bckColor.alphaComponent < 1.0); }
@@ -153,8 +156,15 @@
 { return YES; }
 #endif
 
+////////////////////////////////////////////////////////////////////////////////
+
 - (void)drawRect:(NSRect)rect
 {
+#if !TARGET_OS_IPHONE
+	[[self bckColor] set];
+	NSRectFill(self.bounds);
+#endif
+
 	// If direction == auto, adjust according to rectangle
 	if (self.direction == 0)
 	{
@@ -186,6 +196,9 @@
 
 		[self drawVertical];
 	}
+	
+	[[NSColor colorWithWhite:0.9 alpha:1.0] set];
+	NSFrameRectWithWidthUsingOperation(self.bounds, 1.0, NSCompositeMultiply);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,13 +236,6 @@
 	frame.size.width = round(W * RMS2DISPLAY(mHld));
 	frame.size.width -= frame.origin.x;
 	NSRectFill(frame);
-
-	[[self bckColor] set];
-	frame.origin.x += frame.size.width;
-	frame.size.width = W;
-	frame.size.width -= frame.origin.x;
-	NSRectFill(frame);
-	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,13 +273,6 @@
 	frame.size.height = round(S * RMS2DISPLAY(mHld));
 	frame.size.height -= frame.origin.y;
 	NSRectFill(frame);
-
-	[[self bckColor] set];
-	frame.origin.y += frame.size.height;
-	frame.size.height = S;
-	frame.size.height -= frame.origin.y;
-	NSRectFill(frame);
-	
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -21,6 +21,8 @@
 	UInt64 mPacketCount;
 	
 	Float64 mEstimatedDuration;
+	
+	UInt64 mSampleCount;
 }
 
 @end
@@ -103,6 +105,10 @@
 	[self setResultFormat:&RMSPreferredAudioFormat];
 	// self->setSampleRate does nothing, as it is determined by the file
 	[super setSampleRate:mFileFormat.mSampleRate];
+
+
+	[self readSizeInfo];
+	mSampleCount = mEstimatedDuration * mFileFormat.mSampleRate;
 
 
 	result = [self initializeAudioUnit];
@@ -193,6 +199,25 @@
 	UInt32 size = sizeof(AudioTimeStamp);
 	return AudioUnitGetProperty(mAudioUnit, kAudioUnitProperty_CurrentPlayTime,
 	kAudioUnitScope_Global, 0, timeStamp, &size);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (Float32) getRelativePlayTime
+{
+	if (mSampleCount != 0)
+	{
+		AudioTimeStamp timeStamp;
+		OSStatus result = [self getCurrentPlayTime:&timeStamp];
+		if (result == noErr)
+		{
+			double T = timeStamp.mSampleTime / mSampleCount;
+			
+			return T - floor(T);
+		}
+	}
+	
+	return 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

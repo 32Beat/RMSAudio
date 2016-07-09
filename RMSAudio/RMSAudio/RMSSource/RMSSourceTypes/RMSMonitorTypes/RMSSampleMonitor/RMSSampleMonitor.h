@@ -6,21 +6,25 @@
 	Copyright © 2015 32BT. All rights reserved.
 */
 ////////////////////////////////////////////////////////////////////////////////
+/*
+	RMSSampleMonitor is a simple ringbuffer monitor which can be used by 
+	multiple observers to display information about the latest samples. 
+	This significantly reduces the strain on the real-time audio thread 
+	when multiple metering is required.
+	
+	The length count of the RMSSampleMonitor should obviously be appropriate 
+	for the largest possible demand. 
+*/
+////////////////////////////////////////////////////////////////////////////////
 
 
 #import "RMSSource.h"
 #import "rmsbuffer.h"
 #import "rmslevels.h"
 
-/*
-	RMSSampleMonitor is a simple ringbuffer monitor which can be used by 
-	multiple observers to display information about the latest samples. 
-	This significantly reduces the strain on the real-time audio thread.
-	
-	The length count of the RMSSampleMonitor should obviously be appropriate 
-	for the largest possible demand. 
-*/
 
+////////////////////////////////////////////////////////////////////////////////
+// convenience struct for processing stereo signal
 
 typedef struct RMSStereoLevels
 {
@@ -29,6 +33,19 @@ typedef struct RMSStereoLevels
 	rmslevels_t R;
 }
 RMSStereoLevels;
+
+/*
+possible design concept: always as extension to RMSSampleMonitor
+
+@interface RMSSampleMonitor (RMSStereoLevels)
+- (void) updateStereoLevels:(RMSStereoLevels *)levels;
+@end
+
+@interface RMSSampleMonitor (RMSLissajoux)
+- (void) updateLissajouxData:(RMSStereoLevels *)levels;
+@end
+*/
+////////////////////////////////////////////////////////////////////////////////
 
 @class RMSSampleMonitor;
 

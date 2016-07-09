@@ -16,5 +16,6 @@
 + (instancetype) instanceWithURL:(NSURL *)fileURL;
 
 - (OSStatus) getCurrentPlayTime:(AudioTimeStamp *)timeStamp;
+- (Float32) getRelativePlayTime;
 
 @end

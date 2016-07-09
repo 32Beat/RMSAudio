@@ -32,6 +32,8 @@ enum RMSViewDirection
 
 @interface RMSResultView : NSView
 
+@property (nonatomic) CGFloat holdTime;
+
 @property (nonatomic) NSColor *bckColor;
 @property (nonatomic) NSColor *avgColor;
 @property (nonatomic) NSColor *maxColor;

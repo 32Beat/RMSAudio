@@ -16,6 +16,7 @@
 {
 	NSTimer *mReportTimer;
 	
+	BOOL mProcessingLevels;
 	RMSStereoLevels mLevels;
 }
 
@@ -126,13 +127,20 @@
 
 - (void) globalRMSTimerDidFire
 {
-	dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
-	^{
-		[self.outputMonitor updateLevels:&mLevels];
+	if (mProcessingLevels == NO)
+	{
+		mProcessingLevels = YES;
 		
-		self.resultViewL.levels = RMSLevelsFetchResult(&mLevels.L);
-		self.resultViewR.levels = RMSLevelsFetchResult(&mLevels.R);
-	});
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+		^{
+			[self.outputMonitor updateLevels:&mLevels];
+			
+			self.resultViewL.levels = RMSLevelsFetchResult(&mLevels.L);
+			self.resultViewR.levels = RMSLevelsFetchResult(&mLevels.R);
+			
+			mProcessingLevels = NO;
+		});
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

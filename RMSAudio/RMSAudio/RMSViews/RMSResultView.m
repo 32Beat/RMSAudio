@@ -15,10 +15,16 @@
 {
 	// Represented data
 	rmsresult_t mLevels;
+
+	CGFloat mHld;
+	CGFloat mHldM;
+	size_t mHldCount;
+	
 	
 	RMSIndexView *mIndexView;
 }
 @end
+
 
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSResultView
@@ -29,8 +35,38 @@
 	dispatch_async(dispatch_get_main_queue(),
 	^{
 		mLevels = levels;
+
+		[self updateHoldLevel];
+		
 		[self setNeedsDisplayInRect:self.bounds];
 	});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) updateHoldLevel
+{
+	if (mHld <= mLevels.max)
+	{
+		mHld = mLevels.max;
+		
+		if (self.holdTime == 0)
+		{ self.holdTime = 1000.0; }
+		
+		mHldCount = 24 * (0.001 * self.holdTime);
+	}
+	else
+	if (mHldCount != 0)
+	{
+		mHldCount -= 1;
+	}
+	else
+	{
+		if (mHldM == 0.0)
+		{ mHldM = 0.9; }
+		
+		mHld *= mHldM;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -174,17 +210,20 @@
 	frame.size.width = round(W * RMS2DISPLAY(levels.max));
 	frame.size.width -= frame.origin.x;
 	NSRectFill(frame);
-/*
-	if (levels.mHld < 1.0)
+
+	if (mHld < levels.max)
+	{ mHld = levels.max; }
+	
+	if (mHld < 1.0)
 	[[self hldColor] set];
 	else
 	[[self clpColor] set];
 	
 	frame.origin.x += frame.size.width;
-	frame.size.width = round(W * RMS2DISPLAY(levels.mHld));
+	frame.size.width = round(W * RMS2DISPLAY(mHld));
 	frame.size.width -= frame.origin.x;
 	NSRectFill(frame);
-*/
+
 	[[self bckColor] set];
 	frame.origin.x += frame.size.width;
 	frame.size.width = W;
@@ -215,17 +254,20 @@
 	frame.size.height = round(S * RMS2DISPLAY(levels.max));
 	frame.size.height -= frame.origin.y;
 	NSRectFill(frame);
-/*
-	if (levels.mHld < 1.0)
+	
+	if (mHld < levels.max)
+	{ mHld = levels.max; }
+	
+	if (mHld < 1.0)
 	[[self hldColor] set];
 	else
 	[[self clpColor] set];
 	
 	frame.origin.y += frame.size.height;
-	frame.size.height = round(S * RMS2DISPLAY(levels.mHld));
+	frame.size.height = round(S * RMS2DISPLAY(mHld));
 	frame.size.height -= frame.origin.y;
 	NSRectFill(frame);
-*/
+
 	[[self bckColor] set];
 	frame.origin.y += frame.size.height;
 	frame.size.height = S;

@@ -118,34 +118,29 @@ static OSStatus inputCallback(
 	rmsObject->mInputIsBusy = 1;
 
 		// bufferListPtr is nil, use AudioUnitRender to render directly to ring buffer
-		RMSStereoBufferList stereoBuffer =
+		RMSAudioBufferList stereoBuffer =
 		RMSRingBufferGetWriteBufferList(&rmsObject->mRingBuffer);
 
 		OSStatus result = AudioUnitRender(rmsObject->mAudioUnit, \
-		actionFlagsPtr, timeStampPtr, busNumber, frameCount, (AudioBufferList *)&stereoBuffer);
+		actionFlagsPtr, timeStampPtr, busNumber, frameCount, &stereoBuffer.list);
 		
-		rmsObject->mInputIndex = RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
+		rmsObject->mInputIndex =
+		RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
 	
 	rmsObject->mInputIsBusy = 0;
 
-	
 	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus outputCallback(
-	void *							refCon,
-	AudioUnitRenderActionFlags *	actionFlagsPtr,
-	const AudioTimeStamp *			timeStampPtr,
-	UInt32							busNumber,
-	UInt32							frameCount,
-	AudioBufferList * __nullable	bufferListPtr)
+static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 {
 	__unsafe_unretained RMSInput *rmsObject =
-	(__bridge __unsafe_unretained RMSInput *)refCon;
+	(__bridge __unsafe_unretained RMSInput *)rmsSource;
 	
 	// This should raise an exception
+	UInt32 frameCount = infoPtr->frameCount;
 	UInt32 maxFrameCount = rmsObject->mMaxFrameCount;
 	if (frameCount > maxFrameCount)
 	{
@@ -163,7 +158,7 @@ static OSStatus outputCallback(
 
 	if (rmsObject->mInputIndex < rmsObject->mRingBuffer.frameCount/2) return noErr;
 
-	RMSRingBufferReadStereoData(&rmsObject->mRingBuffer, bufferListPtr, frameCount);
+	RMSRingBufferReadStereoData(&rmsObject->mRingBuffer, infoPtr->bufferListPtr, frameCount);
 	rmsObject->mOutputIndex += frameCount;
 
 	return noErr;
@@ -176,7 +171,7 @@ static OSStatus outputCallback(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (AURenderCallback) callbackPtr
++ (RMSCallbackProcPtr) callbackPtr
 { return outputCallback; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -314,9 +309,9 @@ static OSStatus outputCallback(
 
 - (OSStatus) getSourceFormat:(AudioStreamBasicDescription *)streamInfoPtr
 {
-	OSStatus result = PCMAudioUnitGetInputSourceFormat(mAudioUnit, streamInfoPtr);
+	OSStatus result = RMSAudioUnitGetInputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: PCMAudioUnitGetInputSourceFormat returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitGetInputScopeFormatAtIndex returned %d", result); }
 	
 	return result;
 }
@@ -325,9 +320,9 @@ static OSStatus outputCallback(
 
 - (OSStatus) setSourceFormat:(const AudioStreamBasicDescription *)streamInfoPtr
 {
-	OSStatus result = PCMAudioUnitSetInputSourceFormat(mAudioUnit, streamInfoPtr);
+	OSStatus result = RMSAudioUnitSetInputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: PCMAudioUnitSetInputSourceFormat returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitSetInputScopeFormatAtIndex returned %d", result); }
 
 	return result;
 }
@@ -336,9 +331,9 @@ static OSStatus outputCallback(
 
 - (OSStatus) getResultFormat:(AudioStreamBasicDescription *)streamInfoPtr
 {
-	OSStatus result = PCMAudioUnitGetInputResultFormat(mAudioUnit, streamInfoPtr);
+	OSStatus result = RMSAudioUnitGetOutputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: PCMAudioUnitGetInputResultFormat returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitGetOutputScopeFormatAtIndex returned %d", result); }
 	
 	return result;
 }
@@ -347,9 +342,9 @@ static OSStatus outputCallback(
 
 - (OSStatus) setResultFormat:(const AudioStreamBasicDescription *)streamInfoPtr
 {
-	OSStatus result = PCMAudioUnitSetInputResultFormat(mAudioUnit, streamInfoPtr);
+	OSStatus result = RMSAudioUnitSetOutputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: PCMAudioUnitSetInputResultFormat returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitSetOutputScopeFormatAtIndex returned %d", result); }
 
 	return result;
 }
@@ -425,7 +420,7 @@ static OSStatus outputCallback(
 - (OSStatus) prepareBuffers
 {
 	UInt32 frameCount = 512;
-	OSStatus result = PCMAudioUnitGetMaximumFramesPerSlice(mAudioUnit, &frameCount);
+	OSStatus result = RMSAudioUnitGetMaximumFramesPerSlice(mAudioUnit, &frameCount);
 
 	if (result != noErr)
 	{ NSLog(@"AudioUnitGetMaximumFramesPerSlice error: %d", result); }

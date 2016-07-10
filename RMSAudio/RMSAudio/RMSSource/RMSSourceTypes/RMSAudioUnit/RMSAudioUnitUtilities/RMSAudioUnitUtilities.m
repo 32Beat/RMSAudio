@@ -59,6 +59,21 @@ OSStatus AudioUnitEnableOutputStream(AudioUnit audioUnit, UInt32 state)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+OSStatus AudioUnitSetInputCallback
+(AudioUnit audioUnit, AURenderCallback renderProc, void *renderInfo)
+{
+	if (audioUnit == nil) return paramErr;
+	if (renderProc == nil) return paramErr;
+	
+	AURenderCallbackStruct rcInfo = { renderProc, renderInfo };
+
+	return AudioUnitSetProperty \
+		(audioUnit, kAudioOutputUnitProperty_SetInputCallback, \
+		kAudioUnitScope_Global, 0, &rcInfo, sizeof(AURenderCallbackStruct));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 OSStatus AudioUnitSetRenderCallback
 (AudioUnit audioUnit, AURenderCallback renderProc, void *renderInfo)
 {

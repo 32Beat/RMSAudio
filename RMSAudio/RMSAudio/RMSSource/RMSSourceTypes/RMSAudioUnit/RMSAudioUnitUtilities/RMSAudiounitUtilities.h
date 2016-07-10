@@ -21,6 +21,8 @@ OSStatus AudioUnitEnableOutputStream(AudioUnit audioUnit, UInt32 state);
 
 OSStatus AudioUnitAttachDevice
 (AudioUnit audioUnit, AudioDeviceID deviceID);
+OSStatus AudioUnitSetInputCallback
+(AudioUnit audioUnit, AURenderCallback renderProc, void *renderInfo);
 OSStatus AudioUnitSetRenderCallback
 (AudioUnit audioUnit, AURenderCallback renderProc, void *renderInfo);
 
@@ -45,6 +47,8 @@ AudioUnitElement streamIndex, const AudioStreamBasicDescription *resultPtr);
 OSStatus RMSAudioUnitSetOutputScopeFormatAtIndex(AudioUnit audioUnit,
 AudioUnitElement streamIndex, const AudioStreamBasicDescription *resultPtr);
 
+OSStatus RMSAudioUnitSetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 maxFrames);
+OSStatus RMSAudioUnitGetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 *maxFrames);
 
 #endif // RMSAudioUnitUtilities_h
 

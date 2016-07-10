@@ -34,8 +34,8 @@ void RMSRingBufferRelease(RMSRingBuffer *buffer);
 
 void RMSRingBufferClear(RMSRingBuffer *buffer);
 
-RMSStereoBufferList RMSRingBufferGetWriteBufferList(RMSRingBuffer *buffer);
-RMSStereoBufferList RMSRingBufferGetBufferListAtOffset(RMSRingBuffer *buffer, UInt64 offset);
+RMSAudioBufferList RMSRingBufferGetWriteBufferList(RMSRingBuffer *buffer);
+RMSAudioBufferList RMSRingBufferGetBufferListAtOffset(RMSRingBuffer *buffer, UInt64 offset);
 UInt64 RMSRingBufferMoveWriteIndex(RMSRingBuffer *buffer, UInt64 frameCount);
 
 void RMSRingBufferSetReadRate(RMSRingBuffer *buffer, double rate);

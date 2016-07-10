@@ -65,14 +65,14 @@ void RMSRingBufferClear(RMSRingBuffer *buffer)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RMSStereoBufferList RMSRingBufferGetWriteBufferList(RMSRingBuffer *buffer)
+RMSAudioBufferList RMSRingBufferGetWriteBufferList(RMSRingBuffer *buffer)
 { return RMSRingBufferGetBufferListAtOffset(buffer, buffer->writeIndex); }
 
-RMSStereoBufferList RMSRingBufferGetBufferListAtOffset(RMSRingBuffer *buffer, UInt64 offset)
+RMSAudioBufferList RMSRingBufferGetBufferListAtOffset(RMSRingBuffer *buffer, UInt64 offset)
 {
 	UInt32 index = offset & (buffer->frameCount-1);
 	
-	return (RMSStereoBufferList){
+	return (RMSAudioBufferList){
 		.bufferCount = 2,
 		.buffer[0].mNumberChannels = 1,
 		.buffer[0].mDataByteSize = (buffer->frameCount - index) * sizeof(float),

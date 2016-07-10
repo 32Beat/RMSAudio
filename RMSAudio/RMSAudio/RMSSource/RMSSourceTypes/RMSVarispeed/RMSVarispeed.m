@@ -22,7 +22,7 @@ typedef struct RMSStereoInterpolator
 RMSStereoInterpolator;
 
 static void RMSStereoInterpolatorUpdate
-(RMSStereoInterpolator *ptr, RMSStereoBufferList *src, UInt32 index)
+(RMSStereoInterpolator *ptr, RMSAudioBufferList *src, UInt32 index)
 {
 	Float32 *srcPtrL = src->buffer[0].mData;
 	RMSResamplerWrite(&ptr->L, srcPtrL[index]);
@@ -55,7 +55,7 @@ static void RMSStereoInterpolatorFetch
 	
 	UInt64 mSrcListIndex;
 	UInt64 mSrcListCount;
-	RMSStereoBufferList mSrcList;
+	RMSAudioBufferList mSrcList;
 	Float32 mSrcSamplesL[512];
 	Float32 mSrcSamplesR[512];
 }

@@ -28,32 +28,41 @@ double RMSHostTimeToSeconds(double hostTime);
 ////////////////////////////////////////////////////////////////////////////////
 // We only do non-interleaved 32bit float buffers
 
-AudioBufferList *AudioBufferListCreate32f(bool interleaved, UInt32 channelCount, UInt32 frameCount);
+AudioBufferList *AudioBufferListCreate32f
+(UInt32 bufferCount, UInt32 frameCount, UInt32 channelCount);
 void AudioBufferListRelease(AudioBufferList *bufferListPtr);
 
-OSStatus RMSAudioBufferPrepare(AudioBuffer *bufferPtr, UInt32 channelCount, UInt32 frameCount);
+OSStatus RMSAudioBufferPrepare
+(AudioBuffer *bufferPtr, UInt32 frameCount);
+OSStatus RMSAudioBufferPrepareWithChannels
+(AudioBuffer *bufferPtr, UInt32 frameCount, UInt32 channelCount);
 void RMSAudioBufferReleaseMemory(AudioBuffer *bufferPtr);
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
-	RMSStereoBufferList
-	-------------------
-	Structure to allow stackbased AudioBufferList
-	TODO: may need namingconvention to distinguish struct from object
+	RMSAudioBufferList
+	------------------
+	Convenience structure to allow stackbased AudioBufferList
+	
+	Using union for easy/readable access to AudioBufferList, for example:
+
+		&srcBuffers->list
+		&srcList->buffers
+		&src->bufferList
+	
 */
-typedef struct RMSStereoBufferList
+typedef union RMSAudioBufferList
 {
-    UInt32      bufferCount;
-    AudioBuffer buffer[2];
+	AudioBufferList list;
+	AudioBufferList buffers;
+	AudioBufferList bufferList;
+	struct
+	{
+		UInt32      bufferCount;
+		AudioBuffer buffer[2];
+	};
 }
-RMSStereoBufferList;
-
-typedef RMSStereoBufferList RMSStereoBufferList32f;
-
-////////////////////////////////////////////////////////////////////////////////
-
-OSStatus RMSStereoBufferListPrepare(RMSStereoBufferList32f *stereoBuffer, UInt32 frameCount);
-
+RMSAudioBufferList;
 
 ////////////////////////////////////////////////////////////////////////////////
 

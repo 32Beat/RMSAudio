@@ -55,26 +55,20 @@ float RMSRandomFloat(void)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-AudioBufferList *AudioBufferListCreate32f(bool interleaved, UInt32 channelCount, UInt32 frameCount)
+AudioBufferList *AudioBufferListCreate32f
+(UInt32 bufferCount, UInt32 frameCount, UInt32 channelCount)
 {
-	AudioBufferList *bufferListPtr = nil;
+	UInt32 size = sizeof(UInt32) + sizeof(AudioBuffer) * bufferCount;
+	AudioBufferList *bufferListPtr = malloc(size);
 	
-	if (interleaved)
+	if (bufferListPtr != nil)
 	{
-		UInt32 size = sizeof(UInt32) + sizeof(AudioBuffer);
-		AudioBufferList *bufferListPtr = malloc(size);
-		
-		bufferListPtr->mNumberBuffers = 1;
-		RMSAudioBufferPrepare(&bufferListPtr->mBuffers[0], channelCount, frameCount);
-	}
-	else
-	{
-		UInt32 size = sizeof(UInt32) + sizeof(AudioBuffer)*channelCount;
-		AudioBufferList *bufferListPtr = malloc(size);
-		
-		bufferListPtr->mNumberBuffers = channelCount;
-		for (UInt32 n=0; n!=channelCount; n++)
-		{ RMSAudioBufferPrepare(&bufferListPtr->mBuffers[n], 1, frameCount); }
+		bufferListPtr->mNumberBuffers = bufferCount;
+		for (UInt32 n=0; n!=bufferCount; n++)
+		{
+			RMSAudioBufferPrepareWithChannels
+			(&bufferListPtr->mBuffers[n], frameCount, channelCount);
+		}
 	}
 	
 	return bufferListPtr;
@@ -95,11 +89,18 @@ void AudioBufferListRelease(AudioBufferList *bufferListPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSStatus RMSAudioBufferPrepare(AudioBuffer *bufferPtr, UInt32 channelCount, UInt32 frameCount)
+OSStatus RMSAudioBufferPrepare
+(AudioBuffer *bufferPtr, UInt32 frameCount)
+{ return RMSAudioBufferPrepareWithChannels(bufferPtr, frameCount, 1); }
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSAudioBufferPrepareWithChannels
+(AudioBuffer *bufferPtr, UInt32 frameCount, UInt32 channelCount)
 {
 	if (bufferPtr == nil) return paramErr;
-	if (channelCount == 0) return paramErr;
 	if (frameCount == 0) return paramErr;
+	if (channelCount == 0) return paramErr;
 	
 	bufferPtr->mNumberChannels = channelCount;
 	bufferPtr->mDataByteSize = channelCount * frameCount * sizeof(Float32);
@@ -127,23 +128,23 @@ void RMSAudioBufferReleaseMemory(AudioBuffer *bufferPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-OSStatus RMSStereoBufferListPrepare(RMSStereoBufferList32f *stereoBuffer, UInt32 frameCount)
+OSStatus RMSAudioBufferListPrepare
+(AudioBufferList *bufferList, UInt32 bufferCount, UInt32 frameCount)
 {
-	OSStatus result = noErr;
-	
-	stereoBuffer->bufferCount = 0;
-	
-	result = RMSAudioBufferPrepare(&stereoBuffer->buffer[0], 1, frameCount);
-	if (result != noErr) return result;
-	
-	stereoBuffer->bufferCount = 1;
-	
-	result = RMSAudioBufferPrepare(&stereoBuffer->buffer[1], 1, frameCount);
-	if (result != noErr) return result;
+	if (bufferList == nil) return paramErr;
+	if (bufferCount == 0) return paramErr;
+	if (frameCount == 0) return paramErr;
 
-	stereoBuffer->bufferCount = 2;
+	bufferList->mNumberBuffers = 0;
+	for (UInt32 n=0; n!=bufferCount; n++)
+	{
+		OSStatus result = RMSAudioBufferPrepare(&bufferList->mBuffers[n], frameCount);
+		if (result != noErr) return result;
 	
-	return result;
+		bufferList->mNumberBuffers++;
+	}
+	
+	return noErr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

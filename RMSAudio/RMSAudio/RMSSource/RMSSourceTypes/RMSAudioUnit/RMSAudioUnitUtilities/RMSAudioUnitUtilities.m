@@ -12,6 +12,38 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
+#if !TARGET_OS_IPHONE
+
+OSStatus RMSAudioGetDefaultInputDeviceID(AudioDeviceID *deviceID)
+{
+	static const AudioObjectPropertyAddress address = {
+		kAudioHardwarePropertyDefaultInputDevice,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster };
+
+	UInt32 size = sizeof(AudioDeviceID);
+	return AudioObjectGetPropertyData(kAudioObjectSystemObject,
+	&address, 0, nil, &size, deviceID);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSAudioGetDefaultOutputDeviceID(AudioDeviceID *deviceID)
+{
+	static const AudioObjectPropertyAddress address = {
+		kAudioHardwarePropertyDefaultOutputDevice,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster };
+
+	UInt32 size = sizeof(AudioDeviceID);
+	return AudioObjectGetPropertyData(kAudioObjectSystemObject,
+	&address, 0, nil, &size, deviceID);
+}
+
+#endif
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 
 AudioUnit NewAudioUnitWithDescription(AudioComponentDescription desc)
 {

@@ -37,6 +37,13 @@
 - (NSString *)windowNibName
 { return @"Document"; }
 
+
+- (void) awakeFromNib
+{
+	self.audioOutput.source =
+	[RMSVarispeed instanceWithSource:[RMSInput defaultInput]];
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 - (RMSOutput *) audioOutput

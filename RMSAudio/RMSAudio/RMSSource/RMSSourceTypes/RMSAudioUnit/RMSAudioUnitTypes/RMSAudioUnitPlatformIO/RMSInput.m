@@ -8,9 +8,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #import "RMSInput.h"
-#import "RMSUtilities.h"
-#import "RMSRingBuffer.h"
 #import "RMSAudio.h"
+#import "RMSRingBuffer.h"
 #import <AVFoundation/AVFoundation.h>
 #import <mach/mach_time.h>
 
@@ -155,8 +154,9 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 #ifdef RMSInputDeviceReports
 	RMSInputDeviceUpdateOutputRate(rmsObject);
 #endif
-
-	if (rmsObject->mInputIndex < rmsObject->mRingBuffer.frameCount/2) return noErr;
+	
+	if (rmsObject->mInputIndex < frameCount) return noErr;
+//	if (rmsObject->mInputIndex < rmsObject->mRingBuffer.frameCount/2) return noErr;
 
 	RMSRingBufferReadStereoData(&rmsObject->mRingBuffer, infoPtr->bufferListPtr, frameCount);
 	rmsObject->mOutputIndex += frameCount;
@@ -214,7 +214,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 + (instancetype) defaultInput
 {
 	AudioDeviceID deviceID = 0;
-	OSStatus result = PCMAudioGetDefaultInputDeviceID(&deviceID);
+	OSStatus result = RMSAudioGetDefaultInputDeviceID(&deviceID);
 	if (result != noErr) return nil;
 	
 	return [[self alloc] initWithDeviceID:deviceID];
@@ -424,7 +424,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 
 	if (result != noErr)
 	{ NSLog(@"AudioUnitGetMaximumFramesPerSlice error: %d", result); }
-	
+		
 	UInt32 maxFrameCount = 2;
 	while (maxFrameCount < frameCount)
 	{ maxFrameCount <<= 1; }
@@ -434,6 +434,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	
 	if (frameCount == 0)
 	{ frameCount = 512; }
+	
 	
 	return [self prepareBuffersWithMaxFrameCount:frameCount];
 }

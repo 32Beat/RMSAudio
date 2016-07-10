@@ -121,7 +121,7 @@ void RMSRingBufferReport(RMSRingBuffer *buffer)
 {
 	static UInt64 maxDelta = 0;
 	UInt64 currentDelta = buffer->writeIndex - buffer->readIndex;
-	if (maxDelta < currentDelta)
+	if (maxDelta != currentDelta)
 	{
 		maxDelta = currentDelta;
 		NSLog(@"Maximum delta: %llu", maxDelta);
@@ -150,10 +150,10 @@ static void RMSRingBufferReadStereoData1(RMSRingBuffer *buffer, AudioBufferList 
 
 void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount)
 {
-	UInt32 offset = frameCount<<1;
-	if (buffer->writeIndex < offset) return;
+	if (buffer->writeIndex < frameCount) return;
+	
 	if (buffer->readIndex == 0)
-	{ buffer->readIndex = buffer->writeIndex - offset; }
+	{ buffer->readIndex = buffer->writeIndex - frameCount; }
 
 	if (buffer->readIndex + buffer->frameCount < buffer->writeIndex)
 	{
@@ -161,7 +161,7 @@ void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudi
 		return;
 	}
 
-	if (buffer->readIndex + frameCount + 1 > buffer->writeIndex)
+	if (buffer->readIndex + frameCount > buffer->writeIndex)
 	{
 		NSLog(@"%@", @"RMSRingBuffer: readIndex too close to writeIndex!");
 		return;
@@ -179,11 +179,10 @@ void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudi
 
 static inline void CopySamples(
 	const float *srcPtrL, float *dstPtrL,
-	const float *srcPtrR, float *dstPtrR, UInt32 n)
+	const float *srcPtrR, float *dstPtrR, UInt32 N)
 {
-	while(n != 0)
+	for (UInt32 n=0; n!=N; n++)
 	{
-		n -= 1;
 		dstPtrL[n] = srcPtrL[n];
 		dstPtrR[n] = srcPtrR[n];
 	}

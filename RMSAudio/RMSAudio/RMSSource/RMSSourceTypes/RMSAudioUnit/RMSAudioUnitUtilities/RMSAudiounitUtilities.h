@@ -14,6 +14,11 @@
 #import <AudioUnit/AudioUnit.h>
 #import <Accelerate/Accelerate.h>
 
+#if !TARGET_OS_IPHONE
+OSStatus RMSAudioGetDefaultInputDeviceID(AudioDeviceID *deviceID);
+OSStatus RMSAudioGetDefaultOutputDeviceID(AudioDeviceID *deviceID);
+#endif
+
 AudioUnit NewAudioUnitWithDescription(AudioComponentDescription desc);
 
 OSStatus AudioUnitEnableInputStream(AudioUnit audioUnit, UInt32 state);

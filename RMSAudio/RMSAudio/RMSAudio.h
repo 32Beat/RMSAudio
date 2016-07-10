@@ -9,6 +9,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#define TARGET_OS_DESKTOP 	(!TARGET_OS_IPHONE)
+
 #import "RMSCallback.h"
 #import "RMSSource.h"
 
@@ -17,7 +19,7 @@
 #import "RMSAudioUnitFilePlayer.h"
 #import "RMSAudioUnitVarispeed.h"
 #import "RMSAudioUnitPlatformIO.h"
-//#import "RMSInput.h"
+#import "RMSInput.h"
 #import "RMSOutput.h"
 
 #import "RMSVarispeed.h"

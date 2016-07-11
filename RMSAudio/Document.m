@@ -20,6 +20,9 @@
 	RMSStereoLevels mLevels;
 }
 
+@property (nonatomic, weak) IBOutlet NSPopUpButton *deviceMenu;
+
+
 @property (nonatomic) RMSAudioUnitFilePlayer *filePlayer;
 @property (nonatomic, weak) IBOutlet NSProgressIndicator *fileProgressIndicator;
 
@@ -37,11 +40,32 @@
 - (NSString *)windowNibName
 { return @"Document"; }
 
+////////////////////////////////////////////////////////////////////////////////
 
 - (void) awakeFromNib
 {
-	self.audioOutput.source =
-	[RMSVarispeed instanceWithSource:[RMSInput defaultInput]];
+	NSArray *devices = [RMSInput availableDevices];
+
+	if (devices && devices.count)
+	[self.deviceMenu addItemsWithTitles:devices];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) selectSource:(id)sender
+{
+	NSString *name = [sender titleOfSelectedItem];
+	
+	AudioDeviceID deviceID = [RMSInput deviceWithName:name];
+	if (deviceID != 0)
+	{
+		RMSInput *input = [RMSInput instanceWithDeviceID:deviceID];
+		if (input != nil)
+		{
+			self.audioOutput.source =
+			[RMSVarispeed instanceWithSource:input];
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -167,9 +191,13 @@
 - (void) updateOutputLevels
 {
 	[self.outputMonitor updateLevels:&mLevels];
-	
-	self.resultViewL.levels = RMSLevelsFetchResult(&mLevels.L);
-	self.resultViewR.levels = RMSLevelsFetchResult(&mLevels.R);
+	rmsresult_t L = RMSLevelsFetchResult(&mLevels.L);
+	rmsresult_t R = RMSLevelsFetchResult(&mLevels.R);
+	dispatch_async(dispatch_get_main_queue(),
+	^{
+		self.resultViewL.levels = L;
+		self.resultViewR.levels = R;
+	});
 }
 
 ////////////////////////////////////////////////////////////////////////////////

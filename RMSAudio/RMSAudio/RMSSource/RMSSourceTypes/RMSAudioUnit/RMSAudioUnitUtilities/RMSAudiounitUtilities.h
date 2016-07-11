@@ -15,8 +15,18 @@
 #import <Accelerate/Accelerate.h>
 
 #if !TARGET_OS_IPHONE
+OSStatus RMSAudioDeviceGetElementName(AudioDeviceID deviceID, UInt32 index, CFStringRef *str);
+
+OSStatus RMSAudioDeviceGetBaseClass(AudioDeviceID deviceID, AudioClassID *classID);
+OSStatus RMSAudioDeviceGetClass(AudioDeviceID deviceID, AudioClassID *classID);
+OSStatus RMSAudioGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sampleRate);
+OSStatus RMSAudioDeviceGetName(AudioObjectID objectID, CFStringRef *str);
+OSStatus RMSAudioDeviceGetUniqueID(AudioDeviceID deviceID, CFStringRef *str);
+
+OSStatus RMSAudioGetAvailableDevices(AudioObjectID **deviceList, UInt32 *count);
 OSStatus RMSAudioGetDefaultInputDeviceID(AudioDeviceID *deviceID);
 OSStatus RMSAudioGetDefaultOutputDeviceID(AudioDeviceID *deviceID);
+OSStatus RMSAudioGetDeviceWithUniqueID(CFStringRef str, AudioDeviceID *deviceID);
 #endif
 
 AudioUnit NewAudioUnitWithDescription(AudioComponentDescription desc);

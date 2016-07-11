@@ -32,14 +32,11 @@
 
 - (void) setLevels:(rmsresult_t)levels
 {	
-	dispatch_async(dispatch_get_main_queue(),
-	^{
-		mLevels = levels;
+	mLevels = levels;
 
-		[self updateHoldLevel];
-		
-		[self setNeedsDisplayInRect:self.bounds];
-	});
+	[self updateHoldLevel];
+	
+	[self setNeedsDisplayInRect:self.bounds];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

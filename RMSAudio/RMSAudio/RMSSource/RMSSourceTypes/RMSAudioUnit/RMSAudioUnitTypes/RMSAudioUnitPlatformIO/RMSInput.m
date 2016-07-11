@@ -17,6 +17,10 @@
 
 @interface RMSInput ()
 {
+	double mStartTime;
+	UInt64 mSampleCount;
+	double mNominalSampleRate;
+	
 	Float64 mSourceSampleRate;
 	
 	UInt64 mInputStart;
@@ -25,9 +29,7 @@
 	UInt64 mOutputStart;
 	double mOutputRate;
 	
-	UInt64 mInputIndex;
 	UInt32 mInputIsBusy;
-	UInt64 mOutputIndex;
 	UInt32 mOutputIsBusy;
 	
 	UInt32 mMaxFrameCount;
@@ -114,6 +116,21 @@ static OSStatus inputCallback(
 	RMSInputDeviceUpdateInputRate(rmsObject);
 #endif
 
+	double time = RMSCurrentHostTimeInSeconds();
+
+	if (rmsObject->mSampleCount == 0)
+	{
+		rmsObject->mStartTime = RMSCurrentHostTimeInSeconds();
+	}
+	else
+	{
+		rmsObject->mNominalSampleRate =
+		rmsObject->mSampleCount / (time - rmsObject->mStartTime);
+	}
+
+	rmsObject->mSampleCount += frameCount;
+
+	
 	rmsObject->mInputIsBusy = 1;
 
 		// bufferListPtr is nil, use AudioUnitRender to render directly to ring buffer
@@ -122,11 +139,11 @@ static OSStatus inputCallback(
 
 		OSStatus result = AudioUnitRender(rmsObject->mAudioUnit, \
 		actionFlagsPtr, timeStampPtr, busNumber, frameCount, &stereoBuffer.list);
-		
-		rmsObject->mInputIndex =
+
 		RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
 	
 	rmsObject->mInputIsBusy = 0;
+
 
 	return result;
 }
@@ -155,11 +172,8 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	RMSInputDeviceUpdateOutputRate(rmsObject);
 #endif
 	
-	if (rmsObject->mInputIndex < frameCount) return noErr;
-//	if (rmsObject->mInputIndex < rmsObject->mRingBuffer.frameCount/2) return noErr;
-
-	RMSRingBufferReadStereoData(&rmsObject->mRingBuffer, infoPtr->bufferListPtr, frameCount);
-	rmsObject->mOutputIndex += frameCount;
+	RMSRingBufferReadStereoData
+	(&rmsObject->mRingBuffer, infoPtr->bufferListPtr, frameCount);
 
 	return noErr;
 }
@@ -211,16 +225,76 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 ////////////////////////////////////////////////////////////////////////////////
 #if TARGET_OS_DESKTOP
 
+
++ (NSArray *) availableCaptureDevices
+{
+	return [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
++ (AVCaptureDevice *) captureDeviceWithName:(NSString *)name
+{
+	NSArray *devices = [self availableCaptureDevices];
+	for (id device in devices)
+	{
+		if ([[device localizedName] isEqualToString:name])
+		{
+			return device;
+		}
+	}
+	
+	return nil;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
++ (NSArray *) availableDevices
+{
+	NSMutableArray *devices = [NSMutableArray array];
+	
+	NSArray *captureDevices = [self availableCaptureDevices];
+	for (id device in captureDevices)
+	{ [devices addObject:[device localizedName]]; }
+	
+	return devices;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
++ (AudioDeviceID) deviceWithName:(NSString *)name
+{
+	AudioDeviceID deviceID = 0;
+	
+	AVCaptureDevice *captureDevice = [self captureDeviceWithName:name];
+	if (captureDevice != nil)
+	{
+		OSStatus result =
+		RMSAudioGetDeviceWithUniqueID((__bridge CFStringRef)(captureDevice.uniqueID), &deviceID);
+		if (result != noErr)
+		{
+		}
+	}
+	
+	return deviceID;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 + (instancetype) defaultInput
 {
 	AudioDeviceID deviceID = 0;
 	OSStatus result = RMSAudioGetDefaultInputDeviceID(&deviceID);
 	if (result != noErr) return nil;
 	
+	
 	return [[self alloc] initWithDeviceID:deviceID];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
++ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID
+{ return [[self alloc] initWithDeviceID:deviceID]; }
 
 - (instancetype) initWithDeviceID:(AudioDeviceID)deviceID
 {
@@ -231,6 +305,8 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 		
 		result = [self prepareAudioUnit];
 		if (result != noErr) return nil;
+
+		self.defaultBusIndex = 1;
 
 		result = [self attachDevice:deviceID];
 		if (result != noErr) return nil;
@@ -255,6 +331,10 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	// Attach device on inputside of inputstream
 	result = AudioUnitAttachDevice(mAudioUnit, deviceID);
 	if (result != noErr) return result;
+	
+	Float64 sampleRate = 0.0;
+	result = RMSAudioGetNominalSampleRate(deviceID, &sampleRate);
+
 	
 	return result;
 }
@@ -315,6 +395,11 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	
 	return result;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (OSStatus) getSourceFormat:(AudioStreamBasicDescription *)streamInfoPtr atIndex:(UInt32)index
+{ return RMSAudioUnitGetInputScopeFormatAtIndex(mAudioUnit, index, streamInfoPtr); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -394,8 +479,10 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 #else
 
 	AudioStreamBasicDescription sourceFormat;
-	[self getSourceFormat:&sourceFormat];
+	result = [self getSourceFormat:&sourceFormat];
 	mSourceSampleRate = sourceFormat.mSampleRate;
+
+
 
 #endif
 	
@@ -408,7 +495,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	// Set resultFormat accordingly
 	AudioStreamBasicDescription streamFormat = RMSPreferredAudioFormat;
 	streamFormat.mSampleRate = mSampleRate;
-	[self setResultFormat:&streamFormat];
+	result = [self setResultFormat:&streamFormat];
 
 /*
 */
@@ -468,8 +555,6 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 		
 		[self updateRingBufferSpeed];
 		RMSRingBufferClear(&mRingBuffer);
-		mInputIndex = 0;
-		mOutputIndex = 0;
 		
 		[self startRunning];
 	}

@@ -14,8 +14,6 @@
 @interface RMSAudioUnit ()
 {
 	BOOL mAudioUnitIsInitialized;
-	
-	UInt32 mDefaultBusIndex;
 }
 @end
 
@@ -37,7 +35,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	timeStamp.mFlags = kAudioTimeStampSampleTimeValid;
 	
 	return AudioUnitRender(rmsSource->mAudioUnit,
-	&actionFlags, &timeStamp, rmsSource->mDefaultBusIndex, infoPtr->frameCount, infoPtr->bufferListPtr);
+	&actionFlags, &timeStamp, rmsSource->_defaultBusIndex, infoPtr->frameCount, infoPtr->bufferListPtr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +206,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 - (OSStatus) getSourceFormat:(AudioStreamBasicDescription *)streamInfoPtr
 {
 	OSStatus result = RMSAudioUnitGetInputScopeFormatAtIndex
-	(mAudioUnit, mDefaultBusIndex, streamInfoPtr);
+	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
 	
 	if (result != noErr)
 	{ NSLog(@"getSourceFormat returned %d", result); }
@@ -224,7 +222,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	AudioUnitUninitialize(mAudioUnit);
 	
 	OSStatus result = RMSAudioUnitSetInputScopeFormatAtIndex
-	(mAudioUnit, mDefaultBusIndex, streamInfoPtr);
+	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
 	
 	if (result != noErr)
 	{ NSLog(@"setSourceFormat returned %d", result); }
@@ -239,7 +237,9 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 - (OSStatus) getResultFormat:(AudioStreamBasicDescription *)streamInfoPtr
 {
-	OSStatus result = RMSAudioUnitGetOutputScopeFormatAtIndex(mAudioUnit, mDefaultBusIndex, streamInfoPtr);
+	OSStatus result = RMSAudioUnitGetOutputScopeFormatAtIndex
+	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
+	
 	if (result != noErr)
 	{ NSLog(@"getResultFormat returned %d", result); }
 	
@@ -253,7 +253,9 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	if (mAudioUnitIsInitialized)
 	AudioUnitUninitialize(mAudioUnit);
 
-	OSStatus result = RMSAudioUnitSetOutputScopeFormatAtIndex(mAudioUnit, mDefaultBusIndex, streamInfoPtr);
+	OSStatus result = RMSAudioUnitSetOutputScopeFormatAtIndex
+	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
+
 	if (result != noErr)
 	{ NSLog(@"setResultFormat returned %d", result); }
 

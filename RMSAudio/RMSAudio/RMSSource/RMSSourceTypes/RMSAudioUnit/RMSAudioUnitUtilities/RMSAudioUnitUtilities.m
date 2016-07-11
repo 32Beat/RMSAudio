@@ -14,30 +14,145 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if !TARGET_OS_IPHONE
 
-OSStatus RMSAudioGetDefaultInputDeviceID(AudioDeviceID *deviceID)
+OSStatus RMSAudioDeviceGetProperties(AudioObjectID objectID, CFDictionaryRef *ref)
 {
 	static const AudioObjectPropertyAddress address = {
-		kAudioHardwarePropertyDefaultInputDevice,
+		kAudioEndPointDevicePropertyComposition,
 		kAudioObjectPropertyScopeGlobal,
 		kAudioObjectPropertyElementMaster };
 
-	UInt32 size = sizeof(AudioDeviceID);
-	return AudioObjectGetPropertyData(kAudioObjectSystemObject,
-	&address, 0, nil, &size, deviceID);
+	UInt32 size = sizeof(CFDictionaryRef);
+	
+	return AudioObjectGetPropertyData
+	(objectID, &address, 0, nil, &size, ref);
+}
+
+
+OSStatus RMSAudioObjectGetProperty(AudioObjectID objectID,
+AudioObjectPropertySelector selectorID, UInt32 resultSize, void *resultPtr)
+{
+	AudioObjectPropertyAddress address = {
+		selectorID,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster };
+	
+	return AudioObjectGetPropertyData
+	(objectID, &address, 0, nil, &resultSize, resultPtr);
+}
+
+OSStatus RMSAudioDeviceGetBaseClass(AudioDeviceID deviceID, AudioClassID *classID)
+{
+	return RMSAudioObjectGetProperty(deviceID,
+	kAudioObjectPropertyBaseClass, sizeof(AudioClassID), classID);
+}
+
+OSStatus RMSAudioDeviceGetClass(AudioDeviceID deviceID, AudioClassID *classID)
+{
+	return RMSAudioObjectGetProperty(deviceID,
+	kAudioObjectPropertyClass, sizeof(AudioClassID), classID);
+}
+
+OSStatus RMSAudioDeviceGetName(AudioDeviceID deviceID, CFStringRef *str)
+{
+	return RMSAudioObjectGetProperty(deviceID,
+	kAudioObjectPropertyName, sizeof(CFStringRef), str);
+}
+
+OSStatus RMSAudioDeviceGetUniqueID(AudioDeviceID deviceID, CFStringRef *str)
+{
+	return RMSAudioObjectGetProperty(deviceID,
+	kAudioDevicePropertyDeviceUID, sizeof(CFStringRef), str);
+}
+
+
+OSStatus RMSAudioGetDefaultInputDeviceID(AudioDeviceID *deviceID)
+{
+	return RMSAudioObjectGetProperty(kAudioObjectSystemObject,
+	kAudioHardwarePropertyDefaultInputDevice, sizeof(AudioDeviceID), deviceID);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 OSStatus RMSAudioGetDefaultOutputDeviceID(AudioDeviceID *deviceID)
 {
+	return RMSAudioObjectGetProperty(kAudioObjectSystemObject,
+	kAudioHardwarePropertyDefaultOutputDevice, sizeof(AudioDeviceID), deviceID);
+}
+
+
+OSStatus RMSAudioGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sampleRate)
+{
+	return RMSAudioObjectGetProperty(deviceID,
+	kAudioDevicePropertyNominalSampleRate, sizeof(Float64), sampleRate);
+}
+
+OSStatus RMSAudioDeviceGetElementName(AudioDeviceID deviceID, UInt32 index, CFStringRef *str)
+{
+	AudioObjectPropertyAddress address = {
+		kAudioObjectPropertyElementName,
+		kAudioObjectPropertyScopeInput,
+		index };
+	
+	UInt32 size = sizeof(CFStringRef);
+	return AudioObjectGetPropertyData
+	(deviceID, &address, 0, nil, &size, str);
+}
+
+
+
+
+OSStatus RMSAudioGetAvailableDevices(AudioObjectID **deviceList, UInt32 *count)
+{
 	static const AudioObjectPropertyAddress address = {
-		kAudioHardwarePropertyDefaultOutputDevice,
+		kAudioHardwarePropertyDevices,
 		kAudioObjectPropertyScopeGlobal,
 		kAudioObjectPropertyElementMaster };
 
-	UInt32 size = sizeof(AudioDeviceID);
-	return AudioObjectGetPropertyData(kAudioObjectSystemObject,
-	&address, 0, nil, &size, deviceID);
+	OSStatus result = noErr;
+
+	UInt32 size = 0;
+	result = AudioObjectGetPropertyDataSize
+	(kAudioObjectSystemObject, &address, 0, nil, &size);
+	if (result != noErr) return result;
+
+	AudioObjectID *ptr = malloc(size);
+	if (ptr == nil) return memFullErr;
+	
+	result = AudioObjectGetPropertyData
+	(kAudioObjectSystemObject, &address, 0, nil, &size, ptr);
+	
+	*deviceList = ptr;
+	*count = size / sizeof(AudioObjectID);
+	
+	return result;
+}
+
+OSStatus RMSAudioGetDeviceWithUniqueID(CFStringRef str, AudioDeviceID *deviceID)
+{
+	UInt32 count = 0;
+	AudioDeviceID *deviceList = nil;
+	OSStatus result = RMSAudioGetAvailableDevices(&deviceList, &count);
+	if (deviceList != nil)
+	{
+		for (UInt32 n=0; n!=count; n++)
+		{
+			CFStringRef tstStr = nil;
+			result = RMSAudioDeviceGetUniqueID(deviceList[n], &tstStr);
+			if (tstStr != nil)
+			{
+				if (CFStringCompare(str, tstStr, 0) == kCFCompareEqualTo)
+				{
+					*deviceID = deviceList[n];
+				}
+				
+				CFRelease(str);
+			}
+		}
+		
+		free(deviceList);
+	}
+	
+	return result;
 }
 
 #endif

@@ -33,6 +33,7 @@ RMSRingBuffer RMSRingBufferNew(UInt32 frameCount);
 void RMSRingBufferRelease(RMSRingBuffer *buffer);
 
 void RMSRingBufferClear(RMSRingBuffer *buffer);
+bool RMSRingBufferTestSamples(RMSRingBuffer *buffer);
 
 RMSAudioBufferList RMSRingBufferGetWriteBufferList(RMSRingBuffer *buffer);
 RMSAudioBufferList RMSRingBufferGetBufferListAtOffset(RMSRingBuffer *buffer, UInt64 offset);

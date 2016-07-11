@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #import <Cocoa/Cocoa.h>
+#import <AVFoundation/AVFoundation.h>
 
 #define TARGET_OS_DESKTOP 	(!TARGET_OS_IPHONE)
 

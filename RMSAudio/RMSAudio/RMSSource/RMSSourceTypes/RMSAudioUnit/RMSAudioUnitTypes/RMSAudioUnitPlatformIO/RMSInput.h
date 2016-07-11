@@ -10,6 +10,12 @@
 #import "RMSAudioUnitPlatformIO.h"
 
 @interface RMSInput : RMSAudioUnitPlatformIO
+
++ (NSArray *) availableDevices;
++ (AudioDeviceID) deviceWithName:(NSString *)name;
+
 + (instancetype) defaultInput;
-//+ (instancetype) voiceProcessingInput;
++ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID;
+- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID;
+
 @end

@@ -46,12 +46,8 @@ static inline void ClearSamples(
 	float *dstPtrL,
 	float *dstPtrR, UInt32 n)
 {
-	while(n != 0)
-	{
-		n -= 1;
-		dstPtrL[n] = 0.0;
-		dstPtrR[n] = 0.0;
-	}
+	vDSP_vclr(dstPtrL, 1, n);
+	vDSP_vclr(dstPtrR, 1, n);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +57,29 @@ void RMSRingBufferClear(RMSRingBuffer *buffer)
 	buffer->readIndex = 0;
 	buffer->writeIndex = 0;
 	ClearSamples(buffer->dataPtrL, buffer->dataPtrR, buffer->frameCount);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+static inline bool TestSamples(
+	float *srcPtrL,
+	float *srcPtrR, UInt32 n)
+{
+	while (n != 0)
+	{
+		n -= 1;
+		if (srcPtrL[n] != srcPtrR[n])
+		{ return false; }
+	}
+	
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool RMSRingBufferTestSamples(RMSRingBuffer *buffer)
+{
+	return TestSamples(buffer->dataPtrL, buffer->dataPtrR, buffer->frameCount);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,17 +174,18 @@ void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudi
 	if (buffer->readIndex == 0)
 	{ buffer->readIndex = buffer->writeIndex - frameCount; }
 
+	if (buffer->readIndex + frameCount > buffer->writeIndex)
+	{
+		NSLog(@"%@", @"RMSRingBuffer: readIndex too close to writeIndex!");
+		return;
+	}
+
 	if (buffer->readIndex + buffer->frameCount < buffer->writeIndex)
 	{
 		NSLog(@"%@", @"RMSRingBuffer: readIndex too far from writeIndex!");
 		return;
 	}
 
-	if (buffer->readIndex + frameCount > buffer->writeIndex)
-	{
-		NSLog(@"%@", @"RMSRingBuffer: readIndex too close to writeIndex!");
-		return;
-	}
 
 	RMSRingBufferReport(buffer);
 	
@@ -177,14 +197,31 @@ void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudi
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline void CopySamples64(
+	const void *srcPtrL, void *dstPtrL,
+	const void *srcPtrR, void *dstPtrR, UInt32 N)
+{
+	for (UInt32 n=0; n!=N; n++)
+	{
+		((double *)dstPtrL)[n] = ((double *)srcPtrL)[n];
+		((double *)dstPtrR)[n] = ((double *)srcPtrR)[n];
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 static inline void CopySamples(
 	const float *srcPtrL, float *dstPtrL,
 	const float *srcPtrR, float *dstPtrR, UInt32 N)
 {
-	for (UInt32 n=0; n!=N; n++)
+	if ((N>>1)!=0)
+	{ CopySamples64(srcPtrL, dstPtrL, srcPtrR, dstPtrR, N>>1); }
+
+	if (N & 0x01)
 	{
-		dstPtrL[n] = srcPtrL[n];
-		dstPtrR[n] = srcPtrR[n];
+		NSLog(@"%@",@"uneven N");
+		dstPtrL[N-1] = srcPtrL[N-1];
+		dstPtrR[N-1] = srcPtrR[N-1];
 	}
 }
 

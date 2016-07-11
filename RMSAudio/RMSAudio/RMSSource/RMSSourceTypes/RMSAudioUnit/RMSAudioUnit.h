@@ -15,6 +15,8 @@
 	AudioUnit mAudioUnit;
 }
 
+@property (nonatomic, assign) UInt32 defaultBusIndex;
+
 //- (instancetype) initWithAUHAL;
 
 + (instancetype) instanceWithDescription:(AudioComponentDescription)desc;

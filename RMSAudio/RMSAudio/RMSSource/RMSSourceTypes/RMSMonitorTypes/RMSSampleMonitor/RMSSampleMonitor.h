@@ -28,6 +28,7 @@
 
 typedef struct RMSStereoLevels
 {
+	Float64 sampleRate;
 	uint64_t index;
 	rmslevels_t L;
 	rmslevels_t R;

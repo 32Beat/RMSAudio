@@ -44,8 +44,9 @@
 
 - (void) awakeFromNib
 {
+	// fetch names of available input devices
 	NSArray *devices = [RMSInput availableDevices];
-
+	// add to popup menu
 	if (devices && devices.count)
 	[self.deviceMenu addItemsWithTitles:devices];
 }
@@ -62,10 +63,19 @@
 		RMSInput *input = [RMSInput instanceWithDeviceID:deviceID];
 		if (input != nil)
 		{
-			self.audioOutput.source =
-			[RMSVarispeed instanceWithSource:input];
+			[self startSource:input];
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) startSource:(RMSSource *)source
+{
+	if (source.sampleRate != self.audioOutput.sampleRate)
+	{ source = [RMSVarispeed instanceWithSource:source]; }
+	
+	self.audioOutput.source = source;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,14 +86,12 @@
 	{
 		_audioOutput = [RMSOutput defaultOutput];
 		
+		// prepare level metering
 		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
 		[_audioOutput addMonitor:_outputMonitor];
-		
-		// initialize RMSStereoLevels
-		mLevels.L = RMSLevelsInit(_audioOutput.sampleRate);
-		mLevels.R = RMSLevelsInit(_audioOutput.sampleRate);
 		[RMSTimer addRMSTimerObserver:self];
 		
+		// prepare render timing reports
 		[self startRenderTimingReports];
 	}
 	
@@ -247,20 +255,8 @@
 {
 	[self logText:[NSString stringWithFormat:@"Start file: %@", url.lastPathComponent]];
 	
-	RMSSource *source = [RMSAudioUnitFilePlayer instanceWithURL:url];
-	if (source != nil)
-	{
-		self.filePlayer = (RMSAudioUnitFilePlayer *)source;
-		
-		if (source.sampleRate != self.audioOutput.sampleRate)
-		{
-			source = [RMSVarispeed instanceWithSource:source];
-			//source = [RMSAudioUnitVarispeed instanceWithSource:source];
-		}
-	}
-		
-	// Attaching automatically sets the output sampleRate for source
-	[self.audioOutput setSource:source];
+	self.filePlayer = [RMSAudioUnitFilePlayer instanceWithURL:url];
+	[self startSource:self.filePlayer];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

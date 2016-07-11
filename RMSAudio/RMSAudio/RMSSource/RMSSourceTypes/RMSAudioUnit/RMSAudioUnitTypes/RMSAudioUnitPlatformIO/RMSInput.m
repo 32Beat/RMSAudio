@@ -332,10 +332,6 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	result = AudioUnitAttachDevice(mAudioUnit, deviceID);
 	if (result != noErr) return result;
 	
-	Float64 sampleRate = 0.0;
-	result = RMSAudioGetNominalSampleRate(deviceID, &sampleRate);
-
-	
 	return result;
 }
 
@@ -481,8 +477,6 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	AudioStreamBasicDescription sourceFormat;
 	result = [self getSourceFormat:&sourceFormat];
 	mSourceSampleRate = sourceFormat.mSampleRate;
-
-
 
 #endif
 	

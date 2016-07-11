@@ -212,6 +212,15 @@ static void RMSLevelsUpdateWithBuffer
 
 - (void) updateLevels:(RMSStereoLevels *)levels
 {
+	// (re)initialize levels if samplerate changed
+	Float64 sampleRate = self.sampleRate;
+	if (levels->sampleRate != sampleRate)
+	{
+		levels->L = RMSLevelsInit(sampleRate);
+		levels->R = RMSLevelsInit(sampleRate);
+		levels->sampleRate = sampleRate;
+	}
+
 	rmsbuffer_t *L = [self bufferAtIndex:0];
 	rmsbuffer_t *R = [self bufferAtIndex:1];
 	

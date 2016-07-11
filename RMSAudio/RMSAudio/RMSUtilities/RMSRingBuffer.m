@@ -140,7 +140,7 @@ void RMSRingBufferReport(RMSRingBuffer *buffer)
 {
 	static UInt64 maxDelta = 0;
 	UInt64 currentDelta = buffer->writeIndex - buffer->readIndex;
-	if (maxDelta != currentDelta)
+	if (maxDelta < currentDelta)
 	{
 		maxDelta = currentDelta;
 		NSLog(@"Maximum delta: %llu", maxDelta);

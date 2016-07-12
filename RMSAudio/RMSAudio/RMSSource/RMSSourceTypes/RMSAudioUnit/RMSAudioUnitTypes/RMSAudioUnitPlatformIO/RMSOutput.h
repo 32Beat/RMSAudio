@@ -9,7 +9,14 @@
 
 #import "RMSAudioUnitPlatformIO.h"
 
+@class RMSOutput;
+
+@protocol RMSOutputDelegate
+- (void) audioOutput:(RMSOutput *)output didChangeState:(UInt32)state;
+@end
+
 @interface RMSOutput : RMSAudioUnitPlatformIO
+@property (nonatomic, weak) id<RMSOutputDelegate> delegate;
 
 + (instancetype) defaultOutput;
 

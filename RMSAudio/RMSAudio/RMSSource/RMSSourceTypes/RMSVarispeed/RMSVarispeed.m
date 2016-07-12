@@ -279,13 +279,19 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 	
-	if (rmsSource->mSrcStep <= 1.0)
+	if (rmsSource->mSrcStep < 1.0)
 	{
 		result = InterpolateSource(rmsObject, infoPtr);
 	}
 	else
+	if (rmsSource->mSrcStep > 1.0)
 	{
 		result = DecimateSource(rmsObject, infoPtr);
+	}
+	else
+	if (rmsSource->mSource != nil)
+	{
+		result = RunRMSSource(RMSSourceGetSource(rmsObject), infoPtr);
 	}
 	
 	return result;
@@ -353,10 +359,6 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	double dstRate = [self sampleRate];
 	
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
-	if ((mSrcIndex < mSrcStep) && (mSrcStep < 1.0))
-	{
-		mSrcIndex = 0.5 * mSrcStep;
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

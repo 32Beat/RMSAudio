@@ -12,7 +12,7 @@
 #import "RMSResultView.h"
 
 
-@interface Document () <RMSTimerProtocol>
+@interface Document () <RMSOutputDelegate, RMSTimerProtocol>
 {
 	NSTimer *mReportTimer;
 	
@@ -46,11 +46,10 @@
 {
 	// fetch names of available input devices
 	NSArray *devices = [RMSInput availableDevices];
+	
 	// add to popup menu
 	if (devices && devices.count)
 	[self.deviceMenu addItemsWithTitles:devices];
-	
-	self.audioOutput.source = nil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,9 +73,16 @@
 
 - (void) startSource:(RMSSource *)source
 {
-	if (source.sampleRate != self.audioOutput.sampleRate)
+	// update filePlayer connection for progress indicator
+	self.filePlayer = nil;
+	if ([source isKindOfClass:[RMSAudioUnitFilePlayer class]])
+	{ self.filePlayer = (RMSAudioUnitFilePlayer *)source; }
+	
+	// check for sampleRate conversion
+	if (source.sampleRate != self.audioOutput.sampleRate) \
 	{ source = [RMSVarispeed instanceWithSource:source]; }
 	
+	// attach to audioOutput
 	self.audioOutput.source = source;
 }
 
@@ -87,17 +93,44 @@
 	if (_audioOutput == nil)
 	{
 		_audioOutput = [RMSOutput defaultOutput];
+		_audioOutput.delegate = self;
 		
 		// prepare level metering
-		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
+		if (_outputMonitor == nil)
+		{
+			// create RMSSampleMonitor to monitor any RMSOutput
+			_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
+			
+			// add self to RMSTimer for periodic updating of GUI levels
+			[RMSTimer addRMSTimerObserver:self];
+		}
+		
 		[_audioOutput addMonitor:_outputMonitor];
-		[RMSTimer addRMSTimerObserver:self];
 		
 		// prepare render timing reports
 		[self startRenderTimingReports];
 	}
 	
 	return _audioOutput;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) audioOutput:(RMSOutput *)audioOutput didChangeState:(UInt32)state
+{
+	// TODO: add recursive reset to RMSSource
+	if (_audioOutput == audioOutput)
+	{
+		id source = _audioOutput.source;
+		
+		if ([source isKindOfClass:[RMSVarispeed class]])
+		{ source = [source source]; }
+		
+		[_audioOutput stopRunning];
+		_audioOutput = nil;
+
+		[self startSource:source];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,8 +290,8 @@
 {
 	[self logText:[NSString stringWithFormat:@"Start file: %@", url.lastPathComponent]];
 	
-	self.filePlayer = [RMSAudioUnitFilePlayer instanceWithURL:url];
-	[self startSource:self.filePlayer];
+	id source = [RMSAudioUnitFilePlayer instanceWithURL:url];
+	[self startSource:source];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

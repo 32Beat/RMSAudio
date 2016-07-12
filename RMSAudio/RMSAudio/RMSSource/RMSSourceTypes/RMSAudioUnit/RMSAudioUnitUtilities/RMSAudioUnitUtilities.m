@@ -13,16 +13,52 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSStatus RMSAudioObjectGetGlobalProperty(AudioObjectID objectID,
-AudioObjectPropertySelector selectorID, UInt32 resultSize, void *resultPtr)
+OSStatus RMSAudioObjectGetGlobalPropertySize
+(AudioObjectID objectID, AudioObjectPropertySelector selectorID, UInt32 *sizePtr)
 {
+	switch(selectorID)
+	{
+		case kAudioObjectPropertyBaseClass:
+		case kAudioObjectPropertyClass:
+			*sizePtr = sizeof(AudioClassID);
+			return noErr;
+
+		case kAudioObjectPropertyName:
+		case kAudioDevicePropertyDeviceUID:
+			*sizePtr = sizeof(CFStringRef);
+			return noErr;
+		
+		case kAudioDevicePropertyNominalSampleRate:
+			*sizePtr = sizeof(Float64);
+			return noErr;
+	}
+	
 	AudioObjectPropertyAddress address = {
 		selectorID,
 		kAudioObjectPropertyScopeGlobal,
 		kAudioObjectPropertyElementMaster };
 	
-	return AudioObjectGetPropertyData
-	(objectID, &address, 0, nil, &resultSize, resultPtr);
+	return AudioObjectGetPropertyDataSize(objectID, &address, 0, nil, sizePtr);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSAudioObjectGetGlobalProperty
+(AudioObjectID objectID, AudioObjectPropertySelector selectorID, void *dataPtr)
+{
+	AudioObjectPropertyAddress address = {
+		selectorID,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster };
+
+	UInt32 size = 0;
+	OSStatus error = AudioObjectGetPropertyDataSize(objectID, &address, 0, nil, &size);
+	if (error == noErr)
+	{
+		error = AudioObjectGetPropertyData(objectID, &address, 0, nil, &size, dataPtr);
+	}
+	
+	return error;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +96,7 @@ OSStatus RMSAudioGetAvailableDevices(AudioObjectID **deviceList, UInt32 *count)
 OSStatus RMSAudioGetDefaultInputDeviceID(AudioDeviceID *deviceID)
 {
 	return RMSAudioObjectGetGlobalProperty(kAudioObjectSystemObject,
-	kAudioHardwarePropertyDefaultInputDevice, sizeof(AudioDeviceID), deviceID);
+	kAudioHardwarePropertyDefaultInputDevice, deviceID);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +104,7 @@ OSStatus RMSAudioGetDefaultInputDeviceID(AudioDeviceID *deviceID)
 OSStatus RMSAudioGetDefaultOutputDeviceID(AudioDeviceID *deviceID)
 {
 	return RMSAudioObjectGetGlobalProperty(kAudioObjectSystemObject,
-	kAudioHardwarePropertyDefaultOutputDevice, sizeof(AudioDeviceID), deviceID);
+	kAudioHardwarePropertyDefaultOutputDevice, deviceID);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,9 +125,13 @@ OSStatus RMSAudioGetDeviceWithUniqueID(CFStringRef str, AudioDeviceID *deviceID)
 				if (CFStringCompare(str, tstStr, 0) == kCFCompareEqualTo)
 				{
 					*deviceID = deviceList[n];
+					
+					CFRelease(tstStr);
+					free(deviceList);
+					return noErr;;
 				}
 				
-				CFRelease(str);
+				CFRelease(tstStr);
 			}
 		}
 		
@@ -105,39 +145,42 @@ OSStatus RMSAudioGetDeviceWithUniqueID(CFStringRef str, AudioDeviceID *deviceID)
 #pragma mark
 #pragma mark AudioDevice Utilities
 ////////////////////////////////////////////////////////////////////////////////
+/*
+	Note that zero is not a valid deviceID for these functions.
+*/
 #if !TARGET_OS_IPHONE
 
 
 OSStatus RMSAudioDeviceGetBaseClass(AudioDeviceID deviceID, AudioClassID *classID)
 {
-	return RMSAudioObjectGetGlobalProperty(deviceID,
-	kAudioObjectPropertyBaseClass, sizeof(AudioClassID), classID);
+	return RMSAudioObjectGetGlobalProperty
+	(deviceID, kAudioObjectPropertyBaseClass, classID);
 }
 
 OSStatus RMSAudioDeviceGetClass(AudioDeviceID deviceID, AudioClassID *classID)
 {
-	return RMSAudioObjectGetGlobalProperty(deviceID,
-	kAudioObjectPropertyClass, sizeof(AudioClassID), classID);
+	return RMSAudioObjectGetGlobalProperty
+	(deviceID, kAudioObjectPropertyClass, classID);
 }
 
 OSStatus RMSAudioDeviceGetName(AudioDeviceID deviceID, CFStringRef *str)
 {
-	return RMSAudioObjectGetGlobalProperty(deviceID,
-	kAudioObjectPropertyName, sizeof(CFStringRef), str);
+	return RMSAudioObjectGetGlobalProperty
+	(deviceID, kAudioObjectPropertyName, str);
 }
 
 OSStatus RMSAudioDeviceGetUniqueID(AudioDeviceID deviceID, CFStringRef *str)
 {
-	return RMSAudioObjectGetGlobalProperty(deviceID,
-	kAudioDevicePropertyDeviceUID, sizeof(CFStringRef), str);
+	return RMSAudioObjectGetGlobalProperty
+	(deviceID, kAudioDevicePropertyDeviceUID, str);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSStatus RMSAudioGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sampleRate)
+OSStatus RMSAudioDeviceGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sampleRate)
 {
-	return RMSAudioObjectGetGlobalProperty(deviceID,
-	kAudioDevicePropertyNominalSampleRate, sizeof(Float64), sampleRate);
+	return RMSAudioObjectGetGlobalProperty
+	(deviceID, kAudioDevicePropertyNominalSampleRate, sampleRate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

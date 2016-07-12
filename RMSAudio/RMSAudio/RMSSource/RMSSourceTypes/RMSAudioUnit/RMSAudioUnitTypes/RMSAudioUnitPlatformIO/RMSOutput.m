@@ -37,7 +37,7 @@ RMSTimingInfo;
 {
 	RMSTimingInfo mTimingInfo;
 	
-	BOOL mShouldChangeSampleRate;
+	BOOL mStateChangePending;
 }
 @end
 
@@ -101,6 +101,21 @@ static OSStatus notifyCallback(
 {
 	if (mTimingInfo.reset == NO)
 	{ mTimingInfo.reset = YES; }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) didChangeState:(UInt32)state
+{
+	if (mStateChangePending == NO)
+	{
+		mStateChangePending = YES;
+		dispatch_async(dispatch_get_main_queue(),
+		^{
+			[self.delegate audioOutput:self didChangeState:0];
+			mStateChangePending = NO;
+		});
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +189,11 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 			A device samplerate change is typically destructive, 
 			produce silence + error until the management thread 
 			has had a chance to incorporate the change.
-		*/		
+			
+			The change can be communicated using GCD & obj-C, since we
+			are already producing a violent interruption and abrupt silence.
+		*/
+		[rmsOutput didChangeState:0];
 		return paramErr;
 	}
 	
@@ -350,6 +369,8 @@ AudioUnitElement	inElement)
 
 #endif
 	
+	
+	
 	// Set most reasonable guestimate, if necessary
 	if (mSampleRate == 0)
 	{ mSampleRate = 44100.0; }
@@ -394,6 +415,7 @@ AudioUnitElement	inElement)
 {
 	[mSource setSampleRate:sampleRate];
 	[super setSampleRate:sampleRate];
+	[self setInputSampleRate:sampleRate];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

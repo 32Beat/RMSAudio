@@ -49,6 +49,8 @@
 	// add to popup menu
 	if (devices && devices.count)
 	[self.deviceMenu addItemsWithTitles:devices];
+	
+	self.audioOutput.source = nil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

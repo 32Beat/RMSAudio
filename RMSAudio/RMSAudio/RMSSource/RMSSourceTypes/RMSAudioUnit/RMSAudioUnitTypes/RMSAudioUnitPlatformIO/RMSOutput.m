@@ -361,7 +361,9 @@ AudioUnitElement	inElement)
 
 - (OSStatus) prepareBuffers
 {
-	return noErr;
+	OSStatus result = noErr;
+//	result = RMSAudioUnitSetMaximumFramesPerSlice(mAudioUnit, 512);
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

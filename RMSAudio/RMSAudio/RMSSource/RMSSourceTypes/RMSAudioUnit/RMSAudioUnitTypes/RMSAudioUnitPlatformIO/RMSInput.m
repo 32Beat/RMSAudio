@@ -301,12 +301,12 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	self = [super init];
 	if (self != nil)
 	{
+		self.defaultBusIndex = 1;
+
 		OSStatus result = noErr;
-		
+				
 		result = [self prepareAudioUnit];
 		if (result != noErr) return nil;
-
-		self.defaultBusIndex = 1;
 
 		result = [self attachDevice:deviceID];
 		if (result != noErr) return nil;
@@ -491,8 +491,8 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	streamFormat.mSampleRate = mSampleRate;
 	result = [self setResultFormat:&streamFormat];
 
-/*
-*/
+//	result = [self getResultFormat:&streamFormat];
+
 	return result;
 }
 

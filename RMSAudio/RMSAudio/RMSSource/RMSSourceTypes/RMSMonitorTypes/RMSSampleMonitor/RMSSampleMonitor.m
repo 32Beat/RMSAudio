@@ -227,11 +227,12 @@ static void RMSLevelsUpdateWithBuffer
 	uint64_t maxIndex = self.maxIndex;
 	uint64_t maxCount = self.length >> 1;
 	
+	// reset index if necessary
 	if (levels->index > maxIndex)
 	{ levels->index = 0; }
 	
+	// compute range since last update
 	rmsrange_t range = { levels->index, maxIndex-levels->index+1 };
-		
 	if (range.count > maxCount)
 	{
 		range.index = maxIndex - maxCount + 1;

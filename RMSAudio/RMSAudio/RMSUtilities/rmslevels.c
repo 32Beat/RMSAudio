@@ -51,6 +51,17 @@ rmslevels_t RMSLevelsInit(double sampleRate)
 
 inline void RMSLevelsUpdateWithSample(rmslevels_t *levels, double sample)
 {
+	if (sample < 0.0)
+	{ sample = -sample; }
+	
+	// update clip value
+	if (levels->clp < sample)
+	{ levels->clp = sample; }
+
+	// update hold value
+	if (levels->hld < sample)
+	{ levels->hld = sample; }
+
 	// the s in rms
 	sample *= sample;
 	
@@ -74,14 +85,17 @@ void RMSLevelsUpdateWithSamples32(rmslevels_t *levels, float *srcPtr, uint32_t n
 
 ////////////////////////////////////////////////////////////////////////////////
 
-rmsresult_t RMSLevelsFetchResult(const rmslevels_t *levelsPtr)
+rmsresult_t RMSLevelsFetchResult(rmslevels_t *levelsPtr)
 {
-	rmsresult_t result = { 0.0, 0.0 };
+	rmsresult_t result = { 0.0, 0.0, 0.0, 0.0 };
 	
 	if (levelsPtr != NULL)
 	{
 		result.avg = sqrt(levelsPtr->avg);
 		result.max = sqrt(levelsPtr->max);
+		result.hld = (levelsPtr->hld);
+		result.clp = (levelsPtr->clp);
+		levelsPtr->hld = 0.0;
 	}
 	
 	return result;

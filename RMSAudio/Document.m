@@ -73,10 +73,16 @@
 
 - (void) startSource:(RMSSource *)source
 {
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+	
 	// update filePlayer connection for progress indicator
-	self.filePlayer = nil;
-	if ([source isKindOfClass:[RMSAudioUnitFilePlayer class]])
-	{ self.filePlayer = (RMSAudioUnitFilePlayer *)source; }
+	if (self.filePlayer != source)
+	{
+		self.filePlayer = nil;
+		if ([source isKindOfClass:[RMSAudioUnitFilePlayer class]])
+		{ self.filePlayer = (RMSAudioUnitFilePlayer *)source; }
+	}
 	
 	// check for sampleRate conversion
 	if (source.sampleRate != self.audioOutput.sampleRate) \
@@ -84,6 +90,10 @@
 	
 	// attach to audioOutput
 	self.audioOutput.source = source;
+	
+	mLevels.sampleRate = 0.0;
+	
+	[_audioOutput startRunning];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,11 @@
 	// Represented data
 	rmsresult_t mLevels;
 
+	CGFloat mAvg;
+	CGFloat mMax;
 	CGFloat mHld;
+	CGFloat mClp;
+	
 	CGFloat mHldM;
 	size_t mHldCount;
 	
@@ -35,6 +39,10 @@
 	mLevels = levels;
 
 	[self updateHoldLevel];
+
+	mAvg = (levels.avg);
+	mMax = (levels.max);
+	mClp = (levels.clp);
 	
 	[self setNeedsDisplayInRect:self.bounds];
 }
@@ -43,9 +51,9 @@
 
 - (void) updateHoldLevel
 {
-	if (mHld <= mLevels.max)
+	if (mHld <= mLevels.hld)
 	{
-		mHld = mLevels.max;
+		mHld = mLevels.hld;
 		
 		if (self.holdTime == 0)
 		{ self.holdTime = 1000.0; }
@@ -212,12 +220,12 @@
 	
 	// Average
 	[[self avgColor] set];
-	frame.size.width = round(W * RMS2DISPLAY(levels.avg));
+	frame.size.width = round(W * RMS2DISPLAY(mAvg));
 	NSRectFill(frame);
 
 	[[self maxColor] set];
 	frame.origin.x += frame.size.width;
-	frame.size.width = round(W * RMS2DISPLAY(levels.max));
+	frame.size.width = round(W * RMS2DISPLAY(mMax));
 	frame.size.width -= frame.origin.x;
 	NSRectFill(frame);
 
@@ -232,6 +240,16 @@
 	frame.origin.x += frame.size.width;
 	frame.size.width = round(W * RMS2DISPLAY(mHld));
 	frame.size.width -= frame.origin.x;
+	NSRectFill(frame);
+	
+	if (mClp > 1.0)
+		[[self clpColor] set];
+	else
+		[[self hldColor] set];
+		
+	frame = self.bounds;
+	frame.origin.x += round(W * RMS2DISPLAY(mClp));
+	frame.size.width = 1.0;
 	NSRectFill(frame);
 }
 

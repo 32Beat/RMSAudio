@@ -346,7 +346,11 @@ bool AudioUnitIsRunning(AudioUnit audioUnit)
 	
 	OSStatus result = AudioUnitGetGlobalProperty
 	(audioUnit, kAudioOutputUnitProperty_IsRunning, &state);
-
+	if (result != noErr)
+	{
+		NSLog(@"AudioUnitIsRunning error = %d", result);
+	}
+	
 	return state;
 }
 

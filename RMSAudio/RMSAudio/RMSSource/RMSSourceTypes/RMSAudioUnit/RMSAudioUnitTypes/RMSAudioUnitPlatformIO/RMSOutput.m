@@ -240,7 +240,8 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		result = [self prepareBuffers];
 		if (result != noErr) return nil;
 		
-		[self startRunning];
+		// don't start automagically, controller should trigger this
+		//[self startRunning];
 	}
 	
 	return self;

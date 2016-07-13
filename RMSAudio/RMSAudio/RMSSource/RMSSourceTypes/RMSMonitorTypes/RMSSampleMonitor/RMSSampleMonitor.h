@@ -42,8 +42,8 @@ possible design concept: always as extension to RMSSampleMonitor
 - (void) updateStereoLevels:(RMSStereoLevels *)levels;
 @end
 
-@interface RMSSampleMonitor (RMSLissajoux)
-- (void) updateLissajouxData:(RMSStereoLevels *)levels;
+@interface RMSSampleMonitor (RMSLissajouxData)
+- (void) updateLissajouxData:(RMSLissajouxData *)data;
 @end
 */
 ////////////////////////////////////////////////////////////////////////////////

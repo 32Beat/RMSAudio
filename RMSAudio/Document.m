@@ -86,7 +86,11 @@
 	
 	// check for sampleRate conversion
 	if (source.sampleRate != self.audioOutput.sampleRate) \
-	{ source = [RMSVarispeed instanceWithSource:source]; }
+	{
+		source = [RMSVarispeed instanceWithSource:source];
+		source.sampleRate = 4.0 * self.audioOutput.sampleRate;
+		source = [RMSVarispeed instanceWithSource:source];
+	}
 	
 	// attach to audioOutput
 	self.audioOutput.source = source;

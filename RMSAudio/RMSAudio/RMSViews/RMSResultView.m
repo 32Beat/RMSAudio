@@ -232,7 +232,7 @@
 	if (mHld < levels.max)
 	{ mHld = levels.max; }
 	
-	if (mHld < 1.0)
+	if (mHld <= 1.0)
 	[[self hldColor] set];
 	else
 	[[self clpColor] set];
@@ -242,11 +242,11 @@
 	frame.size.width -= frame.origin.x;
 	NSRectFill(frame);
 	
-	if (mClp > 1.0)
-		[[self clpColor] set];
-	else
+	if (mClp <= 1.0)
 		[[self hldColor] set];
-		
+	else
+		[[self clpColor] set];
+	
 	frame = self.bounds;
 	frame.origin.x += round(W * RMS2DISPLAY(mClp));
 	frame.size.width = 1.0;

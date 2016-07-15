@@ -51,7 +51,7 @@
 
 	for (UInt32 n=0; n!=sizeof(DB)/sizeof(CGFloat); n++)
 	{
-		frame.origin.x = floor(w*DB2DISPLAY(DB[n]));
+		frame.origin.x = round(w*DB2DISPLAY(DB[n]));
 		NSRectFill(frame);
 	}
 }
@@ -68,7 +68,7 @@
 
 	for (UInt32 n=0; n!=sizeof(DB)/sizeof(CGFloat); n++)
 	{
-		frame.origin.x = floor(w*DB2DISPLAY(DB[n]));
+		frame.origin.x = round(w*DB2DISPLAY(DB[n]));
 		NSRectFill(frame);
 	}
 }

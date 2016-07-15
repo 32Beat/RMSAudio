@@ -51,6 +51,7 @@ static void RMSStereoInterpolatorFetch
 	Float64 mSrcFraction;
 	Float64 mSrcStep;
 	
+	RMSCallbackProcPtr mResampleProc;
 	RMSStereoInterpolator mInterpolator;
 	
 	UInt64 mSrcListIndex;
@@ -269,6 +270,49 @@ static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+static OSStatus DecimateSourceByN(void *rmsObject, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus result = noErr;
+
+	__unsafe_unretained RMSVarispeed *rmsSource = \
+	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
+
+	Float32 *dstPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
+	Float32 *dstPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
+
+
+	UInt64 index = rmsSource->mSrcIndex & 511;
+	Float32 *srcPtrL = rmsSource->mSrcSamplesL;
+	Float32 *srcPtrR = rmsSource->mSrcSamplesR;
+
+	UInt32 N = rmsSource->mSrcStep;
+//	float m = 1.0 / N;
+	
+	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
+	{
+		// test if next buffer is required
+		if ((index &= 511) == 0)
+		{
+			result = RefreshBuffer(rmsObject, index);
+			if (result != noErr) return result;
+		}
+/*
+		dstPtrL[n] = m*vSsum(N, (vFloat *)&srcPtrL[index]);
+		dstPtrR[n] = m*vSsum(N, (vFloat *)&srcPtrR[index]);
+/*/
+		vDSP_meanv(&srcPtrL[index], 1, &dstPtrL[n], N);
+		vDSP_meanv(&srcPtrR[index], 1, &dstPtrR[n], N);
+//*/
+		index += N;
+	}
+
+	rmsSource->mSrcIndex += infoPtr->frameCount * N;
+	
+	return noErr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -279,20 +323,10 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
 	
-	if (rmsSource->mSrcStep < 1.0)
-	{
-		result = InterpolateSource(rmsObject, infoPtr);
-	}
+	if (rmsSource->mResampleProc != nil)
+	{ result = rmsSource->mResampleProc(rmsObject, infoPtr); }
 	else
-	if (rmsSource->mSrcStep > 1.0)
-	{
-		result = DecimateSource(rmsObject, infoPtr);
-	}
-	else
-	if (rmsSource->mSource != nil)
-	{
-		result = RunRMSSource(RMSSourceGetSource(rmsObject), infoPtr);
-	}
+	{ result = RunRMSSource(RMSSourceGetSource(rmsObject), infoPtr); }
 	
 	return result;
 }
@@ -359,6 +393,23 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	double dstRate = [self sampleRate];
 	
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
+	
+	if (mSrcStep > 1.0)
+	{
+		mResampleProc = DecimateSource;
+		
+		double N = log2(mSrcStep);
+		if ((N-floor(N))==0.0)
+		{
+			mResampleProc = DecimateSourceByN;
+		}
+	}
+	else
+	if (mSrcStep == 1.0)
+	mResampleProc = nil;
+	else
+	if (mSrcStep < 1.0)
+	mResampleProc = InterpolateSource;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

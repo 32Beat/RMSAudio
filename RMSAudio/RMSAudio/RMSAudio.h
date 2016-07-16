@@ -25,6 +25,7 @@
 
 #import "RMSVarispeed.h"
 #import "RMSVolume.h"
+#import "RMSAutoPan.h"
 
 #import "RMSSampleMonitor.h"
 

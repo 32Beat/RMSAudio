@@ -64,7 +64,7 @@ static OSStatus renderCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 	
 	float lastVolume = rmsVolume->mLastVolume;
 	float nextVolume = rmsVolume->mNextVolume * pow(10, 0.05*rmsVolume->mGain);
-	
+
 	float lastBalance = rmsVolume->mLastBalance;
 	float nextBalance = rmsVolume->mNextBalance;
 	

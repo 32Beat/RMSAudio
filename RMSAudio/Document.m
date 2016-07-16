@@ -25,6 +25,8 @@
 @property (nonatomic, weak) IBOutlet NSSlider *volumeControl;
 @property (nonatomic, weak) IBOutlet NSSlider *balanceControl;
 
+@property (nonatomic) RMSAutoPan *autoPanFilter;
+@property (nonatomic, weak) IBOutlet NSButton *autoPanControl;
 
 
 
@@ -40,6 +42,8 @@
 @property (nonatomic, weak) IBOutlet RMSResultView *resultViewR;
 
 @end
+
+#pragma mark
 
 ////////////////////////////////////////////////////////////////////////////////
 @implementation Document
@@ -110,6 +114,32 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (RMSVolume *)volumeFilter
+{
+	if (_volumeFilter == nil)
+	{ _volumeFilter = [RMSVolume new]; }
+	
+	return _volumeFilter;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (RMSSampleMonitor *) outputMonitor
+{
+	if (_outputMonitor == nil)
+	{
+		// create RMSSampleMonitor to monitor any RMSOutput
+		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
+		
+		// add self to RMSTimer for periodic updating of GUI levels
+		[RMSTimer addRMSTimerObserver:self];
+	}
+	
+	return _outputMonitor;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (RMSOutput *) audioOutput
 {
 	if (_audioOutput == nil)
@@ -117,25 +147,10 @@
 		_audioOutput = [RMSOutput defaultOutput];
 		_audioOutput.delegate = self;
 	
-		// prepare volume control
-		if (_volumeFilter == nil)
-		{
-			_volumeFilter = [RMSVolume new];
-		}
-		
-		[_audioOutput addFilter:_volumeFilter];
-		
-		// prepare level metering
-		if (_outputMonitor == nil)
-		{
-			// create RMSSampleMonitor to monitor any RMSOutput
-			_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
-			
-			// add self to RMSTimer for periodic updating of GUI levels
-			[RMSTimer addRMSTimerObserver:self];
-		}
-		
-		[_audioOutput addMonitor:_outputMonitor];
+		// prepare volumecontrol, autopan, and outputmetering
+		[_audioOutput addFilter:self.volumeFilter];
+		[_audioOutput addFilter:self.autoPanFilter];
+		[_audioOutput addMonitor:self.outputMonitor];
 		
 		// prepare render timing reports
 		[self startRenderTimingReports];
@@ -185,28 +200,6 @@
 {
 	[_audioOutput stopRunning];
 	_audioOutput = nil;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark
-////////////////////////////////////////////////////////////////////////////////
-
-- (IBAction) didAdjustVolumeControl:(NSSlider *)sender
-{
-	if (sender == self.gainControl)
-	{
-		self.volumeFilter.gain = sender.floatValue;
-	}
-	else
-	if (sender == self.volumeControl)
-	{
-		self.volumeFilter.volume = sender.floatValue;
-	}
-	else
-	if (sender == self.balanceControl)
-	{
-		self.volumeFilter.balance = sender.floatValue;
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,6 +261,9 @@
 {
 	[self updateProgress];
 	[self triggerLevelsUpdate];
+	
+	if (self.autoPanFilter != nil)
+	{ self.balanceControl.floatValue = self.autoPanFilter.correctionBalance; }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -307,6 +303,47 @@
 {
 	Float32 R = [self.filePlayer getRelativePlayTime];
 	[self.fileProgressIndicator setDoubleValue:R];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) didAdjustVolumeControl:(NSSlider *)sender
+{
+	if (sender == self.gainControl)
+	{
+		self.volumeFilter.gain = sender.floatValue;
+	}
+	else
+	if (sender == self.volumeControl)
+	{
+		self.volumeFilter.volume = sender.floatValue;
+	}
+	else
+	if (sender == self.balanceControl)
+	{
+		self.volumeFilter.balance = sender.floatValue;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) didSelectAutoPanButton:(NSButton *)button
+{
+	if (button.intValue != 0)
+	{
+		[self.balanceControl setEnabled:NO];
+		self.autoPanFilter = [RMSAutoPan new];
+		[self.audioOutput addFilter:self.autoPanFilter];
+	}
+	else
+	{
+		[self.audioOutput removeFilter:self.autoPanFilter];
+		self.autoPanFilter = nil;
+		[self.balanceControl setEnabled:YES];
+		[self.balanceControl setFloatValue:self.volumeFilter.balance];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1340CF401D3A6531000880CB /* RMSVolume.m in Sources */ = {isa = PBXBuildFile; fileRef = 1340CF3F1D3A6531000880CB /* RMSVolume.m */; };
 		1352B8CE1D2B68ED00A26252 /* RMSBezierInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 1352B8CD1D2B68ED00A26252 /* RMSBezierInterpolator.m */; };
 		1356FBA61D3052830045BE4F /* rmslevels.c in Sources */ = {isa = PBXBuildFile; fileRef = 1356FBA41D3052830045BE4F /* rmslevels.c */; };
 		1356FBAC1D3055B90045BE4F /* RMSIndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1356FBA91D3055B90045BE4F /* RMSIndexView.m */; };
@@ -35,6 +36,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1340CF3E1D3A6531000880CB /* RMSVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSVolume.h; sourceTree = "<group>"; };
+		1340CF3F1D3A6531000880CB /* RMSVolume.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSVolume.m; sourceTree = "<group>"; };
 		1352B8CC1D2B68ED00A26252 /* RMSBezierInterpolator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSBezierInterpolator.h; sourceTree = "<group>"; };
 		1352B8CD1D2B68ED00A26252 /* RMSBezierInterpolator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSBezierInterpolator.m; sourceTree = "<group>"; };
 		1356FBA41D3052830045BE4F /* rmslevels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rmslevels.c; sourceTree = "<group>"; };
@@ -97,6 +100,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1340CF3C1D3A6531000880CB /* RMSFilterTypes */ = {
+			isa = PBXGroup;
+			children = (
+				1340CF3D1D3A6531000880CB /* RMSVolume */,
+			);
+			path = RMSFilterTypes;
+			sourceTree = "<group>";
+		};
+		1340CF3D1D3A6531000880CB /* RMSVolume */ = {
+			isa = PBXGroup;
+			children = (
+				1340CF3E1D3A6531000880CB /* RMSVolume.h */,
+				1340CF3F1D3A6531000880CB /* RMSVolume.m */,
+			);
+			path = RMSVolume;
+			sourceTree = "<group>";
+		};
 		1352B8CB1D2B68ED00A26252 /* RMSInterpolators */ = {
 			isa = PBXGroup;
 			children = (
@@ -202,6 +222,7 @@
 		1357206D1D1BF8C7002FFE64 /* RMSSourceTypes */ = {
 			isa = PBXGroup;
 			children = (
+				1340CF3C1D3A6531000880CB /* RMSFilterTypes */,
 				13D15E331D2F7BBE006232A0 /* RMSMonitorTypes */,
 				139B04041D27D17700A754A6 /* RMSVarispeed */,
 				1357206E1D1BF8C7002FFE64 /* RMSAudioUnit */,
@@ -369,6 +390,7 @@
 				1357208C1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m in Sources */,
 				135720831D1BF8C7002FFE64 /* RMSAudioUnit.m in Sources */,
 				135720331D1BEF22002FFE64 /* Document.m in Sources */,
+				1340CF401D3A6531000880CB /* RMSVolume.m in Sources */,
 				135720551D1BF63A002FFE64 /* RMSUtilities.m in Sources */,
 				135720871D1BF8C7002FFE64 /* RMSOutput.m in Sources */,
 				1356FBA61D3052830045BE4F /* rmslevels.c in Sources */,

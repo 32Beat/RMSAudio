@@ -24,6 +24,7 @@
 #import "RMSOutput.h"
 
 #import "RMSVarispeed.h"
+#import "RMSVolume.h"
 
 #import "RMSSampleMonitor.h"
 

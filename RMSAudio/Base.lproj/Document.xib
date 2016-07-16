@@ -3,15 +3,19 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+        <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document">
             <connections>
+                <outlet property="balanceControl" destination="4p1-TH-d6i" id="fpf-Gh-DDj"/>
                 <outlet property="deviceMenu" destination="XPc-t6-YeH" id="yMN-bT-SWd"/>
                 <outlet property="fileProgressIndicator" destination="uYu-VS-Dx4" id="YEt-EF-lUy"/>
+                <outlet property="gainControl" destination="UJC-Ko-b6Z" id="mUz-99-Wj9"/>
                 <outlet property="logView" destination="gFb-O5-cO1" id="RRe-FU-gwk"/>
                 <outlet property="resultViewL" destination="IYx-wO-ckQ" id="4VA-WJ-vKY"/>
                 <outlet property="resultViewR" destination="AYM-L1-uCH" id="4X8-hJ-xUf"/>
+                <outlet property="volumeControl" destination="US9-Iy-TpS" id="9ru-9W-PbW"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
         </customObject>
@@ -20,26 +24,15 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="xOd-HO-29H" userLabel="Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="35" y="290" width="507" height="486"/>
+            <rect key="contentRect" x="35" y="290" width="507" height="577"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <value key="minSize" type="size" width="94" height="86"/>
             <view key="contentView" id="gIp-Ho-8D9">
-                <rect key="frame" x="0.0" y="0.0" width="507" height="486"/>
+                <rect key="frame" x="0.0" y="0.0" width="507" height="577"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" id="VSB-CD-pci">
-                        <rect key="frame" x="14" y="255" width="115" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Select File..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sip-jc-iqZ">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="didSelectAudioFileButton:" target="-2" id="d3y-St-Siq"/>
-                        </connections>
-                    </button>
                     <customView id="EM2-ru-mj6">
-                        <rect key="frame" x="20" y="163" width="467" height="90"/>
+                        <rect key="frame" x="20" y="467" width="467" height="90"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <subviews>
                             <customView id="Iew-Mo-c19" customClass="RMSIndexView">
@@ -97,12 +90,59 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
+                    <button verticalHuggingPriority="750" id="VSB-CD-pci">
+                        <rect key="frame" x="14" y="166" width="115" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Select File..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sip-jc-iqZ">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="didSelectAudioFileButton:" target="-2" id="d3y-St-Siq"/>
+                        </connections>
+                    </button>
                     <progressIndicator wantsLayer="YES" maxValue="1" style="bar" id="uYu-VS-Dx4">
-                        <rect key="frame" x="131" y="262" width="356" height="20"/>
+                        <rect key="frame" x="131" y="173" width="356" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
+                    <box autoresizesSubviews="NO" title="Gain" borderType="line" id="NmU-4E-NDn">
+                        <rect key="frame" x="17" y="308" width="473" height="140"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <view key="contentView" id="jaF-So-K3M">
+                            <rect key="frame" x="1" y="1" width="471" height="124"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <slider verticalHuggingPriority="750" id="US9-Iy-TpS">
+                                    <rect key="frame" x="18" y="47" width="435" height="27"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="1" tickMarkPosition="below" numberOfTickMarks="9" sliderType="linear" id="Pcn-0Y-e2r"/>
+                                    <connections>
+                                        <action selector="didAdjustVolumeControl:" target="-2" id="6B0-fJ-NRa"/>
+                                    </connections>
+                                </slider>
+                                <slider verticalHuggingPriority="750" id="UJC-Ko-b6Z">
+                                    <rect key="frame" x="18" y="80" width="435" height="26"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="18" tickMarkPosition="below" numberOfTickMarks="19" allowsTickMarkValuesOnly="YES" sliderType="linear" id="Oig-5A-xef"/>
+                                    <connections>
+                                        <action selector="didAdjustVolumeControl:" target="-2" id="oGq-Tv-Srn"/>
+                                    </connections>
+                                </slider>
+                                <slider verticalHuggingPriority="750" id="4p1-TH-d6i">
+                                    <rect key="frame" x="18" y="14" width="435" height="27"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="-1" maxValue="1" tickMarkPosition="below" numberOfTickMarks="9" sliderType="linear" id="2mq-WB-z7r"/>
+                                    <connections>
+                                        <action selector="didAdjustVolumeControl:" target="-2" id="Y49-Mi-AuM"/>
+                                    </connections>
+                                </slider>
+                            </subviews>
+                        </view>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </box>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="BQg-Jm-j7b">
-                        <rect key="frame" x="18" y="447" width="51" height="17"/>
+                        <rect key="frame" x="18" y="216" width="51" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Source:" id="UMm-6f-6Cb">
                             <font key="font" metaFont="system"/>
@@ -111,7 +151,7 @@
                         </textFieldCell>
                     </textField>
                     <popUpButton verticalHuggingPriority="750" id="XPc-t6-YeH">
-                        <rect key="frame" x="67" y="442" width="172" height="26"/>
+                        <rect key="frame" x="67" y="211" width="172" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="wI7-jT-LUQ" id="Dmk-kr-KAi">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -131,7 +171,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="-936.5" y="144"/>
+            <point key="canvasLocation" x="-1069.5" y="71.5"/>
         </window>
     </objects>
 </document>

@@ -20,6 +20,14 @@
 	RMSStereoLevels mLevels;
 }
 
+@property (nonatomic) RMSVolume *volumeFilter;
+@property (nonatomic, weak) IBOutlet NSSlider *gainControl;
+@property (nonatomic, weak) IBOutlet NSSlider *volumeControl;
+@property (nonatomic, weak) IBOutlet NSSlider *balanceControl;
+
+
+
+
 @property (nonatomic, weak) IBOutlet NSPopUpButton *deviceMenu;
 
 
@@ -108,6 +116,14 @@
 	{
 		_audioOutput = [RMSOutput defaultOutput];
 		_audioOutput.delegate = self;
+	
+		// prepare volume control
+		if (_volumeFilter == nil)
+		{
+			_volumeFilter = [RMSVolume new];
+		}
+		
+		[_audioOutput addFilter:_volumeFilter];
 		
 		// prepare level metering
 		if (_outputMonitor == nil)
@@ -152,11 +168,9 @@
 // break any self-inflicted strong references
 - (void) close
 {
-	// break circular reference
-	[mReportTimer invalidate];
-	mReportTimer = nil;
-
 	[RMSTimer removeRMSTimerObserver:self];
+
+	[self stopRenderTimingReports];
 
 	// stop audiounit
 	[_audioOutput stopRunning];
@@ -171,6 +185,28 @@
 {
 	[_audioOutput stopRunning];
 	_audioOutput = nil;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) didAdjustVolumeControl:(NSSlider *)sender
+{
+	if (sender == self.gainControl)
+	{
+		self.volumeFilter.gain = sender.floatValue;
+	}
+	else
+	if (sender == self.volumeControl)
+	{
+		self.volumeFilter.volume = sender.floatValue;
+	}
+	else
+	if (sender == self.balanceControl)
+	{
+		self.volumeFilter.balance = sender.floatValue;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,6 +229,14 @@
         forMode:NSRunLoopCommonModes];
 	}
 	
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) stopRenderTimingReports
+{
+	[mReportTimer invalidate];
+	mReportTimer = nil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

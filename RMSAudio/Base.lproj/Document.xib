@@ -8,13 +8,14 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document">
             <connections>
+                <outlet property="autoPanControl" destination="mAC-p1-MY4" id="cjY-GJ-bcz"/>
                 <outlet property="balanceControl" destination="4p1-TH-d6i" id="fpf-Gh-DDj"/>
-                <outlet property="deviceMenu" destination="XPc-t6-YeH" id="yMN-bT-SWd"/>
                 <outlet property="fileProgressIndicator" destination="uYu-VS-Dx4" id="YEt-EF-lUy"/>
                 <outlet property="gainControl" destination="UJC-Ko-b6Z" id="mUz-99-Wj9"/>
                 <outlet property="logView" destination="gFb-O5-cO1" id="RRe-FU-gwk"/>
                 <outlet property="resultViewL" destination="IYx-wO-ckQ" id="4VA-WJ-vKY"/>
                 <outlet property="resultViewR" destination="AYM-L1-uCH" id="4X8-hJ-xUf"/>
+                <outlet property="sourceMenu" destination="XPc-t6-YeH" id="nH6-8r-ias"/>
                 <outlet property="volumeControl" destination="US9-Iy-TpS" id="9ru-9W-PbW"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
@@ -158,6 +159,10 @@
                             <font key="font" metaFont="menu"/>
                             <menu key="menu" id="nVm-yg-Wf8">
                                 <items>
+                                    <menuItem title="Select File..." id="1Yh-50-iel">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                    <menuItem isSeparatorItem="YES" id="Edu-wf-BBo"/>
                                     <menuItem title="None" state="on" id="wI7-jT-LUQ"/>
                                 </items>
                             </menu>
@@ -182,7 +187,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="-1091.5" y="-117"/>
+            <point key="canvasLocation" x="-1559.5" y="-120"/>
         </window>
     </objects>
 </document>

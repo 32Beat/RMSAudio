@@ -30,7 +30,7 @@
 
 
 
-@property (nonatomic, weak) IBOutlet NSPopUpButton *deviceMenu;
+@property (nonatomic, weak) IBOutlet NSPopUpButton *sourceMenu;
 
 
 @property (nonatomic) RMSAudioUnitFilePlayer *filePlayer;
@@ -61,14 +61,43 @@
 	
 	// add to popup menu
 	if (devices && devices.count)
-	[self.deviceMenu addItemsWithTitles:devices];
+	[self.sourceMenu addItemsWithTitles:devices];
+	
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self selector:@selector(buttonWillPopUp:)
+	name:NSPopUpButtonWillPopUpNotification object:self.sourceMenu];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) buttonWillPopUp:(NSNotification *)note
+{
+	if (self.sourceMenu == note.object)
+	{
+		[self.sourceMenu itemAtIndex:2].title = @"None";
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction) selectSource:(id)sender
 {
-	NSString *name = [sender titleOfSelectedItem];
+	if ([sender indexOfSelectedItem] == 0)
+	{
+		[self selectFile:nil];
+	}
+	else
+	if ([sender indexOfSelectedItem] > 2)
+	{
+		NSString *name = [sender titleOfSelectedItem];
+		[self selectSourceWithName:name];
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) selectSourceWithName:(NSString *)name
+{
 	
 	AudioDeviceID deviceID = [RMSInput deviceWithName:name];
 	if (deviceID != 0)
@@ -149,7 +178,6 @@
 	
 		// prepare volumecontrol, autopan, and outputmetering
 		[_audioOutput addFilter:self.volumeFilter];
-		[_audioOutput addFilter:self.autoPanFilter];
 		[_audioOutput addMonitor:self.outputMonitor];
 		
 		// prepare render timing reports
@@ -183,6 +211,8 @@
 // break any self-inflicted strong references
 - (void) close
 {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	
 	[RMSTimer removeRMSTimerObserver:self];
 
 	[self stopRenderTimingReports];
@@ -215,7 +245,7 @@
 		target:self selector:@selector(reportRenderTime:) userInfo:nil repeats:YES];
 		
 		// add tolerance to reduce system strain
-		[mReportTimer setTolerance:.1];
+		[mReportTimer setTolerance:.2];
 		
 		// add to runloop
 		[[NSRunLoop currentRunLoop] addTimer:mReportTimer
@@ -355,6 +385,9 @@
 */
 
 - (IBAction) didSelectAudioFileButton:(NSButton *)button
+{ [self selectFile:nil]; }
+
+- (IBAction) selectFile:(id)sender
 {
 	NSOpenPanel *panel = [NSOpenPanel openPanel];
 	
@@ -376,6 +409,8 @@
 					[self startFileWithURL:url];
 				}
 			}
+			
+			[self.sourceMenu selectItemAtIndex:2];
 		}];
 }
 

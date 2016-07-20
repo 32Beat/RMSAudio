@@ -115,6 +115,7 @@
 		for (RMSDevice *device in devices)
 		{
 			[self.sourceMenu addItemWithTitle:device.name];
+			self.sourceMenu.lastItem.representedObject = device;
 		}
 	}
 }
@@ -131,6 +132,7 @@
 		for (RMSDevice *device in devices)
 		{
 			[self.outputMenu addItemWithTitle:device.name];
+			self.outputMenu.lastItem.representedObject = device;
 		}
 	}
 }
@@ -160,15 +162,21 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (IBAction) selectOutput:(id)sender
+- (IBAction) selectOutput:(NSPopUpButton *)menuButton
 {
+	RMSDevice *device = (RMSDevice *)menuButton.selectedItem.representedObject;
+	AudioDeviceID deviceID = device.deviceID;
+	if (deviceID != 0)
+	{
+		RMSOutput *output = [RMSOutput instanceWithDeviceID:deviceID];
+		[self setOutput:output];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) selectSourceWithName:(NSString *)name
 {
-	
 	AudioDeviceID deviceID = [RMSInput deviceWithName:name];
 	if (deviceID != 0)
 	{
@@ -185,7 +193,6 @@
 - (void) startSource:(RMSSource *)source
 {
 	[_audioOutput stopRunning];
-	_audioOutput = nil;
 	
 	// update filePlayer connection for progress indicator
 	if (self.filePlayer != source)
@@ -209,6 +216,9 @@
 	mLevels.sampleRate = 0.0;
 	
 	[_audioOutput startRunning];
+		
+	// prepare render timing reports
+	[self startRenderTimingReports];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -239,22 +249,19 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (RMSOutput *) audioOutput
+- (void) setOutput:(RMSOutput *)output
 {
-	if (_audioOutput == nil)
+	if (_audioOutput != output)
 	{
-		_audioOutput = [RMSOutput defaultOutput];
-		_audioOutput.delegate = self;
-	
-		// prepare volumecontrol, autopan, and outputmetering
-		[_audioOutput addFilter:self.volumeFilter];
-		[_audioOutput addMonitor:self.outputMonitor];
+		[_audioOutput stopRunning];
 		
-		// prepare render timing reports
-		[self startRenderTimingReports];
+		// prepare volumecontrol, autopan, and outputmetering
+		[output addFilter:self.volumeFilter];
+		[output addMonitor:self.outputMonitor];
+		[output setDelegate:self];
+		
+		_audioOutput = output;
 	}
-	
-	return _audioOutput;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

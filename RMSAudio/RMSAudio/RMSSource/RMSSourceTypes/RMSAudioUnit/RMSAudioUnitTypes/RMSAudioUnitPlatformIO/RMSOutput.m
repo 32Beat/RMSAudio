@@ -221,6 +221,9 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
++ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID
+{ return [[self alloc] initWithDeviceID:deviceID]; }
+
 - (instancetype) initWithDeviceID:(AudioDeviceID)deviceID
 {
 	self = [super init];

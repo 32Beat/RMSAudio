@@ -19,6 +19,8 @@
 @property (nonatomic, weak) id<RMSOutputDelegate> delegate;
 
 + (instancetype) defaultOutput;
++ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID;
+- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID;
 
 - (NSTimeInterval) averageRenderTime;
 - (NSTimeInterval) maximumRenderTime;

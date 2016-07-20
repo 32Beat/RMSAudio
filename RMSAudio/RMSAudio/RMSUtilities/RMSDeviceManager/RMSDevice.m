@@ -74,6 +74,37 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (NSString *) uniqueID
+{
+	if (_uniqueID == nil)
+	{ [self getUniqueID]; }
+	return [_uniqueID copy];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (OSStatus) getUniqueID
+{
+	const AudioObjectPropertyAddress propertyAddress = {
+	kAudioDevicePropertyDeviceUID,
+	kAudioObjectPropertyScopeGlobal,
+	kAudioObjectPropertyElementMaster };
+
+	CFStringRef strRef = nil;
+	UInt32 size = sizeof(CFStringRef);
+	OSStatus error = AudioObjectGetPropertyData
+	(self.deviceID, &propertyAddress, 0, NULL, &size, &strRef);
+
+	if(strRef != nil)
+	{
+		_uniqueID = CFBridgingRelease(strRef);
+	}
+	
+	return error;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (UInt32) inputChannelCount
 {
 	if (mChannelCount == 0)

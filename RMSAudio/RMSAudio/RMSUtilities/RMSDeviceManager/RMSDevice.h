@@ -13,6 +13,7 @@
 @interface RMSDevice : NSObject
 @property (nonatomic, readonly) AudioDeviceID deviceID;
 @property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *uniqueID;
 
 + (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID;
 - (instancetype) initWithDeviceID:(AudioDeviceID)deviceID;

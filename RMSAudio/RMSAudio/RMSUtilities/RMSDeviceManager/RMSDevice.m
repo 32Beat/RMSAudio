@@ -1,0 +1,38 @@
+////////////////////////////////////////////////////////////////////////////////
+/*
+	RMSDevice
+	
+	Created by 32BT on 15/11/15.
+	Copyright © 2015 32BT. All rights reserved.
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+
+#import "RMSDevice.h"
+
+
+@interface RMSDevice ()
+{
+}
+@end
+
+////////////////////////////////////////////////////////////////////////////////
+@implementation RMSDevice
+
++ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID
+{ return [[self alloc] initWithDeviceID:deviceID]; }
+
+- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID
+{
+	self = [super init];
+	if (self != nil)
+	{
+		_deviceID = deviceID;
+	}
+	
+	return self;
+}
+
+@end
+////////////////////////////////////////////////////////////////////////////////
+

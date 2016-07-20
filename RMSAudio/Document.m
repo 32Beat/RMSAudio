@@ -56,8 +56,10 @@
 
 - (void) awakeFromNib
 {
+	NSArray *devices = [RMSDeviceManager availableDevices];
+
 	// fetch names of available input devices
-	NSArray *devices = [RMSInput availableDevices];
+	//NSArray *devices = [RMSInput availableDevices];
 	
 	// add to popup menu
 	if (devices && devices.count)
@@ -82,12 +84,19 @@
 
 - (IBAction) selectSource:(id)sender
 {
-	if ([sender indexOfSelectedItem] == 0)
+	NSInteger index = [sender indexOfSelectedItem];
+	
+	if (index == 0)
 	{
 		[self selectFile:nil];
 	}
 	else
-	if ([sender indexOfSelectedItem] > 2)
+	if (index == 2)
+	{
+		self.audioOutput.source = nil;
+	}
+	else
+	if (index > 2)
 	{
 		NSString *name = [sender titleOfSelectedItem];
 		[self selectSourceWithName:name];
@@ -418,6 +427,7 @@
 
 - (void) startFileWithURL:(NSURL *)url
 {
+	[self.sourceMenu itemAtIndex:2].title = @"File";
 	[self logText:[NSString stringWithFormat:@"Start file: %@", url.lastPathComponent]];
 	
 	id source = [RMSAudioUnitFilePlayer instanceWithURL:url];

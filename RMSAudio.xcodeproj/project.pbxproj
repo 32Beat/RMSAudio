@@ -32,6 +32,8 @@
 		1397CBB81D3AA18200E54A8C /* RMSAutoPan.m in Sources */ = {isa = PBXBuildFile; fileRef = 1397CBB71D3AA18200E54A8C /* RMSAutoPan.m */; };
 		139B04071D27D17700A754A6 /* RMSVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 139B04061D27D17700A754A6 /* RMSVarispeed.m */; };
 		139EEFD51D2F0E3F00ADC307 /* rmsbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 139EEFD31D2F0E3F00ADC307 /* rmsbuffer.c */; };
+		13A1FDCE1D3EC7A300133E1F /* RMSDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A1FDCB1D3EC7A300133E1F /* RMSDevice.m */; };
+		13A1FDCF1D3EC7A300133E1F /* RMSDeviceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A1FDCD1D3EC7A300133E1F /* RMSDeviceManager.m */; };
 		13D15E371D2F7BBE006232A0 /* RMSSampleMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 13D15E361D2F7BBE006232A0 /* RMSSampleMonitor.m */; };
 		13D15E3A1D2F8334006232A0 /* RMSTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 13D15E391D2F8334006232A0 /* RMSTimer.m */; };
 /* End PBXBuildFile section */
@@ -86,6 +88,10 @@
 		139B04061D27D17700A754A6 /* RMSVarispeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSVarispeed.m; sourceTree = "<group>"; };
 		139EEFD31D2F0E3F00ADC307 /* rmsbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rmsbuffer.c; sourceTree = "<group>"; };
 		139EEFD41D2F0E3F00ADC307 /* rmsbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rmsbuffer.h; sourceTree = "<group>"; };
+		13A1FDCA1D3EC7A300133E1F /* RMSDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSDevice.h; sourceTree = "<group>"; };
+		13A1FDCB1D3EC7A300133E1F /* RMSDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSDevice.m; sourceTree = "<group>"; };
+		13A1FDCC1D3EC7A300133E1F /* RMSDeviceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSDeviceManager.h; sourceTree = "<group>"; };
+		13A1FDCD1D3EC7A300133E1F /* RMSDeviceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSDeviceManager.m; sourceTree = "<group>"; };
 		13D15E351D2F7BBE006232A0 /* RMSSampleMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSSampleMonitor.h; sourceTree = "<group>"; };
 		13D15E361D2F7BBE006232A0 /* RMSSampleMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSSampleMonitor.m; sourceTree = "<group>"; };
 		13D15E381D2F8334006232A0 /* RMSTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSTimer.h; sourceTree = "<group>"; };
@@ -196,6 +202,7 @@
 		135720521D1BF52A002FFE64 /* RMSUtilities */ = {
 			isa = PBXGroup;
 			children = (
+				13A1FDC91D3EC7A300133E1F /* RMSDeviceManager */,
 				136683E01D325AEB003AC048 /* RMSRingBuffer.h */,
 				136683E11D325AEB003AC048 /* RMSRingBuffer.m */,
 				139EEFD31D2F0E3F00ADC307 /* rmsbuffer.c */,
@@ -313,6 +320,17 @@
 			path = RMSVarispeed;
 			sourceTree = "<group>";
 		};
+		13A1FDC91D3EC7A300133E1F /* RMSDeviceManager */ = {
+			isa = PBXGroup;
+			children = (
+				13A1FDCA1D3EC7A300133E1F /* RMSDevice.h */,
+				13A1FDCB1D3EC7A300133E1F /* RMSDevice.m */,
+				13A1FDCC1D3EC7A300133E1F /* RMSDeviceManager.h */,
+				13A1FDCD1D3EC7A300133E1F /* RMSDeviceManager.m */,
+			);
+			path = RMSDeviceManager;
+			sourceTree = "<group>";
+		};
 		13D15E331D2F7BBE006232A0 /* RMSMonitorTypes */ = {
 			isa = PBXGroup;
 			children = (
@@ -406,6 +424,8 @@
 				1340CF401D3A6531000880CB /* RMSVolume.m in Sources */,
 				135720551D1BF63A002FFE64 /* RMSUtilities.m in Sources */,
 				135720871D1BF8C7002FFE64 /* RMSOutput.m in Sources */,
+				13A1FDCF1D3EC7A300133E1F /* RMSDeviceManager.m in Sources */,
+				13A1FDCE1D3EC7A300133E1F /* RMSDevice.m in Sources */,
 				1356FBA61D3052830045BE4F /* rmslevels.c in Sources */,
 				139B04071D27D17700A754A6 /* RMSVarispeed.m in Sources */,
 				135720301D1BEF22002FFE64 /* main.m in Sources */,

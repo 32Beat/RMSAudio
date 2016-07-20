@@ -33,6 +33,9 @@
 
 #import "RMSUtilities.h"
 #import "RMSTimer.h"
+#import "RMSDeviceManager.h"
+#import "RMSDevice.h"
+
 
 #import "rmsbuffer.h"
 #import "rmslevels.h"

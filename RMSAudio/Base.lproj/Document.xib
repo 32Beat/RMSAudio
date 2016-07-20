@@ -91,20 +91,9 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
-                    <button verticalHuggingPriority="750" id="VSB-CD-pci">
-                        <rect key="frame" x="14" y="156" width="115" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Select File..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sip-jc-iqZ">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="didSelectAudioFileButton:" target="-2" id="d3y-St-Siq"/>
-                        </connections>
-                    </button>
                     <progressIndicator wantsLayer="YES" maxValue="1" style="bar" id="uYu-VS-Dx4">
-                        <rect key="frame" x="131" y="163" width="356" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <rect key="frame" x="20" y="162" width="467" height="20"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     </progressIndicator>
                     <box autoresizesSubviews="NO" title="Gain" borderType="line" id="NmU-4E-NDn">
                         <rect key="frame" x="17" y="325" width="473" height="146"/>
@@ -142,8 +131,19 @@
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
+                    <button id="mAC-p1-MY4">
+                        <rect key="frame" x="38" y="305" width="73" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Autopan" bezelStyle="regularSquare" imagePosition="left" inset="2" id="UXh-wU-d3s">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="didSelectAutoPanButton:" target="-2" id="NWs-Cg-TA4"/>
+                        </connections>
+                    </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="BQg-Jm-j7b">
-                        <rect key="frame" x="18" y="206" width="51" height="17"/>
+                        <rect key="frame" x="18" y="191" width="51" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Source:" id="UMm-6f-6Cb">
                             <font key="font" metaFont="system"/>
@@ -152,7 +152,7 @@
                         </textFieldCell>
                     </textField>
                     <popUpButton verticalHuggingPriority="750" id="XPc-t6-YeH">
-                        <rect key="frame" x="67" y="201" width="172" height="26"/>
+                        <rect key="frame" x="67" y="186" width="172" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="wI7-jT-LUQ" id="Dmk-kr-KAi">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -171,23 +171,12 @@
                             <action selector="selectSource:" target="-2" id="x3H-He-wM6"/>
                         </connections>
                     </popUpButton>
-                    <button id="mAC-p1-MY4">
-                        <rect key="frame" x="30" y="305" width="73" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Autopan" bezelStyle="regularSquare" imagePosition="left" inset="2" id="UXh-wU-d3s">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="didSelectAutoPanButton:" target="-2" id="NWs-Cg-TA4"/>
-                        </connections>
-                    </button>
                 </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="-1559.5" y="-120"/>
+            <point key="canvasLocation" x="-1848.5" y="-101"/>
         </window>
     </objects>
 </document>

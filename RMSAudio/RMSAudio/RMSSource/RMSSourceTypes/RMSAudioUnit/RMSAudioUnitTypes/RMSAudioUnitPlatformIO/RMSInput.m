@@ -228,6 +228,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 
 + (NSArray *) availableCaptureDevices
 {
+	//AVCaptureDeviceWasConnectedNotification
 	return [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
 }
 

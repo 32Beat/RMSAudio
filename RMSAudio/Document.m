@@ -31,6 +31,7 @@
 
 
 @property (nonatomic, weak) IBOutlet NSPopUpButton *sourceMenu;
+@property (nonatomic, weak) IBOutlet NSPopUpButton *outputMenu;
 
 
 @property (nonatomic) RMSAudioUnitFilePlayer *filePlayer;
@@ -49,6 +50,32 @@
 @implementation Document
 ////////////////////////////////////////////////////////////////////////////////
 
+// break any self-inflicted strong references
+- (void) close
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	
+	[RMSTimer removeRMSTimerObserver:self];
+
+	[self stopRenderTimingReports];
+
+	// stop audiounit
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+	
+	[super close];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) dealloc
+{
+	[_audioOutput stopRunning];
+	_audioOutput = nil;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (NSString *)windowNibName
 { return @"Document"; }
 
@@ -56,27 +83,55 @@
 
 - (void) awakeFromNib
 {
-	NSArray *devices = [RMSDeviceManager availableDevices];
+	[self.outputMenu removeAllItems];
+	
+	NSArray *devices = [RMSDeviceManager availableOutputDevices];
+	for (RMSDevice *device in devices)
+	{
+		[self.outputMenu addItemWithTitle:device.name];
+	}
 
-	// fetch names of available input devices
-	//NSArray *devices = [RMSInput availableDevices];
-	
-	// add to popup menu
-	if (devices && devices.count)
-	[self.sourceMenu addItemsWithTitles:devices];
-	
 	[[NSNotificationCenter defaultCenter]
-	addObserver:self selector:@selector(buttonWillPopUp:)
+	addObserver:self selector:@selector(sourceButtonWillPopUp:)
 	name:NSPopUpButtonWillPopUpNotification object:self.sourceMenu];
+
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self selector:@selector(outputButtonWillPopUp:)
+	name:NSPopUpButtonWillPopUpNotification object:self.outputMenu];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) buttonWillPopUp:(NSNotification *)note
+- (void) sourceButtonWillPopUp:(NSNotification *)note
 {
 	if (self.sourceMenu == note.object)
 	{
 		[self.sourceMenu itemAtIndex:2].title = @"None";
+		
+		while (self.sourceMenu.numberOfItems > 3)
+		{ [self.sourceMenu removeItemAtIndex:3]; }
+		
+		NSArray *devices = [RMSDeviceManager availableInputDevices];
+		for (RMSDevice *device in devices)
+		{
+			[self.sourceMenu addItemWithTitle:device.name];
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) outputButtonWillPopUp:(NSNotification *)note
+{
+	if (self.outputMenu == note.object)
+	{
+		[self.outputMenu removeAllItems];
+		
+		NSArray *devices = [RMSDeviceManager availableOutputDevices];
+		for (RMSDevice *device in devices)
+		{
+			[self.outputMenu addItemWithTitle:device.name];
+		}
 	}
 }
 
@@ -101,6 +156,12 @@
 		NSString *name = [sender titleOfSelectedItem];
 		[self selectSourceWithName:name];
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) selectOutput:(id)sender
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,32 +274,6 @@
 
 		[self startSource:source];
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-// break any self-inflicted strong references
-- (void) close
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	
-	[RMSTimer removeRMSTimerObserver:self];
-
-	[self stopRenderTimingReports];
-
-	// stop audiounit
-	[_audioOutput stopRunning];
-	_audioOutput = nil;
-	
-	[super close];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) dealloc
-{
-	[_audioOutput stopRunning];
-	_audioOutput = nil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

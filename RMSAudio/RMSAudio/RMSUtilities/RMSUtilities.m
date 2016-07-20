@@ -175,3 +175,19 @@ void RMSAudioBufferList_ClearFrames(AudioBufferList *bufferList, UInt32 frameCou
 
 ////////////////////////////////////////////////////////////////////////////////
 
+UInt32 RMSAudioBufferList_GetTotalChannelCount(AudioBufferList *bufferList)
+{
+	UInt32 channelCount = 0;
+	
+	UInt32 n = bufferList->mNumberBuffers;
+	while (n != 0)
+	{
+		n -= 1;
+		channelCount += bufferList->mBuffers[n].mNumberChannels;
+	}
+	
+	return channelCount;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+

@@ -79,6 +79,8 @@ void RMSAudioBufferList_ClearFrames(AudioBufferList *bufferList, UInt32 frameCou
 
 ////////////////////////////////////////////////////////////////////////////////
 
+UInt32 RMSAudioBufferList_GetTotalChannelCount(AudioBufferList *bufferList);
+
 
 static inline void PCM_CopyStereo(
 	float *srcPtrL, float *srcPtrR,

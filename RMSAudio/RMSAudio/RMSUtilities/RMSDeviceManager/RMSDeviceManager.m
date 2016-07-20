@@ -19,9 +19,11 @@ kAudioObjectPropertyElementMaster };
 
 @interface RMSDeviceManager ()
 {
-	NSMutableArray *mDeviceList;
 }
 @property (nonatomic) NSArray *deviceList;
+@property (nonatomic) NSArray *inputDeviceList;
+@property (nonatomic) NSArray *outputDeviceList;
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,12 +46,64 @@ kAudioObjectPropertyElementMaster };
 
 ////////////////////////////////////////////////////////////////////////////////
 
++ (NSArray *) availableInputDevices
+{ return [[self sharedInstance] inputDeviceList]; }
+
+////////////////////////////////////////////////////////////////////////////////
+
++ (NSArray *) availableOutputDevices
+{ return [[self sharedInstance] outputDeviceList]; }
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (NSArray *) deviceList
 {
 	if (_deviceList == nil)
 	{ [self refreshList]; }
 	
 	return _deviceList;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSArray *) inputDeviceList
+{
+	if (_inputDeviceList == nil)
+	{
+		NSArray *deviceList = [self deviceList];
+		
+		NSMutableArray *inputDeviceList = [NSMutableArray new];
+		for (RMSDevice *device in deviceList)
+		{
+			if (device.inputChannelCount > 0)
+			{ [inputDeviceList addObject:device]; }
+		}
+		
+		_inputDeviceList = inputDeviceList;
+	}
+	
+	return _inputDeviceList;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSArray *) outputDeviceList
+{
+	if (_outputDeviceList == nil)
+	{
+		NSArray *deviceList = [self deviceList];
+		
+		NSMutableArray *outputDeviceList = [NSMutableArray new];
+		for (RMSDevice *device in deviceList)
+		{
+			if (device.outputChannelCount > 0)
+			{ [outputDeviceList addObject:device]; }
+		}
+		
+		_outputDeviceList = outputDeviceList;
+	}
+	
+	return _outputDeviceList;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +149,8 @@ UInt32 addressCount, const AudioObjectPropertyAddress address[], void* clientDat
 - (OSStatus) refreshList
 {
 	_deviceList = nil;
+	_inputDeviceList = nil;
+	_outputDeviceList = nil;
 
 	UInt32 size = 0;
 	OSStatus error = AudioObjectGetPropertyDataSize

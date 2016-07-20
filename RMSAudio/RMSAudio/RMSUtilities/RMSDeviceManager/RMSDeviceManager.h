@@ -15,8 +15,8 @@
 }
 
 + (NSArray *) availableDevices;
-//+ (NSArray *) availableInputDevices;
-//+ (NSArray *) availableOutputDevices;
++ (NSArray *) availableInputDevices;
++ (NSArray *) availableOutputDevices;
 
 @end
 ////////////////////////////////////////////////////////////////////////////////

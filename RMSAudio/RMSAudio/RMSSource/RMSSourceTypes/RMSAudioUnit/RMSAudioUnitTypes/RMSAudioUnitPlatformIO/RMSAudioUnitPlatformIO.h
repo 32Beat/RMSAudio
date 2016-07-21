@@ -10,6 +10,7 @@
 #import "RMSAudioUnit.h"
 
 @interface RMSAudioUnitPlatformIO : RMSAudioUnit
+@property (nonatomic, readonly) BOOL isRunning;
 
 - (OSStatus) enableInput:(BOOL)state;
 - (OSStatus) enableOutput:(BOOL)state;

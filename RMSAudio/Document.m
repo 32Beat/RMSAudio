@@ -29,8 +29,9 @@
 @property (nonatomic, weak) IBOutlet NSButton *autoPanControl;
 
 
-
+@property (nonatomic) NSArray *inputDevices;
 @property (nonatomic, weak) IBOutlet NSPopUpButton *sourceMenu;
+@property (nonatomic) NSArray *outputDevices;
 @property (nonatomic, weak) IBOutlet NSPopUpButton *outputMenu;
 
 
@@ -83,57 +84,43 @@
 
 - (void) awakeFromNib
 {
-	[self.outputMenu removeAllItems];
-	
-	NSArray *devices = [RMSDeviceManager availableOutputDevices];
-	for (RMSDevice *device in devices)
-	{
-		[self.outputMenu addItemWithTitle:device.name];
-	}
-
 	[[NSNotificationCenter defaultCenter]
-	addObserver:self selector:@selector(sourceButtonWillPopUp:)
+	addObserver:self selector:@selector(sourceMenuWillPopUp:)
 	name:NSPopUpButtonWillPopUpNotification object:self.sourceMenu];
 
 	[[NSNotificationCenter defaultCenter]
-	addObserver:self selector:@selector(outputButtonWillPopUp:)
+	addObserver:self selector:@selector(outputMenuWillPopUp:)
 	name:NSPopUpButtonWillPopUpNotification object:self.outputMenu];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark Source Management
+////////////////////////////////////////////////////////////////////////////////
 
-- (void) sourceButtonWillPopUp:(NSNotification *)note
+- (void) sourceMenuWillPopUp:(NSNotification *)note
 {
-	if (self.sourceMenu == note.object)
+	NSArray *devices = [RMSDeviceManager availableInputDevices];
+	if (self.inputDevices != devices)
 	{
-		[self.sourceMenu itemAtIndex:2].title = @"None";
-		
-		while (self.sourceMenu.numberOfItems > 3)
-		{ [self.sourceMenu removeItemAtIndex:3]; }
-		
-		NSArray *devices = [RMSDeviceManager availableInputDevices];
-		for (RMSDevice *device in devices)
-		{
-			[self.sourceMenu addItemWithTitle:device.name];
-			self.sourceMenu.lastItem.representedObject = device;
-		}
+		self.inputDevices = devices;
+		[self rebuildSourceMenu];
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) outputButtonWillPopUp:(NSNotification *)note
+- (void) rebuildSourceMenu
 {
-	if (self.outputMenu == note.object)
-	{
-		[self.outputMenu removeAllItems];
+	[self.sourceMenu itemAtIndex:2].title = @"None";
+	
+	while (self.sourceMenu.numberOfItems > 3)
+	{ [self.sourceMenu removeItemAtIndex:3]; }
 		
-		NSArray *devices = [RMSDeviceManager availableOutputDevices];
-		for (RMSDevice *device in devices)
-		{
-			[self.outputMenu addItemWithTitle:device.name];
-			self.outputMenu.lastItem.representedObject = device;
-		}
+	for (RMSDevice *device in self.inputDevices)
+	{
+		[self.sourceMenu addItemWithTitle:device.name];
+		self.sourceMenu.lastItem.representedObject = device;
 	}
 }
 
@@ -157,19 +144,6 @@
 	{
 		NSString *name = [sender titleOfSelectedItem];
 		[self selectSourceWithName:name];
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (IBAction) selectOutput:(NSPopUpButton *)menuButton
-{
-	RMSDevice *device = (RMSDevice *)menuButton.selectedItem.representedObject;
-	AudioDeviceID deviceID = device.deviceID;
-	if (deviceID != 0)
-	{
-		RMSOutput *output = [RMSOutput instanceWithDeviceID:deviceID];
-		[self setOutput:output];
 	}
 }
 
@@ -214,11 +188,65 @@
 	self.audioOutput.source = source;
 	
 	mLevels.sampleRate = 0.0;
-	
+		
 	[_audioOutput startRunning];
 		
 	// prepare render timing reports
 	[self startRenderTimingReports];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark Output Management
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) outputMenuWillPopUp:(NSNotification *)note
+{
+	NSArray *devices = [RMSDeviceManager availableOutputDevices];
+	if (self.outputDevices != devices)
+	{
+		self.outputDevices = devices;
+		[self rebuildOutputMenu];
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) rebuildOutputMenu
+{
+	[self.outputMenu removeAllItems];
+
+	[self.outputMenu addItemWithTitle:@"None"];
+
+	for (RMSDevice *device in self.outputDevices)
+	{
+		[self.outputMenu addItemWithTitle:device.name];
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) selectOutput:(NSPopUpButton *)menuButton
+{
+	RMSOutput *output = nil;
+	
+	NSInteger index = menuButton.indexOfSelectedItem;
+	if (index > 0)
+	{
+		index -= 1;
+		if (index < self.outputDevices.count)
+		{
+			RMSDevice *device = [self.outputDevices objectAtIndex:index];
+			
+			AudioDeviceID deviceID = device.deviceID;
+			if (deviceID != 0)
+			{
+				output = [RMSOutput instanceWithDeviceID:deviceID];
+			}
+		}
+	}
+
+	[self setOutput:output];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +283,7 @@
 	{
 		[_audioOutput stopRunning];
 		
-		// prepare volumecontrol, autopan, and outputmetering
+		// prepare volumecontrol, and outputmetering
 		[output addFilter:self.volumeFilter];
 		[output addMonitor:self.outputMonitor];
 		[output setDelegate:self];
@@ -317,6 +345,8 @@
 
 - (void) reportRenderTime:(id)sender
 {
+	if ([_audioOutput isRunning] == NO) return;
+
 	double avgTime = [_audioOutput averageRenderTime];
 	double maxTime = [_audioOutput maximumRenderTime];
 	[_audioOutput resetTimingInfo];

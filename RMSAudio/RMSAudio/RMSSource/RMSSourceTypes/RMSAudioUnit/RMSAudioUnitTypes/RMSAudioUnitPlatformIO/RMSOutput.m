@@ -212,19 +212,18 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if !TARGET_OS_IPHONE
-
 + (instancetype) defaultOutput
-{
-	return [[self alloc] initWithDeviceID:0];
-}
+{ return [[self alloc] init]; }
+
+- (instancetype) init
+{ return [self initWithDevice:nil]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID
-{ return [[self alloc] initWithDeviceID:deviceID]; }
++ (instancetype) instanceWithDevice:(RMSDevice *)device
+{ return [[self alloc] initWithDevice:device]; }
 
-- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID
+- (instancetype) initWithDevice:(RMSDevice *)device
 {
 	self = [super init];
 	if (self != nil)
@@ -234,7 +233,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		result = [self prepareAudioUnit];
 		if (result != noErr) return nil;
 
-		result = [self attachDevice:deviceID];
+		result = [self attachDevice:device];
 		if (result != noErr) return nil;
 
 		result = [self initializeSampleRates];
@@ -250,56 +249,24 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	return self;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
-- (OSStatus) attachDevice:(AudioDeviceID)deviceID
+- (OSStatus) attachDevice:(RMSDevice *)device
 {
 	OSStatus result = noErr;
-	
+
+#if TARGET_OS_IPHONE
+
+#else
 	if (deviceID != 0)
 	{
 		result = AudioUnitAttachDevice(mAudioUnit, deviceID);
 		if (result != noErr) return result;
 	}
-	
+#endif
+
 	return result;
 }
-
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-
-#if TARGET_OS_IPHONE
-
-+ (instancetype) defaultOutput
-{
-	return [[self alloc] init];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (instancetype) init
-{
-	self = [super init];
-	if (self != nil)
-	{
-		OSStatus result = noErr;
-		
-		result = [self prepareAudioUnit];
-		if (result != noErr) return nil;
-
-		result = [self initializeSampleRates];
-		if (result != noErr) return nil;
-		
-		result = [self prepareBuffers];
-		if (result != noErr) return nil;
-		
-		[self startRunning];
-	}
-	
-	return self;
-}
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

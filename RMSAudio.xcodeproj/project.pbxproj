@@ -29,6 +29,31 @@
 		1357208C1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357208B1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m */; };
 		136683E21D325AEB003AC048 /* RMSRingBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 136683E11D325AEB003AC048 /* RMSRingBuffer.m */; };
 		136683E51D32635B003AC048 /* RMSInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 136683E41D32635B003AC048 /* RMSInput.m */; };
+		137CB2BC1D4385DA00AA241A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 137CB2BB1D4385DA00AA241A /* main.m */; };
+		137CB2BF1D4385DA00AA241A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 137CB2BE1D4385DA00AA241A /* AppDelegate.m */; };
+		137CB2C21D4385DA00AA241A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 137CB2C11D4385DA00AA241A /* ViewController.m */; };
+		137CB2C51D4385DA00AA241A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C31D4385DA00AA241A /* Main.storyboard */; };
+		137CB2C71D4385DA00AA241A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C61D4385DA00AA241A /* Assets.xcassets */; };
+		137CB2CA1D4385DA00AA241A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */; };
+		137CB2CF1D43862300AA241A /* RMSIndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1356FBA91D3055B90045BE4F /* RMSIndexView.m */; };
+		137CB2D01D43862500AA241A /* RMSResultView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1356FBAB1D3055B90045BE4F /* RMSResultView.m */; };
+		137CB2D11D43AADC00AA241A /* RMSCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357206A1D1BF8C7002FFE64 /* RMSCallback.m */; };
+		137CB2D21D43AADF00AA241A /* RMSSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357206C1D1BF8C7002FFE64 /* RMSSource.m */; };
+		137CB2D31D43AAED00AA241A /* RMSAutoPan.m in Sources */ = {isa = PBXBuildFile; fileRef = 1397CBB71D3AA18200E54A8C /* RMSAutoPan.m */; };
+		137CB2D41D43AAF100AA241A /* RMSVolume.m in Sources */ = {isa = PBXBuildFile; fileRef = 1340CF3F1D3A6531000880CB /* RMSVolume.m */; };
+		137CB2D51D43AAF900AA241A /* RMSSampleMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 13D15E361D2F7BBE006232A0 /* RMSSampleMonitor.m */; };
+		137CB2D61D43AB0400AA241A /* RMSAudioUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720701D1BF8C7002FFE64 /* RMSAudioUnit.m */; };
+		137CB2D71D43AB4300AA241A /* RMSAudioUnitUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357208B1D1BF95D002FFE64 /* RMSAudioUnitUtilities.m */; };
+		137CB2D81D43AD4E00AA241A /* RMSAudioUnitPlatformIO.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720771D1BF8C7002FFE64 /* RMSAudioUnitPlatformIO.m */; };
+		137CB2D91D43AD5100AA241A /* RMSInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 136683E41D32635B003AC048 /* RMSInput.m */; };
+		137CB2DC1D43AD7200AA241A /* RMSDeviceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A1FDCD1D3EC7A300133E1F /* RMSDeviceManager.m */; };
+		137CB2DD1D43AD7500AA241A /* RMSRingBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 136683E11D325AEB003AC048 /* RMSRingBuffer.m */; };
+		137CB2DE1D43AD7900AA241A /* rmsbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 139EEFD31D2F0E3F00ADC307 /* rmsbuffer.c */; };
+		137CB2DF1D43AD7B00AA241A /* rmslevels.c in Sources */ = {isa = PBXBuildFile; fileRef = 1356FBA41D3052830045BE4F /* rmslevels.c */; };
+		137CB2E01D43AD7F00AA241A /* RMSTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 13D15E391D2F8334006232A0 /* RMSTimer.m */; };
+		137CB2E11D43AD8400AA241A /* RMSBezierInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 1352B8CD1D2B68ED00A26252 /* RMSBezierInterpolator.m */; };
+		137CB2E21D43AD8700AA241A /* RMSUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720541D1BF63A002FFE64 /* RMSUtilities.m */; };
+		138A91E71D43EA2300722A30 /* RMSOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357207B1D1BF8C7002FFE64 /* RMSOutput.m */; };
 		1397CBB81D3AA18200E54A8C /* RMSAutoPan.m in Sources */ = {isa = PBXBuildFile; fileRef = 1397CBB71D3AA18200E54A8C /* RMSAutoPan.m */; };
 		139B04071D27D17700A754A6 /* RMSVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 139B04061D27D17700A754A6 /* RMSVarispeed.m */; };
 		139EEFD51D2F0E3F00ADC307 /* rmsbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 139EEFD31D2F0E3F00ADC307 /* rmsbuffer.c */; };
@@ -82,6 +107,16 @@
 		136683E11D325AEB003AC048 /* RMSRingBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSRingBuffer.m; sourceTree = "<group>"; };
 		136683E31D32635B003AC048 /* RMSInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSInput.h; sourceTree = "<group>"; };
 		136683E41D32635B003AC048 /* RMSInput.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSInput.m; sourceTree = "<group>"; };
+		137CB2B81D4385DA00AA241A /* RMSAudio iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RMSAudio iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		137CB2BB1D4385DA00AA241A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		137CB2BD1D4385DA00AA241A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		137CB2BE1D4385DA00AA241A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		137CB2C01D4385DA00AA241A /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		137CB2C11D4385DA00AA241A /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		137CB2C41D4385DA00AA241A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		137CB2C61D4385DA00AA241A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		137CB2C91D4385DA00AA241A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		137CB2CB1D4385DA00AA241A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1397CBB61D3AA18200E54A8C /* RMSAutoPan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAutoPan.h; sourceTree = "<group>"; };
 		1397CBB71D3AA18200E54A8C /* RMSAutoPan.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAutoPan.m; sourceTree = "<group>"; };
 		139B04051D27D17700A754A6 /* RMSVarispeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSVarispeed.h; sourceTree = "<group>"; };
@@ -100,6 +135,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		135720251D1BEF22002FFE64 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		137CB2B51D4385DA00AA241A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -151,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				1357202A1D1BEF22002FFE64 /* RMSAudio */,
+				137CB2B91D4385DA00AA241A /* RMSAudio iOS */,
 				135720291D1BEF22002FFE64 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -159,6 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				135720281D1BEF22002FFE64 /* RMSAudio.app */,
+				137CB2B81D4385DA00AA241A /* RMSAudio iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -203,17 +247,17 @@
 			isa = PBXGroup;
 			children = (
 				13A1FDC91D3EC7A300133E1F /* RMSDeviceManager */,
+				135720531D1BF63A002FFE64 /* RMSUtilities.h */,
+				135720541D1BF63A002FFE64 /* RMSUtilities.m */,
+				13D15E381D2F8334006232A0 /* RMSTimer.h */,
+				13D15E391D2F8334006232A0 /* RMSTimer.m */,
 				136683E01D325AEB003AC048 /* RMSRingBuffer.h */,
 				136683E11D325AEB003AC048 /* RMSRingBuffer.m */,
 				139EEFD31D2F0E3F00ADC307 /* rmsbuffer.c */,
 				139EEFD41D2F0E3F00ADC307 /* rmsbuffer.h */,
 				1356FBA41D3052830045BE4F /* rmslevels.c */,
 				1356FBA51D3052830045BE4F /* rmslevels.h */,
-				13D15E381D2F8334006232A0 /* RMSTimer.h */,
-				13D15E391D2F8334006232A0 /* RMSTimer.m */,
 				1352B8CB1D2B68ED00A26252 /* RMSInterpolators */,
-				135720531D1BF63A002FFE64 /* RMSUtilities.h */,
-				135720541D1BF63A002FFE64 /* RMSUtilities.m */,
 			);
 			path = RMSUtilities;
 			sourceTree = "<group>";
@@ -302,6 +346,30 @@
 			path = RMSAudioUnitUtilities;
 			sourceTree = "<group>";
 		};
+		137CB2B91D4385DA00AA241A /* RMSAudio iOS */ = {
+			isa = PBXGroup;
+			children = (
+				137CB2BD1D4385DA00AA241A /* AppDelegate.h */,
+				137CB2BE1D4385DA00AA241A /* AppDelegate.m */,
+				137CB2C01D4385DA00AA241A /* ViewController.h */,
+				137CB2C11D4385DA00AA241A /* ViewController.m */,
+				137CB2C31D4385DA00AA241A /* Main.storyboard */,
+				137CB2C61D4385DA00AA241A /* Assets.xcassets */,
+				137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */,
+				137CB2CB1D4385DA00AA241A /* Info.plist */,
+				137CB2BA1D4385DA00AA241A /* Supporting Files */,
+			);
+			path = "RMSAudio iOS";
+			sourceTree = "<group>";
+		};
+		137CB2BA1D4385DA00AA241A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				137CB2BB1D4385DA00AA241A /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		1397CBB51D3AA18200E54A8C /* RMSAutoPan */ = {
 			isa = PBXGroup;
 			children = (
@@ -368,6 +436,23 @@
 			productReference = 135720281D1BEF22002FFE64 /* RMSAudio.app */;
 			productType = "com.apple.product-type.application";
 		};
+		137CB2B71D4385DA00AA241A /* RMSAudio iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 137CB2CE1D4385DA00AA241A /* Build configuration list for PBXNativeTarget "RMSAudio iOS" */;
+			buildPhases = (
+				137CB2B41D4385DA00AA241A /* Sources */,
+				137CB2B51D4385DA00AA241A /* Frameworks */,
+				137CB2B61D4385DA00AA241A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RMSAudio iOS";
+			productName = "RMSAudio iOS";
+			productReference = 137CB2B81D4385DA00AA241A /* RMSAudio iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -378,6 +463,9 @@
 				ORGANIZATIONNAME = 32BT;
 				TargetAttributes = {
 					135720271D1BEF22002FFE64 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					137CB2B71D4385DA00AA241A = {
 						CreatedOnToolsVersion = 7.3.1;
 					};
 				};
@@ -396,6 +484,7 @@
 			projectRoot = "";
 			targets = (
 				135720271D1BEF22002FFE64 /* RMSAudio */,
+				137CB2B71D4385DA00AA241A /* RMSAudio iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -408,6 +497,16 @@
 				135720381D1BEF22002FFE64 /* Assets.xcassets in Resources */,
 				135720361D1BEF22002FFE64 /* Document.xib in Resources */,
 				1357203B1D1BEF22002FFE64 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		137CB2B61D4385DA00AA241A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				137CB2CA1D4385DA00AA241A /* LaunchScreen.storyboard in Resources */,
+				137CB2C71D4385DA00AA241A /* Assets.xcassets in Resources */,
+				137CB2C51D4385DA00AA241A /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,6 +546,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		137CB2B41D4385DA00AA241A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				137CB2C21D4385DA00AA241A /* ViewController.m in Sources */,
+				137CB2DD1D43AD7500AA241A /* RMSRingBuffer.m in Sources */,
+				137CB2DF1D43AD7B00AA241A /* rmslevels.c in Sources */,
+				138A91E71D43EA2300722A30 /* RMSOutput.m in Sources */,
+				137CB2D31D43AAED00AA241A /* RMSAutoPan.m in Sources */,
+				137CB2D81D43AD4E00AA241A /* RMSAudioUnitPlatformIO.m in Sources */,
+				137CB2D41D43AAF100AA241A /* RMSVolume.m in Sources */,
+				137CB2D51D43AAF900AA241A /* RMSSampleMonitor.m in Sources */,
+				137CB2BF1D4385DA00AA241A /* AppDelegate.m in Sources */,
+				137CB2CF1D43862300AA241A /* RMSIndexView.m in Sources */,
+				137CB2D01D43862500AA241A /* RMSResultView.m in Sources */,
+				137CB2D21D43AADF00AA241A /* RMSSource.m in Sources */,
+				137CB2E21D43AD8700AA241A /* RMSUtilities.m in Sources */,
+				137CB2BC1D4385DA00AA241A /* main.m in Sources */,
+				137CB2E01D43AD7F00AA241A /* RMSTimer.m in Sources */,
+				137CB2DC1D43AD7200AA241A /* RMSDeviceManager.m in Sources */,
+				137CB2DE1D43AD7900AA241A /* rmsbuffer.c in Sources */,
+				137CB2D61D43AB0400AA241A /* RMSAudioUnit.m in Sources */,
+				137CB2D71D43AB4300AA241A /* RMSAudioUnitUtilities.m in Sources */,
+				137CB2D11D43AADC00AA241A /* RMSCallback.m in Sources */,
+				137CB2E11D43AD8400AA241A /* RMSBezierInterpolator.m in Sources */,
+				137CB2D91D43AD5100AA241A /* RMSInput.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -464,6 +592,22 @@
 				1357203A1D1BEF22002FFE64 /* Base */,
 			);
 			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		137CB2C31D4385DA00AA241A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				137CB2C41D4385DA00AA241A /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				137CB2C91D4385DA00AA241A /* Base */,
+			);
+			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -574,6 +718,37 @@
 			};
 			name = Release;
 		};
+		137CB2CC1D4385DA00AA241A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = "RMSAudio iOS/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.32BT.RMSAudio-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		137CB2CD1D4385DA00AA241A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = "RMSAudio iOS/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.32BT.RMSAudio-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -591,6 +766,15 @@
 			buildConfigurations = (
 				135720401D1BEF22002FFE64 /* Debug */,
 				135720411D1BEF22002FFE64 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		137CB2CE1D4385DA00AA241A /* Build configuration list for PBXNativeTarget "RMSAudio iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				137CB2CC1D4385DA00AA241A /* Debug */,
+				137CB2CD1D4385DA00AA241A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -7,15 +7,14 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#import "RMSAudioUnitPlatformIO.h"
+#import "RMSAudio.h"
 
 @interface RMSInput : RMSAudioUnitPlatformIO
 
 + (NSArray *) availableDevices;
-+ (AudioDeviceID) deviceWithName:(NSString *)name;
 
 + (instancetype) defaultInput;
-+ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID;
-- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID;
++ (instancetype) instanceWithDevice:(RMSDevice *)device;
++ (instancetype) instanceWithDevice:(RMSDevice *)device error:(NSError **)errorPtr;
 
 @end

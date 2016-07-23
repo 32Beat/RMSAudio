@@ -7,10 +7,18 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#import "RMSAudio.h"
+#import <Foundation/Foundation.h>
 
 ////////////////////////////////////////////////////////////////////////////////
+#if !TARGET_OS_IPHONE
+#import <CoreAudio/CoreAudio.h>
 @interface RMSDevice : NSObject
+#else
+#import <AVFoundation/AVFoundation.h>
+typedef UInt32 AudioDeviceID;
+@interface RMSDevice : AVAudioSessionPortDescription
+#endif
+
 @property (nonatomic, readonly) AudioDeviceID deviceID;
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *uniqueID;

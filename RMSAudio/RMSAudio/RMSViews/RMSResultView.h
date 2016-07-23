@@ -7,10 +7,10 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#if !TARGET_OS_IOS
-#import <Cocoa/Cocoa.h>
-#else
-#import <UIKit/UIKit.h>
+#import "RMSAudio.h"
+
+// TODO: move to RMSViews.h ?
+#if !TARGET_OS_DESKTOP
 #define NSView 		UIView
 #define NSColor 	UIColor
 #define NSRect 		CGRect

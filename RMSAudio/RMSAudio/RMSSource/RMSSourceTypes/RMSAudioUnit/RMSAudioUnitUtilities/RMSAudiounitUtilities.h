@@ -27,6 +27,9 @@ OSStatus RMSAudioDeviceGetName(AudioObjectID objectID, CFStringRef *str);
 OSStatus RMSAudioDeviceGetUniqueID(AudioDeviceID deviceID, CFStringRef *str);
 OSStatus RMSAudioDeviceGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sampleRate);
 
+OSStatus AudioUnitAttachDevice
+(AudioUnit audioUnit, AudioDeviceID deviceID);
+
 #endif
 
 AudioUnit NewAudioUnitWithDescription(AudioComponentDescription desc);
@@ -34,8 +37,6 @@ AudioUnit NewAudioUnitWithDescription(AudioComponentDescription desc);
 OSStatus AudioUnitEnableInputStream(AudioUnit audioUnit, UInt32 state);
 OSStatus AudioUnitEnableOutputStream(AudioUnit audioUnit, UInt32 state);
 
-OSStatus AudioUnitAttachDevice
-(AudioUnit audioUnit, AudioDeviceID deviceID);
 OSStatus AudioUnitSetInputCallback
 (AudioUnit audioUnit, AURenderCallback renderProc, void *renderInfo);
 OSStatus AudioUnitSetRenderCallback

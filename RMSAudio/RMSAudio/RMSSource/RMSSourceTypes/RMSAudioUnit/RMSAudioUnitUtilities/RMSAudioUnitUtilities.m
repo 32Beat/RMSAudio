@@ -9,9 +9,11 @@
 
 
 #import "RMSAudioUnitUtilities.h"
+#import "RMSUtilities.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
+#if !TARGET_OS_IPHONE
 
 OSStatus RMSAudioObjectGetGlobalPropertySize
 (AudioObjectID objectID, AudioObjectPropertySelector selectorID, UInt32 *sizePtr)
@@ -141,6 +143,8 @@ OSStatus RMSAudioGetDeviceWithUniqueID(CFStringRef str, AudioDeviceID *deviceID)
 	return result;
 }
 
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 #pragma mark AudioDevice Utilities
@@ -182,6 +186,26 @@ OSStatus RMSAudioDeviceGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sam
 	return RMSAudioObjectGetGlobalProperty
 	(deviceID, kAudioDevicePropertyNominalSampleRate, sampleRate);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+	Attach an audio IO device to the audio unit. 
+	If it is an output device, it will automatically be 
+	attached to (bus 0, outputscope),
+	If it is an input device, it will automatically be
+	attached to (bus 1, inputscope),
+*/
+
+OSStatus AudioUnitAttachDevice(AudioUnit audioUnit, AudioDeviceID deviceID)
+{
+	if (audioUnit == nil) return paramErr;
+//	if (deviceID == 0) return paramErr;
+	
+	UInt32 size = sizeof(deviceID);
+	return AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_CurrentDevice,
+	kAudioUnitScope_Global, 0, &deviceID, size);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -264,26 +288,6 @@ OSStatus AudioUnitSetRenderCallback
 		(audioUnit, kAudioUnitProperty_SetRenderCallback, \
 		kAudioUnitScope_Input, 0, &rcInfo, sizeof(AURenderCallbackStruct));
 }
-
-////////////////////////////////////////////////////////////////////////////////
-/*
-	Attach an audio IO device to the audio unit. 
-	If it is an output device, it will automatically be 
-	attached to (bus 0, outputscope),
-	If it is an input device, it will automatically be
-	attached to (bus 1, inputscope),
-*/
-
-OSStatus AudioUnitAttachDevice(AudioUnit audioUnit, AudioDeviceID deviceID)
-{
-	if (audioUnit == nil) return paramErr;
-//	if (deviceID == 0) return paramErr;
-	
-	UInt32 size = sizeof(deviceID);
-	return AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_CurrentDevice,
-	kAudioUnitScope_Global, 0, &deviceID, size);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark

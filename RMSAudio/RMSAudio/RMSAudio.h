@@ -7,10 +7,22 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#import <Cocoa/Cocoa.h>
-#import <AVFoundation/AVFoundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 
 #define TARGET_OS_DESKTOP 	(!TARGET_OS_IPHONE)
+
+#if TARGET_OS_DESKTOP
+#import <Cocoa/Cocoa.h>
+#else
+#import <UIKit/UIKit.h>
+#endif
+
+#import <AVFoundation/AVFoundation.h>
+
+#import "RMSUtilities.h"
+#import "RMSTimer.h"
+#import "RMSDeviceManager.h"
+#import "RMSDevice.h"
 
 #import "RMSCallback.h"
 #import "RMSSource.h"
@@ -31,10 +43,6 @@
 
 
 
-#import "RMSUtilities.h"
-#import "RMSTimer.h"
-#import "RMSDeviceManager.h"
-#import "RMSDevice.h"
 
 
 #import "rmsbuffer.h"

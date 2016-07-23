@@ -9,6 +9,7 @@
 
 
 #import "RMSDevice.h"
+#import "RMSUtilities.h"
 
 
 @interface RMSDevice ()

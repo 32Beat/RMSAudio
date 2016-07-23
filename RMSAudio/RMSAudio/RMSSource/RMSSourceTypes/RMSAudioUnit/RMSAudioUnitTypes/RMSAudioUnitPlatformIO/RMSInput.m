@@ -223,8 +223,6 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 }
 */
 ////////////////////////////////////////////////////////////////////////////////
-#if TARGET_OS_DESKTOP
-
 
 + (NSArray *) availableCaptureDevices
 {
@@ -263,24 +261,14 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (AudioDeviceID) deviceWithName:(NSString *)name
-{
-	AudioDeviceID deviceID = 0;
-	
-	AVCaptureDevice *captureDevice = [self captureDeviceWithName:name];
-	if (captureDevice != nil)
-	{
-		OSStatus result =
-		RMSAudioGetDeviceWithUniqueID((__bridge CFStringRef)(captureDevice.uniqueID), &deviceID);
-		if (result != noErr)
-		{
-		}
-	}
-	
-	return deviceID;
-}
++ (instancetype) instanceWithDevice:(RMSDevice *)device
+{ return [self instanceWithDevice:device error:nil]; }
+
++ (instancetype) instanceWithDevice:(RMSDevice *)device error:(NSError **)errorPtr
+{ return [[self alloc] initWithDevice:device error:errorPtr]; }
 
 ////////////////////////////////////////////////////////////////////////////////
+#if TARGET_OS_DESKTOP
 
 + (instancetype) defaultInput
 {
@@ -294,11 +282,11 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID
-{ return [[self alloc] initWithDeviceID:deviceID]; }
-
-- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID
+- (instancetype) initWithDevice:(RMSDevice *)device error:(NSError **)errorPtr
 {
+	if (errorPtr != nil)
+	{ *errorPtr = nil; }
+	
 	self = [super init];
 	if (self != nil)
 	{
@@ -309,7 +297,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 		result = [self prepareAudioUnit];
 		if (result != noErr) return nil;
 
-		result = [self attachDevice:deviceID];
+		result = [self attachDevice:device.deviceID];
 		if (result != noErr) return nil;
 
 		result = [self initializeSampleRates];

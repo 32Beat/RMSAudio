@@ -148,7 +148,7 @@
 	{
 		NSMenuItem *item = [sender selectedItem];
 		RMSDevice *device = item.representedObject;
-		RMSInput *input = [RMSInput instanceWithDeviceID:device.deviceID];
+		RMSInput *input = [RMSInput instanceWithDevice:device];
 		
 		[self setSource:input];
 	}
@@ -217,32 +217,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (RMSVolume *)volumeFilter
-{
-	if (_volumeFilter == nil)
-	{ _volumeFilter = [RMSVolume new]; }
-	
-	return _volumeFilter;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (RMSSampleMonitor *) outputMonitor
-{
-	if (_outputMonitor == nil)
-	{
-		// create RMSSampleMonitor to monitor any RMSOutput
-		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
-		
-		// add self to RMSTimer for periodic updating of GUI levels
-		[RMSTimer addRMSTimerObserver:self];
-	}
-	
-	return _outputMonitor;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 - (void) setOutput:(RMSOutput *)output
 {
 	if (self.audioOutput != output)
@@ -274,6 +248,32 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (RMSVolume *)volumeFilter
+{
+	if (_volumeFilter == nil)
+	{ _volumeFilter = [RMSVolume new]; }
+	
+	return _volumeFilter;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (RMSSampleMonitor *) outputMonitor
+{
+	if (_outputMonitor == nil)
+	{
+		// create RMSSampleMonitor to monitor any RMSOutput
+		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
+		
+		// add self to RMSTimer for periodic updating of GUI levels
+		[RMSTimer addRMSTimerObserver:self];
+	}
+	
+	return _outputMonitor;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) restartEngine

@@ -7,9 +7,9 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#if !TARGET_OS_IOS
+#import "RMSAudio.h"
 
-#import <Cocoa/Cocoa.h>
+#if TARGET_OS_DESKTOP
 
 static inline CGContextRef NSGraphicsGetCurrentContext(void)
 { return (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort]; }

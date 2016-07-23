@@ -203,7 +203,12 @@
 	}
 	
 	[[NSColor colorWithWhite:0.9 alpha:1.0] set];
+
+#if TARGET_OS_IPHONE
+	UIRectFrameUsingBlendMode(self.bounds, kCGBlendModeMultiply);
+#else
 	NSFrameRectWithWidthUsingOperation(self.bounds, 1.0, NSCompositeMultiply);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

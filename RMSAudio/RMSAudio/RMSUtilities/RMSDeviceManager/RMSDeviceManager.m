@@ -12,11 +12,6 @@
 #import "RMSDevice.h"
 
 
-static const AudioObjectPropertyAddress gDeviceListProperty = {
-kAudioHardwarePropertyDevices,
-kAudioObjectPropertyScopeGlobal,
-kAudioObjectPropertyElementMaster };
-
 @interface RMSDeviceManager ()
 {
 }
@@ -113,11 +108,37 @@ kAudioObjectPropertyElementMaster };
 	self = [super init];
 	if (self != nil)
 	{
-		AudioObjectAddPropertyListener
-		(kAudioObjectSystemObject, &gDeviceListProperty, DeviceListNote, (__bridge void *)self);
+		[self prepareDeviceListNotifications];
 	}
 	
 	return self;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#if TARGET_OS_IPHONE
+
+- (void) prepareDeviceListNotifications
+{
+}
+
+- (OSStatus) refreshList
+{
+	return noErr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#else
+////////////////////////////////////////////////////////////////////////////////
+
+static const AudioObjectPropertyAddress gDeviceListProperty = {
+kAudioHardwarePropertyDevices,
+kAudioObjectPropertyScopeGlobal,
+kAudioObjectPropertyElementMaster };
+
+- (void) prepareDeviceListNotifications
+{
+	AudioObjectAddPropertyListener
+	(kAudioObjectSystemObject, &gDeviceListProperty, DeviceListNote, (__bridge void *)self);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,6 +208,7 @@ UInt32 addressCount, const AudioObjectPropertyAddress address[], void* clientDat
 	return paramErr;
 }
 
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 @end
 ////////////////////////////////////////////////////////////////////////////////

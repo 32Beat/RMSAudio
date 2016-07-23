@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #import "RMSAudioUnitPlatformIO.h"
+#import "RMSDevice.h"
 
 @class RMSOutput;
 
@@ -19,8 +20,8 @@
 @property (nonatomic, weak) id<RMSOutputDelegate> delegate;
 
 + (instancetype) defaultOutput;
-+ (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID;
-- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID;
++ (instancetype) instanceWithDevice:(RMSDevice *)device;
+- (instancetype) initWithDevice:(RMSDevice *)device;
 
 - (NSTimeInterval) averageRenderTime;
 - (NSTimeInterval) maximumRenderTime;

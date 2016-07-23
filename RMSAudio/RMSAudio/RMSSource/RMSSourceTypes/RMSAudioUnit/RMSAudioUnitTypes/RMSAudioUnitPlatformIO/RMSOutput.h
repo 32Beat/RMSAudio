@@ -17,11 +17,11 @@
 @end
 
 @interface RMSOutput : RMSAudioUnitPlatformIO
+
 @property (nonatomic, weak) id<RMSOutputDelegate> delegate;
 
 + (instancetype) defaultOutput;
 + (instancetype) instanceWithDevice:(RMSDevice *)device;
-- (instancetype) initWithDevice:(RMSDevice *)device;
 
 - (NSTimeInterval) averageRenderTime;
 - (NSTimeInterval) maximumRenderTime;

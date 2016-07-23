@@ -211,6 +211,8 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 { return renderCallback; }
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 
 + (instancetype) defaultOutput
 { return [[self alloc] init]; }
@@ -230,7 +232,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	{
 		OSStatus result = noErr;
 		
-		result = [self prepareAudioUnit];
+		result = [self prepareCallbacks];
 		if (result != noErr) return nil;
 
 		result = [self attachDevice:device];
@@ -247,25 +249,6 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	}
 	
 	return self;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (OSStatus) attachDevice:(RMSDevice *)device
-{
-	OSStatus result = noErr;
-
-#if TARGET_OS_IPHONE
-
-#else
-	if (deviceID != 0)
-	{
-		result = AudioUnitAttachDevice(mAudioUnit, deviceID);
-		if (result != noErr) return result;
-	}
-#endif
-
-	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -300,7 +283,7 @@ AudioUnitElement	inElement)
 
 
 
-- (OSStatus) prepareAudioUnit
+- (OSStatus) prepareCallbacks
 {
 #if RMS_REPORT_TIME
 	AudioUnitAddRenderNotify(mAudioUnit, notifyCallback, &mTimingInfo);
@@ -312,6 +295,25 @@ AudioUnitElement	inElement)
 
 	result = AudioUnitSetRenderCallback(mAudioUnit, outputCallback, (__bridge void *)self);
 	
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (OSStatus) attachDevice:(RMSDevice *)device
+{
+	OSStatus result = noErr;
+
+#if TARGET_OS_IPHONE
+
+#else
+	if (deviceID != 0)
+	{
+		result = AudioUnitAttachDevice(mAudioUnit, deviceID);
+		if (result != noErr) return result;
+	}
+#endif
+
 	return result;
 }
 

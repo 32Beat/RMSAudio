@@ -55,6 +55,9 @@
 		137CB2E21D43AD8700AA241A /* RMSUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720541D1BF63A002FFE64 /* RMSUtilities.m */; };
 		138A91E71D43EA2300722A30 /* RMSOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357207B1D1BF8C7002FFE64 /* RMSOutput.m */; };
 		1397CBB81D3AA18200E54A8C /* RMSAutoPan.m in Sources */ = {isa = PBXBuildFile; fileRef = 1397CBB71D3AA18200E54A8C /* RMSAutoPan.m */; };
+		139962FD1D441C5F00867DB3 /* RMSAudioUnitVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 1357207E1D1BF8C7002FFE64 /* RMSAudioUnitVarispeed.m */; };
+		139962FE1D441C6B00867DB3 /* RMSAudioUnitFilePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 135720741D1BF8C7002FFE64 /* RMSAudioUnitFilePlayer.m */; };
+		139962FF1D441C7A00867DB3 /* RMSVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 139B04061D27D17700A754A6 /* RMSVarispeed.m */; };
 		139B04071D27D17700A754A6 /* RMSVarispeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 139B04061D27D17700A754A6 /* RMSVarispeed.m */; };
 		139EEFD51D2F0E3F00ADC307 /* rmsbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 139EEFD31D2F0E3F00ADC307 /* rmsbuffer.c */; };
 		13A1FDCE1D3EC7A300133E1F /* RMSDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A1FDCB1D3EC7A300133E1F /* RMSDevice.m */; };
@@ -570,6 +573,9 @@
 				137CB2D61D43AB0400AA241A /* RMSAudioUnit.m in Sources */,
 				137CB2D71D43AB4300AA241A /* RMSAudioUnitUtilities.m in Sources */,
 				137CB2D11D43AADC00AA241A /* RMSCallback.m in Sources */,
+				139962FE1D441C6B00867DB3 /* RMSAudioUnitFilePlayer.m in Sources */,
+				139962FD1D441C5F00867DB3 /* RMSAudioUnitVarispeed.m in Sources */,
+				139962FF1D441C7A00867DB3 /* RMSVarispeed.m in Sources */,
 				137CB2E11D43AD8400AA241A /* RMSBezierInterpolator.m in Sources */,
 				137CB2D91D43AD5100AA241A /* RMSInput.m in Sources */,
 			);

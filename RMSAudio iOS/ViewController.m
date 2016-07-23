@@ -9,17 +9,44 @@
 #import "ViewController.h"
 
 #import "RMSAudio.h"
+#import "RMSResultView.h"
 
-@interface ViewController ()
+@interface ViewController () <RMSOutputDelegate, RMSTimerProtocol>
+{
+	BOOL mProcessingLevels;
+	RMSStereoLevels mLevels;
+}
 
 @property (nonatomic) RMSOutput *audioOutput;
 
 @property (nonatomic) NSTimer *reportTimer;
 
+@property (nonatomic) RMSSampleMonitor *outputMonitor;
+@property (nonatomic, weak) IBOutlet RMSResultView *resultViewL;
+@property (nonatomic, weak) IBOutlet RMSResultView *resultViewR;
+
 
 @end
 
+////////////////////////////////////////////////////////////////////////////////
 @implementation ViewController
+////////////////////////////////////////////////////////////////////////////////
+
+- (RMSSampleMonitor *) outputMonitor
+{
+	if (_outputMonitor == nil)
+	{
+		// create RMSSampleMonitor to monitor any RMSOutput
+		_outputMonitor = [RMSSampleMonitor instanceWithCount:16*1024];
+		
+		// add self to RMSTimer for periodic updating of GUI levels
+		[RMSTimer addRMSTimerObserver:self];
+	}
+	
+	return _outputMonitor;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)viewDidLoad
 {
@@ -35,6 +62,8 @@
 	}
 	
 	self.audioOutput = [RMSOutput new];
+	self.audioOutput.source = [RMSInput new];
+	[self.audioOutput addMonitor:self.outputMonitor];
 	[self.audioOutput startRunning];
 	
 	[self startRenderTimingReports];
@@ -42,6 +71,68 @@
 	
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) audioOutput:(RMSOutput *)audioOutput didChangeState:(UInt32)state
+{
+	// TODO: add recursive reset to RMSSource
+	if (self.audioOutput == audioOutput)
+	{
+		[self.audioOutput stopRunning];
+		//[self restartEngine];
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) globalRMSTimerDidFire
+{
+	[self updateProgress];
+	[self triggerLevelsUpdate];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) triggerLevelsUpdate
+{
+	if (mProcessingLevels == NO)
+	{
+		mProcessingLevels = YES;
+		
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
+		^{
+			[self updateOutputLevels];
+			
+			mProcessingLevels = NO;
+		});
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) updateOutputLevels
+{
+	[self.outputMonitor updateLevels:&mLevels];
+	rmsresult_t L = RMSLevelsFetchResult(&mLevels.L);
+	rmsresult_t R = RMSLevelsFetchResult(&mLevels.R);
+	dispatch_async(dispatch_get_main_queue(),
+	^{
+		self.resultViewL.levels = L;
+		self.resultViewR.levels = R;
+	});
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) updateProgress
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 
 
 - (void) startRenderTimingReports

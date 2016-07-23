@@ -14,9 +14,12 @@
 @interface RMSDevice ()
 {
 	UInt32 mChannelCount;
-	UInt32 mInputChannelCount;
-	UInt32 mOutputChannelCount;
 }
+
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *uniqueID;
+@property (nonatomic, assign) UInt32 inputChannelCount;
+@property (nonatomic, assign) UInt32 outputChannelCount;
 
 @end
 
@@ -109,7 +112,7 @@
 {
 	if (mChannelCount == 0)
 	{ [self getChannelCounts]; }
-	return mInputChannelCount;
+	return _inputChannelCount;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +121,7 @@
 {
 	if (mChannelCount == 0)
 	{ [self getChannelCounts]; }
-	return mOutputChannelCount;
+	return _outputChannelCount;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +130,7 @@
 {
 	[self getInputChannelCount];
 	[self getOutputChannelCount];
-	mChannelCount = mInputChannelCount+mOutputChannelCount;
+	mChannelCount = _inputChannelCount+_outputChannelCount;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +145,7 @@
 	AudioBufferList *bufferList = [self getPropertyData:&propertyAddress];
 	if (bufferList != nil)
 	{
-		mInputChannelCount = RMSAudioBufferList_GetTotalChannelCount(bufferList);
+		_inputChannelCount = RMSAudioBufferList_GetTotalChannelCount(bufferList);
 		free(bufferList);
 	}
 }
@@ -159,7 +162,7 @@
 	AudioBufferList *bufferList = [self getPropertyData:&propertyAddress];
 	if (bufferList != nil)
 	{
-		mOutputChannelCount = RMSAudioBufferList_GetTotalChannelCount(bufferList);
+		_outputChannelCount = RMSAudioBufferList_GetTotalChannelCount(bufferList);
 		free(bufferList);
 	}
 }

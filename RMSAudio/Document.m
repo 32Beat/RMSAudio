@@ -20,6 +20,9 @@
 	RMSStereoLevels mLevels;
 }
 
+
+@property (nonatomic) RMSOutput *audioOutput;
+
 @property (nonatomic) RMSVolume *volumeFilter;
 @property (nonatomic, weak) IBOutlet NSSlider *gainControl;
 @property (nonatomic, weak) IBOutlet NSSlider *volumeControl;
@@ -28,20 +31,19 @@
 @property (nonatomic) RMSAutoPan *autoPanFilter;
 @property (nonatomic, weak) IBOutlet NSButton *autoPanControl;
 
+@property (nonatomic) RMSSampleMonitor *outputMonitor;
+@property (nonatomic, weak) IBOutlet RMSResultView *resultViewL;
+@property (nonatomic, weak) IBOutlet RMSResultView *resultViewR;
+
 
 @property (nonatomic) NSArray *inputDevices;
 @property (nonatomic, weak) IBOutlet NSPopUpButton *sourceMenu;
 @property (nonatomic) NSArray *outputDevices;
 @property (nonatomic, weak) IBOutlet NSPopUpButton *outputMenu;
 
+@property (nonatomic) RMSSource *inputSource;
+@property (nonatomic, weak) IBOutlet NSProgressIndicator *progressIndicator;
 
-@property (nonatomic) RMSAudioUnitFilePlayer *filePlayer;
-@property (nonatomic, weak) IBOutlet NSProgressIndicator *fileProgressIndicator;
-
-@property (nonatomic) RMSOutput *audioOutput;
-@property (nonatomic) RMSSampleMonitor *outputMonitor;
-@property (nonatomic, weak) IBOutlet RMSResultView *resultViewL;
-@property (nonatomic, weak) IBOutlet RMSResultView *resultViewR;
 
 @end
 
@@ -91,6 +93,8 @@
 	[[NSNotificationCenter defaultCenter]
 	addObserver:self selector:@selector(outputMenuWillPopUp:)
 	name:NSPopUpButtonWillPopUpNotification object:self.outputMenu];
+	
+	//NSMenuDidEndTrackingNotification
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +104,8 @@
 
 - (void) sourceMenuWillPopUp:(NSNotification *)note
 {
+	[self.sourceMenu itemAtIndex:0].title = @"Select File...";
+	
 	NSArray *devices = [RMSDeviceManager availableInputDevices];
 	if (self.inputDevices != devices)
 	{
@@ -112,8 +118,6 @@
 
 - (void) rebuildSourceMenu
 {
-	[self.sourceMenu itemAtIndex:2].title = @"None";
-	
 	while (self.sourceMenu.numberOfItems > 3)
 	{ [self.sourceMenu removeItemAtIndex:3]; }
 		
@@ -137,62 +141,32 @@
 	else
 	if (index == 2)
 	{
-		self.audioOutput.source = nil;
+		[self setSource:nil];
 	}
 	else
 	if (index > 2)
 	{
-		NSString *name = [sender titleOfSelectedItem];
-		[self selectSourceWithName:name];
+		NSMenuItem *item = [sender selectedItem];
+		RMSDevice *device = item.representedObject;
+		RMSInput *input = [RMSInput instanceWithDeviceID:device.deviceID];
+		
+		[self setSource:input];
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) selectSourceWithName:(NSString *)name
+- (void) setSource:(RMSSource *)source
 {
-	AudioDeviceID deviceID = [RMSInput deviceWithName:name];
-	if (deviceID != 0)
-	{
-		RMSInput *input = [RMSInput instanceWithDeviceID:deviceID];
-		if (input != nil)
-		{
-			[self startSource:input];
-		}
-	}
-}
+	if ([source isKindOfClass:[RMSAudioUnitFilePlayer class]])
+	{ [self.sourceMenu itemAtIndex:0].title = @"File"; }
 
-////////////////////////////////////////////////////////////////////////////////
+	if (self.inputSource != source)
+	{
+		self.inputSource = source;
 
-- (void) startSource:(RMSSource *)source
-{
-	[_audioOutput stopRunning];
-	
-	// update filePlayer connection for progress indicator
-	if (self.filePlayer != source)
-	{
-		self.filePlayer = nil;
-		if ([source isKindOfClass:[RMSAudioUnitFilePlayer class]])
-		{ self.filePlayer = (RMSAudioUnitFilePlayer *)source; }
+		[self restartEngine];
 	}
-	
-	// check for sampleRate conversion
-	if (source.sampleRate != self.audioOutput.sampleRate) \
-	{
-		source = [RMSVarispeed instanceWithSource:source];
-		source.sampleRate = 4.0 * self.audioOutput.sampleRate;
-		source = [RMSVarispeed instanceWithSource:source];
-	}
-	
-	// attach to audioOutput
-	self.audioOutput.source = source;
-	
-	mLevels.sampleRate = 0.0;
-		
-	[_audioOutput startRunning];
-		
-	// prepare render timing reports
-	[self startRenderTimingReports];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -221,6 +195,7 @@
 	for (RMSDevice *device in self.outputDevices)
 	{
 		[self.outputMenu addItemWithTitle:device.name];
+		self.outputMenu.lastItem.representedObject = device;
 	}
 }
 
@@ -230,20 +205,11 @@
 {
 	RMSOutput *output = nil;
 	
-	NSInteger index = menuButton.indexOfSelectedItem;
-	if (index > 0)
+	NSMenuItem *item = [menuButton selectedItem];
+	RMSDevice *device = item.representedObject;
+	if (device != nil)
 	{
-		index -= 1;
-		if (index < self.outputDevices.count)
-		{
-			RMSDevice *device = [self.outputDevices objectAtIndex:index];
-			
-			AudioDeviceID deviceID = device.deviceID;
-			if (deviceID != 0)
-			{
-				output = [RMSOutput instanceWithDeviceID:deviceID];
-			}
-		}
+		output = [RMSOutput instanceWithDeviceID:device.deviceID];
 	}
 
 	[self setOutput:output];
@@ -279,16 +245,18 @@
 
 - (void) setOutput:(RMSOutput *)output
 {
-	if (_audioOutput != output)
+	if (self.audioOutput != output)
 	{
-		[_audioOutput stopRunning];
+		[self.audioOutput stopRunning];
 		
 		// prepare volumecontrol, and outputmetering
 		[output addFilter:self.volumeFilter];
 		[output addMonitor:self.outputMonitor];
 		[output setDelegate:self];
 		
-		_audioOutput = output;
+		self.audioOutput = output;
+		
+		[self restartEngine];
 	}
 }
 
@@ -297,17 +265,44 @@
 - (void) audioOutput:(RMSOutput *)audioOutput didChangeState:(UInt32)state
 {
 	// TODO: add recursive reset to RMSSource
-	if (_audioOutput == audioOutput)
+	if (self.audioOutput == audioOutput)
 	{
-		id source = _audioOutput.source;
-		
-		if ([source isKindOfClass:[RMSVarispeed class]])
-		{ source = [source source]; }
-		
-		[_audioOutput stopRunning];
-		_audioOutput = nil;
+		[self.audioOutput stopRunning];
+		[self restartEngine];
+	}
+}
 
-		[self startSource:source];
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) restartEngine
+{
+	RMSOutput *output = self.audioOutput;
+	if (output != nil)
+	{
+		[output setSource:nil];
+		
+		RMSSource *source = self.inputSource;
+		if (source != nil)
+		{
+			// check for sampleRate conversion
+			if (source.sampleRate != output.sampleRate) \
+			{
+				source = [RMSVarispeed instanceWithSource:source];
+				source.sampleRate = 4.0 * self.audioOutput.sampleRate;
+				source = [RMSVarispeed instanceWithSource:source];
+			}
+			
+			[output setSource:source];
+			mLevels.sampleRate = 0.0;
+			
+			if (!output.isRunning)
+			{ [output startRunning]; }
+
+			// prepare render timing reports
+			[self startRenderTimingReports];
+		}
 	}
 }
 
@@ -412,8 +407,17 @@
 
 - (void) updateProgress
 {
-	Float32 R = [self.filePlayer getRelativePlayTime];
-	[self.fileProgressIndicator setDoubleValue:R];
+	RMSSource *source = self.inputSource;
+	if ([source isKindOfClass:[RMSAudioUnitFilePlayer class]])
+	{
+		RMSAudioUnitFilePlayer *filePlayer = (RMSAudioUnitFilePlayer *)source;
+		Float32 R = [filePlayer getRelativePlayTime];
+		[self.progressIndicator setDoubleValue:R];
+	}
+	else
+	{
+		[self.progressIndicator setDoubleValue:0.0];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -490,8 +494,6 @@
 					[self startFileWithURL:url];
 				}
 			}
-			
-			[self.sourceMenu selectItemAtIndex:2];
 		}];
 }
 
@@ -499,11 +501,10 @@
 
 - (void) startFileWithURL:(NSURL *)url
 {
-	[self.sourceMenu itemAtIndex:2].title = @"File";
 	[self logText:[NSString stringWithFormat:@"Start file: %@", url.lastPathComponent]];
 	
 	id source = [RMSAudioUnitFilePlayer instanceWithURL:url];
-	[self startSource:source];
+	[self setSource:source];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

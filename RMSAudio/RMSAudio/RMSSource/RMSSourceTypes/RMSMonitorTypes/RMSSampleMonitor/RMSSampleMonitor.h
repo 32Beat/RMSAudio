@@ -80,6 +80,7 @@ possible design concept: always as extension to RMSSampleMonitor
 
 - (rmsbuffer_t *) bufferAtIndex:(int)n;
 
+- (void) reset;
 - (void) updateLevels:(RMSStereoLevels *)levels;
 
 - (void) addObserver:(id<RMSSampleMonitorObserverProtocol>)observer;

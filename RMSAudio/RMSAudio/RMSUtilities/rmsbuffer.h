@@ -58,6 +58,8 @@ void RMSBufferEnd(rmsbuffer_t *buffer);
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void RMSBufferReset(rmsbuffer_t *bufferPtr);
+void RMSBufferClearSamples(rmsbuffer_t *bufferPtr);
 void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N);
 void RMSBufferReadSamplesFromIndex(rmsbuffer_t *bufferPtr, uint64_t index, float *dstPtr, size_t N);
 

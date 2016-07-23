@@ -10,10 +10,10 @@
             <connections>
                 <outlet property="autoPanControl" destination="mAC-p1-MY4" id="cjY-GJ-bcz"/>
                 <outlet property="balanceControl" destination="4p1-TH-d6i" id="fpf-Gh-DDj"/>
-                <outlet property="fileProgressIndicator" destination="uYu-VS-Dx4" id="YEt-EF-lUy"/>
                 <outlet property="gainControl" destination="UJC-Ko-b6Z" id="mUz-99-Wj9"/>
                 <outlet property="logView" destination="gFb-O5-cO1" id="RRe-FU-gwk"/>
                 <outlet property="outputMenu" destination="L8w-2t-PU0" id="1or-ac-caB"/>
+                <outlet property="progressIndicator" destination="uYu-VS-Dx4" id="klF-JC-UwQ"/>
                 <outlet property="resultViewL" destination="IYx-wO-ckQ" id="4VA-WJ-vKY"/>
                 <outlet property="resultViewR" destination="AYM-L1-uCH" id="4X8-hJ-xUf"/>
                 <outlet property="sourceMenu" destination="XPc-t6-YeH" id="nH6-8r-ias"/>

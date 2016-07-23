@@ -85,6 +85,14 @@ rmsbuffer_t *RMSBufferRelease(rmsbuffer_t *bufferPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
+void RMSBufferReset(rmsbuffer_t *bufferPtr)
+{
+	bufferPtr->index = 0;
+	RMSBufferClearSamples(bufferPtr);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void RMSBufferClearSamples(rmsbuffer_t *bufferPtr)
 {
 	if (bufferPtr && bufferPtr->sampleData)

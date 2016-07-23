@@ -12,13 +12,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface RMSDevice : NSObject
 @property (nonatomic, readonly) AudioDeviceID deviceID;
-@property (nonatomic, copy) NSString *name;
-@property (nonatomic, copy) NSString *uniqueID;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *uniqueID;
+@property (nonatomic, readonly) UInt32 inputChannelCount;
+@property (nonatomic, readonly) UInt32 outputChannelCount;
 
 + (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID;
-- (instancetype) initWithDeviceID:(AudioDeviceID)deviceID;
-- (UInt32) inputChannelCount;
-- (UInt32) outputChannelCount;
 
 @end
 ////////////////////////////////////////////////////////////////////////////////

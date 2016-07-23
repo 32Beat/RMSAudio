@@ -195,7 +195,8 @@
 		1357201F1D1BEF22002FFE64 = {
 			isa = PBXGroup;
 			children = (
-				1357202A1D1BEF22002FFE64 /* RMSAudio */,
+				135720421D1BF307002FFE64 /* RMSAudio */,
+				1357202A1D1BEF22002FFE64 /* RMSAudio OSX */,
 				137CB2B91D4385DA00AA241A /* RMSAudio iOS */,
 				135720291D1BEF22002FFE64 /* Products */,
 			);
@@ -210,10 +211,9 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1357202A1D1BEF22002FFE64 /* RMSAudio */ = {
+		1357202A1D1BEF22002FFE64 /* RMSAudio OSX */ = {
 			isa = PBXGroup;
 			children = (
-				135720421D1BF307002FFE64 /* RMSAudio */,
 				1357202B1D1BEF22002FFE64 /* AppDelegate.h */,
 				1357202C1D1BEF22002FFE64 /* AppDelegate.m */,
 				135720311D1BEF22002FFE64 /* Document.h */,
@@ -224,7 +224,7 @@
 				1357203C1D1BEF22002FFE64 /* Info.plist */,
 				1357202E1D1BEF22002FFE64 /* Supporting Files */,
 			);
-			path = RMSAudio;
+			path = "RMSAudio OSX";
 			sourceTree = "<group>";
 		};
 		1357202E1D1BEF22002FFE64 /* Supporting Files */ = {

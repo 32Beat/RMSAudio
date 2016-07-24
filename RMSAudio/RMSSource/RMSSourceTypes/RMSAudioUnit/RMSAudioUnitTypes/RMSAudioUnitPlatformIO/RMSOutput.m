@@ -310,9 +310,9 @@ AudioUnitElement	inElement)
 #if TARGET_OS_IPHONE
 
 #else
-	if (deviceID != 0)
+	if (device != nil)
 	{
-		result = AudioUnitAttachDevice(mAudioUnit, deviceID);
+		result = AudioUnitAttachDevice(mAudioUnit, device.deviceID);
 		if (result != noErr) return result;
 	}
 #endif

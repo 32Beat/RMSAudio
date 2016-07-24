@@ -279,8 +279,8 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	OSStatus result = RMSAudioGetDefaultInputDeviceID(&deviceID);
 	if (result != noErr) return nil;
 	
-	
-	return [[self alloc] initWithDeviceID:deviceID];
+	RMSDevice *device = [RMSDevice instanceWithDeviceID:deviceID];
+	return [[self alloc] initWithDevice:device];
 
 #endif
 }
@@ -335,9 +335,12 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 
 #else
 	
-	// Attach device on inputside of inputstream
-	result = AudioUnitAttachDevice(mAudioUnit, deviceID);
-	if (result != noErr) return result;
+	if (device != nil)
+	{
+		// Attach device on inputside of inputstream
+		result = AudioUnitAttachDevice(mAudioUnit, device.deviceID);
+		if (result != noErr) return result;
+	}
 	
 #endif
 	

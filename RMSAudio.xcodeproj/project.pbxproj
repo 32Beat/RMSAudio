@@ -12,7 +12,6 @@
 		1305C0CB1D44712B0062E2CA /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1305C0C11D44712B0062E2CA /* Document.xib */; };
 		1305C0CC1D44712B0062E2CA /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1305C0C31D44712B0062E2CA /* MainMenu.xib */; };
 		1305C0CD1D44712B0062E2CA /* Document.m in Sources */ = {isa = PBXBuildFile; fileRef = 1305C0C61D44712B0062E2CA /* Document.m */; };
-		1305C0CE1D44712B0062E2CA /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1305C0C71D44712B0062E2CA /* Info.plist */; };
 		1305C0CF1D44712B0062E2CA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1305C0C81D44712B0062E2CA /* main.m */; };
 		13488BE51D447032009E99D6 /* RMSCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BA71D447031009E99D6 /* RMSCallback.m */; };
 		13488BE61D447032009E99D6 /* RMSCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BA71D447031009E99D6 /* RMSCallback.m */; };
@@ -161,15 +160,23 @@
 			children = (
 				1305C0BE1D44712B0062E2CA /* AppDelegate.h */,
 				1305C0BF1D44712B0062E2CA /* AppDelegate.m */,
-				1305C0C01D44712B0062E2CA /* Assets.xcassets */,
-				1305C0C11D44712B0062E2CA /* Document.xib */,
-				1305C0C31D44712B0062E2CA /* MainMenu.xib */,
 				1305C0C51D44712B0062E2CA /* Document.h */,
 				1305C0C61D44712B0062E2CA /* Document.m */,
+				1305C0C11D44712B0062E2CA /* Document.xib */,
+				1305C0D01D4473C40062E2CA /* Supporting Files */,
+			);
+			path = "RMSAudio OSX";
+			sourceTree = "<group>";
+		};
+		1305C0D01D4473C40062E2CA /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				1305C0C01D44712B0062E2CA /* Assets.xcassets */,
+				1305C0C31D44712B0062E2CA /* MainMenu.xib */,
 				1305C0C71D44712B0062E2CA /* Info.plist */,
 				1305C0C81D44712B0062E2CA /* main.m */,
 			);
-			path = "RMSAudio OSX";
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		13488BA31D447031009E99D6 /* RMSAudio */ = {
@@ -396,10 +403,6 @@
 				137CB2BE1D4385DA00AA241A /* AppDelegate.m */,
 				137CB2C01D4385DA00AA241A /* ViewController.h */,
 				137CB2C11D4385DA00AA241A /* ViewController.m */,
-				137CB2C31D4385DA00AA241A /* Main.storyboard */,
-				137CB2C61D4385DA00AA241A /* Assets.xcassets */,
-				137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */,
-				137CB2CB1D4385DA00AA241A /* Info.plist */,
 				137CB2BA1D4385DA00AA241A /* Supporting Files */,
 			);
 			path = "RMSAudio iOS";
@@ -408,6 +411,10 @@
 		137CB2BA1D4385DA00AA241A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				137CB2C31D4385DA00AA241A /* Main.storyboard */,
+				137CB2C61D4385DA00AA241A /* Assets.xcassets */,
+				137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */,
+				137CB2CB1D4385DA00AA241A /* Info.plist */,
 				137CB2BB1D4385DA00AA241A /* main.m */,
 			);
 			name = "Supporting Files";
@@ -491,10 +498,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1305C0CE1D44712B0062E2CA /* Info.plist in Resources */,
+				1305C0CC1D44712B0062E2CA /* MainMenu.xib in Resources */,
 				1305C0CB1D44712B0062E2CA /* Document.xib in Resources */,
 				1305C0CA1D44712B0062E2CA /* Assets.xcassets in Resources */,
-				1305C0CC1D44712B0062E2CA /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,8 +509,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				137CB2CA1D4385DA00AA241A /* LaunchScreen.storyboard in Resources */,
-				137CB2C71D4385DA00AA241A /* Assets.xcassets in Resources */,
 				137CB2C51D4385DA00AA241A /* Main.storyboard in Resources */,
+				137CB2C71D4385DA00AA241A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,7 +707,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = RMSAudio/Info.plist;
+				INFOPLIST_FILE = "RMSAudio OSX/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.32BT.RMSAudio;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -713,7 +719,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = RMSAudio/Info.plist;
+				INFOPLIST_FILE = "RMSAudio OSX/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.32BT.RMSAudio;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -728,7 +734,7 @@
 				INFOPLIST_FILE = "RMSAudio iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.32BT.RMSAudio-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.32BT.RMSAudio;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -743,7 +749,7 @@
 				INFOPLIST_FILE = "RMSAudio iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.32BT.RMSAudio-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.32BT.RMSAudio;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

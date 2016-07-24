@@ -209,7 +209,7 @@
 	RMSDevice *device = item.representedObject;
 	if (device != nil)
 	{
-		output = [RMSOutput instanceWithDeviceID:device.deviceID];
+		output = [RMSOutput instanceWithDevice:device];
 	}
 
 	[self setOutput:output];

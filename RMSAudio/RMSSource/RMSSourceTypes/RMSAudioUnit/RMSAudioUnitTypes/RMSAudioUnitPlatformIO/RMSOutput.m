@@ -273,7 +273,7 @@ AudioUnitPropertyID	inID,
 AudioUnitScope		inScope,
 AudioUnitElement	inElement)
 {
-	NSLog(@"Format Changed: scope: %d, bus %d", inScope, inElement);
+	NSLog(@"Format Changed: scope: %lu, bus %lu", inScope, inElement);
 }
 
 - (void) prepareMessaging

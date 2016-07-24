@@ -52,23 +52,45 @@
 {
 	[super viewDidLoad];
 	
-	
 	AVAudioSession *session = [AVAudioSession sharedInstance];
-
 	if (session != nil)
 	{
-		NSArray *devices = [session availableInputs];
-		NSLog(@"%@", devices.description);
+		if (session.recordPermission == AVAudioSessionRecordPermissionGranted)
+			[self startPlayThru];
+		else
+		if (session.recordPermission == AVAudioSessionRecordPermissionUndetermined)
+			[session requestRecordPermission:^(BOOL granted)
+			{
+				if (granted == YES)
+				{
+					[self startPlayThru];
+				}
+			}];
 	}
-	
-	self.audioOutput = [RMSOutput new];
-	self.audioOutput.source = [RMSInput new];
-	[self.audioOutput addMonitor:self.outputMonitor];
-	[self.audioOutput startRunning];
-	
-	[self startRenderTimingReports];
-	
-	
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) startPlayThru
+{
+	AVAudioSession *session = [AVAudioSession sharedInstance];
+	if ([session setCategory:AVAudioSessionCategoryMultiRoute error:nil])
+	{
+		NSLog(@"%@", @"AVAudioSession category set successfully!");
+		
+		if ([session setActive:YES error:nil])
+		{
+			NSInteger inputChannelCount = [session inputNumberOfChannels];
+			NSInteger inputChannelCountMax = [session maximumInputNumberOfChannels];
+			
+			self.audioOutput = [RMSOutput new];
+			self.audioOutput.source = [RMSInput new];
+			self.audioOutput.monitor = self.outputMonitor;
+			[self.audioOutput startRunning];
+			
+			[self startRenderTimingReports];
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

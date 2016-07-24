@@ -102,6 +102,9 @@ static inline void AudioBufferList_CopyBuffers
 		dstListPtr->mBuffers[0].mData, dstListPtr->mBuffers[1].mData, frameCount);
 }
 
+void RMSAudioBufferList_CopyBuffer(
+AudioBufferList *srcListPtr, UInt32 srcIndex,
+AudioBufferList *dstListPtr, UInt32 dstIndex, UInt32 frameCount);
 
 static inline OSStatus RunAURenderCallback(
 	const AURenderCallbackStruct 	*callbackInfo,

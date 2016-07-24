@@ -99,17 +99,17 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (NSRange) availableRange
+- (rmsrange_t) availableRange
 {
 	uint64_t maxIndex = self.maxIndex;
 	uint64_t maxCount = self.length >> 1;
 	
-	return (NSRange){ maxIndex-maxCount, maxCount };
+	return (rmsrange_t){ maxIndex-maxCount, maxCount };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (NSRange) availableRangeWithIndex:(uint64_t)index
+- (rmsrange_t) availableRangeWithIndex:(uint64_t)index
 {
 	uint64_t maxIndex = self.maxIndex;
 	
@@ -126,7 +126,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		count = maxCount;
 	}
 	
-	return (NSRange){ index, count };
+	return (rmsrange_t){ index, count };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,21 +138,21 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	if (count > mCount)
 	{ count = mCount; }
 	
-	NSRange R = { index - count, count };
+	rmsrange_t R = { index - count, count };
 	return [self getSamples:dstPtr withRange:R];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (BOOL) getSamples:(float **)dstPtr withRange:(NSRange)R
+- (BOOL) getSamples:(float **)dstPtr withRange:(rmsrange_t)R
 {
 	uint64_t maxIndex = self.maxIndex;
 	uint64_t minIndex = maxIndex > mCount ? maxIndex - mCount : 0;
 	
-	if ((minIndex <= R.location)&&((R.location+R.length) <= maxIndex))
+	if ((minIndex <= R.index)&&((R.index+R.count) <= maxIndex))
 	{
-		uint64_t index = R.location;
-		uint64_t count = R.length;
+		uint64_t index = R.index;
+		uint64_t count = R.count;
 
 		RMSBufferReadSamplesFromIndex(&mBufferL, index, dstPtr[0], count);
 		RMSBufferReadSamplesFromIndex(&mBufferR, index, dstPtr[1], count);
@@ -165,19 +165,19 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) getSamplesL:(float *)dstPtr withRange:(NSRange)R
+- (void) getSamplesL:(float *)dstPtr withRange:(rmsrange_t)R
 {
-	uint64_t index = R.location;
-	uint64_t count = R.length;
+	uint64_t index = R.index;
+	uint64_t count = R.count;
 	RMSBufferReadSamplesFromIndex(&mBufferL, index, dstPtr, count);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) getSamplesR:(float *)dstPtr withRange:(NSRange)R
+- (void) getSamplesR:(float *)dstPtr withRange:(rmsrange_t)R
 {
-	uint64_t index = R.location;
-	uint64_t count = R.length;
+	uint64_t index = R.index;
+	uint64_t count = R.count;
 	RMSBufferReadSamplesFromIndex(&mBufferR, index, dstPtr, count);
 }
 

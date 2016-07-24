@@ -209,7 +209,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
 	
 	if (result != noErr)
-	{ NSLog(@"getSourceFormat returned %d", result); }
+	{ NSLog(@"getSourceFormat returned %ld", result); }
 
 	return result;
 }
@@ -225,7 +225,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
 	
 	if (result != noErr)
-	{ NSLog(@"setSourceFormat returned %d", result); }
+	{ NSLog(@"setSourceFormat returned %ld", result); }
 
 	if (mAudioUnitIsInitialized)
 	AudioUnitInitialize(mAudioUnit);
@@ -241,7 +241,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
 	
 	if (result != noErr)
-	{ NSLog(@"getResultFormat returned %d", result); }
+	{ NSLog(@"getResultFormat returned %ld", result); }
 	
 	return result;
 }
@@ -257,7 +257,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	(mAudioUnit, _defaultBusIndex, streamInfoPtr);
 
 	if (result != noErr)
-	{ NSLog(@"setResultFormat returned %d", result); }
+	{ NSLog(@"setResultFormat returned %ld", result); }
 
 	if (mAudioUnitIsInitialized)
 	AudioUnitInitialize(mAudioUnit);

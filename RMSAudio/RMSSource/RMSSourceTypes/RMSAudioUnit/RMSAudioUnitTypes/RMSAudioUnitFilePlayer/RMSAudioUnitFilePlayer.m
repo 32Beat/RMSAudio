@@ -87,19 +87,19 @@
 	// Open audio file
 	OSStatus result = AudioFileOpenURL((__bridge CFURLRef)fileURL, kAudioFileReadPermission, 0, &mFileID);
 	if (result != noErr)
-	{ NSLog(@"AudioFileOpenURL returned %d", result); return result; }
+	{ NSLog(@"AudioFileOpenURL returned %ld", result); return result; }
 
 	// Add corresponding fileID to file player
 	result = AudioUnitSetProperty(mAudioUnit, kAudioUnitProperty_ScheduledFileIDs,
 	kAudioUnitScope_Global, 0, &mFileID, sizeof(mFileID));
 	if (result != noErr)
-	{ NSLog(@"Failed to set file ID: %d", result); return result; }
+	{ NSLog(@"Failed to set file ID: %ld", result); return result; }
 
 	// Get source format
 	UInt32 size = sizeof(mFileFormat);
 	result = AudioFileGetProperty(mFileID, kAudioFilePropertyDataFormat, &size, &mFileFormat);
 	if (result != noErr)
-	{ NSLog(@"AudioFileGetProperty returned %d", result); return result; }
+	{ NSLog(@"AudioFileGetProperty returned %ld", result); return result; }
 	
 	
 	[self setResultFormat:&RMSPreferredAudioFormat];
@@ -113,7 +113,7 @@
 
 	result = [self initializeAudioUnit];
 	if (result != noErr)
-	{ NSLog(@"RMSAudioUnitFilePlayer: initializing audiounit returned %d", result); return result; }
+	{ NSLog(@"RMSAudioUnitFilePlayer: initializing audiounit returned %ld", result); return result; }
 
 
 	// Set absolute start time (-1 = asap)
@@ -121,7 +121,7 @@
 	result = AudioUnitSetProperty(mAudioUnit, kAudioUnitProperty_ScheduleStartTimeStamp,
 	kAudioUnitScope_Global, 0, &startTime, sizeof(startTime));
 	if (result != noErr)
-	{ NSLog(@"RMSAudioUnitFilePlayer: setting starttime returned %d", result); return result; }
+	{ NSLog(@"RMSAudioUnitFilePlayer: setting starttime returned %ld", result); return result; }
 
 
 	// Set play range within file ([0, -1] = entire file)
@@ -138,7 +138,7 @@
 	result = AudioUnitSetProperty(mAudioUnit, kAudioUnitProperty_ScheduledFileRegion,
 	kAudioUnitScope_Global, 0, &region, sizeof(region));
 	if (result != noErr)
-	{ NSLog(@"RMSAudioUnitFilePlayer: scheduling playregion returned %d", result); return result; }
+	{ NSLog(@"RMSAudioUnitFilePlayer: scheduling playregion returned %ld", result); return result; }
 
 
 	// Priming requires the audiounit to be initialized
@@ -146,7 +146,7 @@
 	result = AudioUnitSetProperty(mAudioUnit, kAudioUnitProperty_ScheduledFilePrime,
 	kAudioUnitScope_Global, 0, &primeFrames, sizeof(primeFrames));
 	if (result != noErr)
-	{ NSLog(@"RMSAudioUnitFilePlayer: priming audiounit returned %d", result); return result; }
+	{ NSLog(@"RMSAudioUnitFilePlayer: priming audiounit returned %ld", result); return result; }
 
 	
 	return result;

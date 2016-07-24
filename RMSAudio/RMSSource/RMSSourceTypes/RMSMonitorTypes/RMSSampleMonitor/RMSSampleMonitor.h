@@ -70,13 +70,13 @@ possible design concept: always as extension to RMSSampleMonitor
 - (size_t) length;
 - (uint64_t) maxIndex;
 
-- (NSRange) availableRange;
-- (NSRange) availableRangeWithIndex:(uint64_t)index;
+- (rmsrange_t) availableRange;
+- (rmsrange_t) availableRangeWithIndex:(uint64_t)index;
 
 - (BOOL) getSamples:(float **)dstPtr count:(size_t)count;
-- (BOOL) getSamples:(float **)dstPtr withRange:(NSRange)R;
-- (void) getSamplesL:(float *)dstPtr withRange:(NSRange)R;
-- (void) getSamplesR:(float *)dstPtr withRange:(NSRange)R;
+- (BOOL) getSamples:(float **)dstPtr withRange:(rmsrange_t)R;
+- (void) getSamplesL:(float *)dstPtr withRange:(rmsrange_t)R;
+- (void) getSamplesR:(float *)dstPtr withRange:(rmsrange_t)R;
 
 - (rmsbuffer_t *) bufferAtIndex:(int)n;
 

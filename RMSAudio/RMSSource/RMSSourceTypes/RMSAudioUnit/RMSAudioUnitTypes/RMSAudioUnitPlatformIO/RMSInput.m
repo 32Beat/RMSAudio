@@ -17,6 +17,8 @@
 
 @interface RMSInput ()
 {
+	NSInteger mChannelCount;
+	
 	double mStartTime;
 	UInt64 mSampleCount;
 	double mNominalSampleRate;
@@ -139,7 +141,13 @@ static OSStatus inputCallback(
 
 		OSStatus result = AudioUnitRender(rmsObject->mAudioUnit, \
 		actionFlagsPtr, timeStampPtr, busNumber, frameCount, &stereoBuffer.list);
-
+	
+		if (rmsObject->mChannelCount == 1)
+		{
+			RMSAudioBufferList_CopyBuffer
+			(&stereoBuffer.list, 0, &stereoBuffer.list, 1, frameCount);
+		}
+	
 		RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
 	
 	rmsObject->mInputIsBusy = 0;
@@ -363,7 +371,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = RMSAudioUnitGetInputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitGetInputScopeFormatAtIndex returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitGetInputScopeFormatAtIndex returned %ld", result); }
 	
 	return result;
 }
@@ -379,7 +387,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = RMSAudioUnitSetInputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitSetInputScopeFormatAtIndex returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitSetInputScopeFormatAtIndex returned %ld", result); }
 
 	return result;
 }
@@ -390,7 +398,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = RMSAudioUnitGetOutputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitGetOutputScopeFormatAtIndex returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitGetOutputScopeFormatAtIndex returned %ld", result); }
 	
 	return result;
 }
@@ -401,7 +409,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = RMSAudioUnitSetOutputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
 	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitSetOutputScopeFormatAtIndex returned %d", result); }
+	{ NSLog(@"RMSInput: RMSAudioUnitSetOutputScopeFormatAtIndex returned %ld", result); }
 
 	return result;
 }
@@ -443,15 +451,18 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 - (OSStatus) initializeSampleRates
 {
 	OSStatus result = noErr;
+
+	AudioStreamBasicDescription sourceFormat;
+	result = [self getSourceFormat:&sourceFormat];
 	
 #if TARGET_OS_IPHONE
 
+	mChannelCount = [[AVAudioSession sharedInstance] inputNumberOfChannels];
 	mSourceSampleRate = [[AVAudioSession sharedInstance] sampleRate];
 
 #else
 
-	AudioStreamBasicDescription sourceFormat;
-	result = [self getSourceFormat:&sourceFormat];
+	mChannelCount = 2;
 	mSourceSampleRate = sourceFormat.mSampleRate;
 
 #endif
@@ -480,7 +491,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	OSStatus result = RMSAudioUnitGetMaximumFramesPerSlice(mAudioUnit, &frameCount);
 
 	if (result != noErr)
-	{ NSLog(@"AudioUnitGetMaximumFramesPerSlice error: %d", result); }
+	{ NSLog(@"AudioUnitGetMaximumFramesPerSlice error: %ld", result); }
 		
 	UInt32 maxFrameCount = 2;
 	while (maxFrameCount < frameCount)

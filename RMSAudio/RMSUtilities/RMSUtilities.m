@@ -191,3 +191,37 @@ UInt32 RMSAudioBufferList_GetTotalChannelCount(AudioBufferList *bufferList)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline void PCM_Copy
+(float *srcPtr, float *dstPtr, UInt32 n)
+{
+	if (n & 0x01)
+	{
+		n -= 1;
+		dstPtr[n] = srcPtr[n];
+	}
+	
+	n >>= 1;
+	while (n != 0)
+	{
+		n -= 1;
+		((uint64_t *)dstPtr)[n] = ((uint64_t *)srcPtr)[n];
+	}
+}
+
+void RMSAudioBufferList_CopyBuffer(
+AudioBufferList *srcListPtr, UInt32 srcIndex,
+AudioBufferList *dstListPtr, UInt32 dstIndex, UInt32 frameCount)
+{
+	PCM_Copy(
+		srcListPtr->mBuffers[srcIndex].mData,
+		dstListPtr->mBuffers[dstIndex].mData, frameCount);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+

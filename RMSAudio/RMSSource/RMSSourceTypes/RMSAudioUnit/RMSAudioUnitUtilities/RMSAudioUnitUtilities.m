@@ -227,7 +227,7 @@ AudioUnit NewAudioUnitWithDescription(AudioComponentDescription desc)
 			return instance;
 		}
 		else
-		NSLog(@"AudioComponentInstanceNew error: %d", result);
+		NSLog(@"AudioComponentInstanceNew error: %ld", result);
 	}
 	else
 	NSLog(@"%@", @"AudioComponent not found!");
@@ -352,7 +352,7 @@ bool AudioUnitIsRunning(AudioUnit audioUnit)
 	(audioUnit, kAudioOutputUnitProperty_IsRunning, &state);
 	if (result != noErr)
 	{
-		NSLog(@"AudioUnitIsRunning error = %d", result);
+		NSLog(@"AudioUnitIsRunning error = %ld", result);
 	}
 	
 	return state;

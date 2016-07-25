@@ -13,13 +13,13 @@
 
 @interface ViewController () <RMSOutputDelegate, RMSTimerProtocol>
 {
+	NSTimer *mReportTimer;
+	
 	BOOL mProcessingLevels;
 	RMSStereoLevels mLevels;
 }
 
 @property (nonatomic) RMSOutput *audioOutput;
-
-@property (nonatomic) NSTimer *reportTimer;
 
 @property (nonatomic) RMSSampleMonitor *outputMonitor;
 @property (nonatomic, weak) IBOutlet RMSResultView *resultViewL;
@@ -159,17 +159,17 @@
 
 - (void) startRenderTimingReports
 {
-	if (self.reportTimer == nil)
+	if (mReportTimer == nil)
 	{
 		// set timer for 2 second updates
-		self.reportTimer = [NSTimer timerWithTimeInterval:2.0
+		mReportTimer = [NSTimer timerWithTimeInterval:2.0
 		target:self selector:@selector(reportRenderTime:) userInfo:nil repeats:YES];
 		
 		// add tolerance to reduce system strain
-		[self.reportTimer setTolerance:.2];
+		[mReportTimer setTolerance:.2];
 		
 		// add to runloop
-		[[NSRunLoop currentRunLoop] addTimer:self.reportTimer
+		[[NSRunLoop currentRunLoop] addTimer:mReportTimer
         forMode:NSRunLoopCommonModes];
 	}
 	
@@ -179,8 +179,8 @@
 
 - (void) stopRenderTimingReports
 {
-	[self.reportTimer invalidate];
-	self.reportTimer = nil;
+	[mReportTimer invalidate];
+	mReportTimer = nil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

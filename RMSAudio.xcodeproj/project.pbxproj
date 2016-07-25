@@ -330,12 +330,12 @@
 		13488BCD1D447032009E99D6 /* RMSUtilities */ = {
 			isa = PBXGroup;
 			children = (
-				13488BCE1D447032009E99D6 /* rmsbuffer.c */,
-				13488BCF1D447032009E99D6 /* rmsbuffer.h */,
 				13488BD01D447032009E99D6 /* RMSDeviceManager */,
 				13488BD51D447032009E99D6 /* RMSInterpolators */,
 				13488BD81D447032009E99D6 /* rmslevels.c */,
 				13488BD91D447032009E99D6 /* rmslevels.h */,
+				13488BCE1D447032009E99D6 /* rmsbuffer.c */,
+				13488BCF1D447032009E99D6 /* rmsbuffer.h */,
 				13488BDA1D447032009E99D6 /* RMSRingBuffer.h */,
 				13488BDB1D447032009E99D6 /* RMSRingBuffer.m */,
 				13488BDC1D447032009E99D6 /* RMSTimer.h */,

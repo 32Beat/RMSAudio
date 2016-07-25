@@ -69,8 +69,7 @@ static OSStatus notifyCallback(
 	{
 		infoPtr->finishTime = mach_absolute_time();
 		
-		double renderTime =
-		RMSHostTimeToSeconds(infoPtr->finishTime - infoPtr->startTime);
+		double renderTime = infoPtr->finishTime - infoPtr->startTime;
 		
 		if (infoPtr->reset)
 		{
@@ -95,10 +94,10 @@ static OSStatus notifyCallback(
 #endif
 
 - (NSTimeInterval) averageRenderTime
-{ return mTimingInfo.avgTime; }
+{ return RMSHostTimeToSeconds(mTimingInfo.avgTime); }
 
 - (NSTimeInterval) maximumRenderTime;
-{ return mTimingInfo.maxTime; }
+{ return RMSHostTimeToSeconds(mTimingInfo.maxTime); }
 
 - (void) resetTimingInfo
 {
@@ -273,7 +272,7 @@ AudioUnitPropertyID	inID,
 AudioUnitScope		inScope,
 AudioUnitElement	inElement)
 {
-	NSLog(@"Format Changed: scope: %lu, bus %lu", inScope, inElement);
+	NSLog(@"Format Changed: scope: %u, bus %u", (UInt32)inScope, (UInt32)inElement);
 }
 
 - (void) prepareMessaging

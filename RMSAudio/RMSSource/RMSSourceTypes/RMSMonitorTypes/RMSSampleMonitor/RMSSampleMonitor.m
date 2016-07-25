@@ -211,7 +211,7 @@ static void RMSLevelsUpdateWithBuffer
 	for (uint64_t N=R->count; N!=0; N--)
 	{
 		Float32 S = srcPtr[index&indexMask];
-		RMSLevelsUpdateWithSample(levels, S);
+		RMSLevelsScanSample(levels, S);
 		
 		index++;
 	}

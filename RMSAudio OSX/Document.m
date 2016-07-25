@@ -286,14 +286,20 @@
 		RMSSource *source = self.inputSource;
 		if (source != nil)
 		{
+//*
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
 			{
+				// change source to resampler with original source
 				source = [RMSVarispeed instanceWithSource:source];
-				source.sampleRate = 4.0 * self.audioOutput.sampleRate;
+				
+				// set output rate to oversampling
+				source.sampleRate = 2.0 * self.audioOutput.sampleRate;
+				
+				// change source to downsampler with resampler
 				source = [RMSVarispeed instanceWithSource:source];
 			}
-			
+//*/			
 			[output setSource:source];
 			mLevels.sampleRate = 0.0;
 			

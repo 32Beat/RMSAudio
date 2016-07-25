@@ -165,7 +165,6 @@ void RMSRingBufferReport(RMSRingBuffer *buffer)
 ////////////////////////////////////////////////////////////////////////////////
 
 static void RMSRingBufferReadStereoData0(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount);
-static void RMSRingBufferReadStereoData1(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount);
 
 void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount)
 {
@@ -186,48 +185,17 @@ void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudi
 		buffer->readIndex = buffer->writeIndex - frameCount;
 	}
 
-
 	RMSRingBufferReport(buffer);
+	RMSRingBufferReadStereoData0(buffer, dstAudio, frameCount);
 	
-	if ((buffer->readFraction == 0.0) && (buffer->readStep == 1.0))
-	{ RMSRingBufferReadStereoData0(buffer, dstAudio, frameCount); }
-	else
-	{ RMSRingBufferReadStereoData1(buffer, dstAudio, frameCount); }
+	// RMSRingBufferReadStereoData1 is deprecated,
+	// use RMSVarispeed for resampling requirements
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline void CopySamples64(
-	const void *srcPtrL, void *dstPtrL,
-	const void *srcPtrR, void *dstPtrR, UInt32 N)
-{
-	for (UInt32 n=0; n!=N; n++)
-	{
-		((double *)dstPtrL)[n] = ((double *)srcPtrL)[n];
-		((double *)dstPtrR)[n] = ((double *)srcPtrR)[n];
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-static inline void CopySamples(
-	const float *srcPtrL, float *dstPtrL,
-	const float *srcPtrR, float *dstPtrR, UInt32 N)
-{
-	if ((N>>1)!=0)
-	{ CopySamples64(srcPtrL, dstPtrL, srcPtrR, dstPtrR, N>>1); }
-
-	if (N & 0x01)
-	{
-		NSLog(@"%@",@"uneven N");
-		dstPtrL[N-1] = srcPtrL[N-1];
-		dstPtrR[N-1] = srcPtrR[N-1];
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void RMSRingBufferReadStereoData0(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount)
+void RMSRingBufferReadStereoData0
+(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount)
 {
 	float *srcPtrL = buffer->dataPtrL;
 	float *srcPtrR = buffer->dataPtrR;
@@ -236,75 +204,29 @@ void RMSRingBufferReadStereoData0(RMSRingBuffer *buffer, AudioBufferList *dstAud
 	float *dstPtrR = dstAudio->mBuffers[1].mData;
 
 	UInt32 index = buffer->readIndex & (buffer->frameCount-1);
+	UInt32 count = buffer->frameCount - index;
 	
-	if (index+frameCount <= buffer->frameCount)
+	if (frameCount <= count)
 	{
-		CopySamples(&srcPtrL[index], dstPtrL, &srcPtrR[index], dstPtrR, frameCount);
+		RMSCopyFloat32(&srcPtrL[index], dstPtrL, frameCount);
+		RMSCopyFloat32(&srcPtrR[index], dstPtrR, frameCount);
+		buffer->readIndex += frameCount;
 	}
 	else
 	{
-		UInt32 n = buffer->frameCount - index;
-		CopySamples(&srcPtrL[index], dstPtrL, &srcPtrR[index], dstPtrR, n);
-		CopySamples(&srcPtrL[0], &dstPtrL[n], &srcPtrR[0], &dstPtrR[n], frameCount-n);
-	}
-	
-	buffer->readIndex += frameCount;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void RMSRingBufferReadStereoData1(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount)
-{
-	float *srcPtrL = buffer->dataPtrL;
-	float *srcPtrR = buffer->dataPtrR;
-
-	float *dstPtrL = dstAudio->mBuffers[0].mData;
-	float *dstPtrR = dstAudio->mBuffers[1].mData;
-
-
-	UInt64 index = buffer->readIndex;
-	index &= (buffer->frameCount-1);
-	float L1 = srcPtrL[index];
-	float R1 = srcPtrR[index];
-	index += 1;
-	index &= (buffer->frameCount-1);
-	float L2 = srcPtrL[index];
-	float R2 = srcPtrR[index];
-
-	*dstPtrL++ = L1 + buffer->readFraction * (L2 - L1);
-	*dstPtrR++ = R1 + buffer->readFraction * (R2 - R1);
-	
-	
-	while (--frameCount != 0)
-	{
-		buffer->readFraction += buffer->readStep;
-		while (buffer->readFraction >= 1.0)
-		{
-			buffer->readFraction -= 1.0;
-			index += 1;
-			index &= (buffer->frameCount-1);
-			L1 = L2;
-			R1 = R2;
-			L2 = srcPtrL[index];
-			R2 = srcPtrR[index];
-			buffer->readIndex++;
-		}
+		RMSCopyFloat32(&srcPtrL[index], dstPtrL, count);
+		RMSCopyFloat32(&srcPtrR[index], dstPtrR, count);
+		buffer->readIndex += count;
 		
-		*dstPtrL++ = L1 + buffer->readFraction * (L2 - L1);
-		*dstPtrR++ = R1 + buffer->readFraction * (R2 - R1);
-	}
-
-
-	buffer->readFraction += buffer->readStep;
-	while (buffer->readFraction >= 1.0)
-	{
-		buffer->readFraction -= 1.0;
-		buffer->readIndex++;
+		frameCount -= count;
+		
+		RMSCopyFloat32(&srcPtrL[0], &dstPtrL[count], frameCount);
+		RMSCopyFloat32(&srcPtrR[0], &dstPtrR[count], frameCount);
+		buffer->readIndex += frameCount;
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 
 

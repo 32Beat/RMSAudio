@@ -370,8 +370,6 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 - (OSStatus) getSourceFormat:(AudioStreamBasicDescription *)streamInfoPtr
 {
 	OSStatus result = RMSAudioUnitGetInputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
-	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitGetInputScopeFormatAtIndex returned %ld", result); }
 	
 	return result;
 }
@@ -379,15 +377,17 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 ////////////////////////////////////////////////////////////////////////////////
 
 - (OSStatus) getSourceFormat:(AudioStreamBasicDescription *)streamInfoPtr atIndex:(UInt32)index
-{ return RMSAudioUnitGetInputScopeFormatAtIndex(mAudioUnit, index, streamInfoPtr); }
+{
+	OSStatus result = RMSAudioUnitGetInputScopeFormatAtIndex(mAudioUnit, index, streamInfoPtr);
+	
+	return result;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (OSStatus) setSourceFormat:(const AudioStreamBasicDescription *)streamInfoPtr
 {
 	OSStatus result = RMSAudioUnitSetInputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
-	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitSetInputScopeFormatAtIndex returned %ld", result); }
 
 	return result;
 }
@@ -397,9 +397,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 - (OSStatus) getResultFormat:(AudioStreamBasicDescription *)streamInfoPtr
 {
 	OSStatus result = RMSAudioUnitGetOutputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
-	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitGetOutputScopeFormatAtIndex returned %ld", result); }
-	
+
 	return result;
 }
 
@@ -408,8 +406,6 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 - (OSStatus) setResultFormat:(const AudioStreamBasicDescription *)streamInfoPtr
 {
 	OSStatus result = RMSAudioUnitSetOutputScopeFormatAtIndex(mAudioUnit, 1, streamInfoPtr);
-	if (result != noErr)
-	{ NSLog(@"RMSInput: RMSAudioUnitSetOutputScopeFormatAtIndex returned %ld", result); }
 
 	return result;
 }

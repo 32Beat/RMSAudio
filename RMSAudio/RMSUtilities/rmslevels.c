@@ -10,12 +10,11 @@
 #include "rmslevels.h"
 #include <math.h>
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline double rms_add(double A, double M, double S) \
+#define rms_add(A, M, S) (A+M*(S-A))
+
+//static inline double rms_add(double A, double M, double S) \
 { return A + M * (S - A); }
 
 //static inline double rms_max(double A, double M, double S) \
@@ -33,14 +32,13 @@ void RMSLevelsSetResponse(rmslevels_t *levels, double milliSeconds, double sampl
 	double decayRate = 0.001 * milliSeconds * sampleRate;
 	
 	levels->avgM = 1.0 / (1.0 + decayRate);
-	levels->maxM = decayRate / (decayRate + 1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 rmslevels_t RMSLevelsInit(double sampleRate)
 {
-	rmslevels_t levels = { 0.0, 0.0, 0.0, 0.0 };
+	rmslevels_t levels = { 0.0, 0.0, 0.0 };
 	
 	RMSLevelsSetResponse(&levels, 300, sampleRate);
 	
@@ -49,38 +47,28 @@ rmslevels_t RMSLevelsInit(double sampleRate)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline void RMSLevelsUpdateWithSample(rmslevels_t *levels, double sample)
+inline void RMSLevelsScanSample(rmslevels_t *levels, float sample)
 {
 	if (sample < 0.0)
 	{ sample = -sample; }
 	
-	// update clip value
-	if (levels->clp < sample)
-	{ levels->clp = sample; }
-
-	// update hold value
-	if (levels->hld < sample)
-	{ levels->hld = sample; }
+	// update max value
+	if (levels->max < sample)
+	{ levels->max = sample; }
 
 	// the s in rms
 	sample *= sample;
 	
 	// Update short term average
 	levels->avg = rms_add(levels->avg, levels->avgM, sample);
-
-	// Update maximum
-	if (levels->max < sample)
-		levels->max = sample;
-	else
-		levels->max *= levels->maxM;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RMSLevelsUpdateWithSamples32(rmslevels_t *levels, float *srcPtr, uint32_t n)
+void RMSLevelsScanSamples(rmslevels_t *levels, float *srcPtr, uint32_t N)
 {
-	for (; n!=0; n--)
-	RMSLevelsUpdateWithSample(levels, *srcPtr++);
+	for(uint32_t n=0; n!=N; n++)
+	{ RMSLevelsScanSample(levels, srcPtr[n]); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,10 +80,8 @@ rmsresult_t RMSLevelsFetchResult(rmslevels_t *levelsPtr)
 	if (levelsPtr != NULL)
 	{
 		result.avg = sqrt(levelsPtr->avg);
-		result.max = sqrt(levelsPtr->max);
-		result.hld = (levelsPtr->hld);
-		result.clp = (levelsPtr->clp);
-		levelsPtr->hld = 0.0;
+		result.max = (levelsPtr->max);
+		levelsPtr->max = 0.0;
 	}
 	
 	return result;

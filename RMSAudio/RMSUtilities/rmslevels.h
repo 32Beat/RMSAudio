@@ -33,24 +33,21 @@
 // Structure for intermediate sample processing
 typedef struct rmslevels_t
 {
-	double avg; // rms average response
-	double max; // rms maximum response
-	double hld; // maximum since last fetch
-	double clp; // maximum for entire run
+	float avg; // rms average response
+	float max; // maximum since last fetch
 
 	// multipliers based on samplerate
-	double avgM;
-	double maxM;
+	float avgM;
 }
 rmslevels_t;
 
 // Structure for communicating result
 typedef struct rmsresult_t
 {
-	double avg;
-	double max;
-	double hld;
-	double clp;
+	float avg;
+	float max;
+	float hld;
+	float clp;
 }
 rmsresult_t;
 
@@ -60,10 +57,10 @@ rmsresult_t;
 rmslevels_t RMSLevelsInit(double sampleRate);
 
 // Update engine with squared samples
-void RMSLevelsUpdateWithSample(rmslevels_t *levels, double sample);
+void RMSLevelsScanSample(rmslevels_t *levels, float sample);
 
 // Convenience routine for processing packed floats
-void RMSLevelsUpdateWithSamples32(rmslevels_t *levels, float *srcPtr, uint32_t n);
+void RMSLevelsScanSamples32(rmslevels_t *levels, float *srcPtr, uint32_t n);
 
 // Get sqrt results. Save to call with levelsPtr == nil
 rmsresult_t RMSLevelsFetchResult(rmslevels_t *levels);

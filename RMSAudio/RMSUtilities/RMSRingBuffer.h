@@ -14,12 +14,16 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
 #import "RMSUtilities.h"
+#import "RMSBezierInterpolator.h"
 
 typedef struct RMSRingBuffer
 {
 	UInt64 readIndex;
 	double readFraction;
 	double readStep;
+	
+	rmscrb_t readL;
+	rmscrb_t readR;
 	
 	UInt64 writeIndex;
 

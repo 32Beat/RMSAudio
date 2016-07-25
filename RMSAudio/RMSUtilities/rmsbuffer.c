@@ -9,6 +9,7 @@
 
 
 #include "rmsbuffer.h"
+#include <string.h>
 #include <math.h>
 
 
@@ -106,19 +107,46 @@ void RMSBufferClearSamples(rmsbuffer_t *bufferPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline void CopyFloats(float *srcPtr, float *dstPtr, size_t n)
+{ memcpy(dstPtr, srcPtr, n*sizeof(float)); }
+
 void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N)
 {
 	if (bufferPtr && bufferPtr->sampleData)
 	{
 		float *dstPtr = bufferPtr->sampleData;
 		uint64_t indexMask = bufferPtr->indexMask;
+//*
+		uint64_t index = bufferPtr->index;
+		uint64_t count = indexMask + 1;
 		
+		// compute index in ringbuffer
+		index &= indexMask;
+		// compute remaining count until end-of-buffer
+		count -= index;
+		
+		if (count > N)
+		{ count = N; }
+		
+		// copy directly to index
+		CopyFloats(&srcPtr[0], &dstPtr[index], count);
+		bufferPtr->index += count;
+		
+		// copy remaining samples to start-of-buffer
+		if ((N -= count) != 0)
+		{
+			CopyFloats(&srcPtr[count], &dstPtr[0], N);
+			bufferPtr->index += N;
+		}
+		
+/*/
 		for (size_t n=0; n!=N; n++)
 		{
 			uint64_t index = bufferPtr->index+1;
 			dstPtr[index&indexMask] = srcPtr[n];
 			bufferPtr->index = index;
 		}
+//*/
 	}
 }
 

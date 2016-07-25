@@ -21,6 +21,7 @@
 	CGFloat mHld;
 	CGFloat mClp;
 	
+	CGFloat mMaxM;
 	CGFloat mHldM;
 	size_t mHldCount;
 	
@@ -30,30 +31,55 @@
 @end
 
 
+#define kRMSDefaultResponseTime 	450
+#define kRMSDefaultFrameRate 		24
+#define kRMSDefaultDecayRate  		(0.001*kRMSDefaultResponseTime*kRMSDefaultFrameRate)
+#define kRMSDefaultMultiplier 		(kRMSDefaultDecayRate/(kRMSDefaultDecayRate+1.0))
+
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSResultView
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setLevels:(rmsresult_t)levels
-{	
+{
 	mLevels = levels;
-
-	[self updateHoldLevel];
-
+	
 	mAvg = (levels.avg);
-	mMax = (levels.max);
-	mClp = (levels.clp);
+	[self updateMaxLevel];
+	[self updateHoldLevel];
 	
 	[self setNeedsDisplayInRect:self.bounds];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void) updateMaxLevel
+{
+	if (mMax <= mLevels.max)
+	{
+		mMax = mLevels.max;
+		if (mClp < mMax)
+		{ mClp = mMax; }
+	}
+	else
+	{
+		if (mMaxM == 0.0)
+		{ mMaxM = kRMSDefaultMultiplier; }
+		
+		mMax *= mMaxM;
+	}
+	
+	if (mAvg > mMax)
+	{ mAvg = mMax; }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (void) updateHoldLevel
 {
-	if (mHld <= mLevels.hld)
+	if (mHld <= mLevels.max)
 	{
-		mHld = mLevels.hld;
+		mHld = mLevels.max;
 		
 		if (self.holdTime == 0)
 		{ self.holdTime = 1000.0; }
@@ -68,7 +94,7 @@
 	else
 	{
 		if (mHldM == 0.0)
-		{ mHldM = 0.9; }
+		{ mHldM = kRMSDefaultMultiplier; }
 		
 		mHld *= mHldM;
 	}
@@ -215,8 +241,6 @@
 
 - (void) drawHorizontal
 {
-	// Source = mLevels
-	rmsresult_t levels = mLevels;
 	// Destination = frame
 	NSRect frame = self.bounds;
 	
@@ -233,9 +257,6 @@
 	frame.size.width = round(W * RMS2DISPLAY(mMax));
 	frame.size.width -= frame.origin.x;
 	NSRectFill(frame);
-
-	if (mHld < levels.max)
-	{ mHld = levels.max; }
 	
 	if (mHld <= 1.0)
 	[[self hldColor] set];
@@ -248,9 +269,9 @@
 	NSRectFill(frame);
 	
 	if (mClp <= 1.0)
-		[[self hldColor] set];
+	[[self hldColor] set];
 	else
-		[[self clpColor] set];
+	[[self clpColor] set];
 	
 	frame = self.bounds;
 	frame.origin.x += round(W * RMS2DISPLAY(mClp));

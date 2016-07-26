@@ -65,9 +65,9 @@ inline void RMSLevelsScanSample(rmslevels_t *levels, float sample)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RMSLevelsScanSamples(rmslevels_t *levels, float *srcPtr, uint32_t N)
+void RMSLevelsScanSamples(rmslevels_t *levels, float *srcPtr, size_t N)
 {
-	for(uint32_t n=0; n!=N; n++)
+	for(size_t n=0; n!=N; n++)
 	{ RMSLevelsScanSample(levels, srcPtr[n]); }
 }
 
@@ -75,7 +75,7 @@ void RMSLevelsScanSamples(rmslevels_t *levels, float *srcPtr, uint32_t N)
 
 rmsresult_t RMSLevelsFetchResult(rmslevels_t *levelsPtr)
 {
-	rmsresult_t result = { 0.0, 0.0, 0.0, 0.0 };
+	rmsresult_t result = { 0.0, 0.0 };
 	
 	if (levelsPtr != NULL)
 	{

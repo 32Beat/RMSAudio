@@ -18,6 +18,7 @@
 	size_t mCount;
 	rmsbuffer_t mBufferL;
 	rmsbuffer_t mBufferR;
+
 	
 	NSMutableArray *mObservers;
 }
@@ -94,7 +95,10 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
 	uint64_t indexL = mBufferL.index;
 	uint64_t indexR = mBufferR.index;
-	return indexL < indexR ? indexL : indexR;
+	uint64_t index = indexL < indexR ? indexL : indexR;
+	
+	// index points to next open slot
+	return index - (index!=0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +108,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	uint64_t maxIndex = self.maxIndex;
 	uint64_t maxCount = self.length >> 1;
 	
-	return (rmsrange_t){ maxIndex-maxCount, maxCount };
+	return (rmsrange_t){ maxIndex+1-maxCount, maxCount };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -200,14 +204,27 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 // TODO: move to more proper location
-static void RMSLevelsUpdateWithBuffer
+static void RMSLevelsScanBuffer
 (rmslevels_t *levels, const rmsbuffer_t *buffer, const rmsrange_t *R)
 {
 	float *srcPtr = buffer->sampleData;
 	
-	uint64_t index = R->index;
 	uint64_t indexMask = buffer->indexMask;
-
+	size_t index = R->index & indexMask;
+	size_t count = R->count;
+	
+	size_t N = indexMask + 1 - index;
+	
+	if (count <= N)
+	{
+		RMSLevelsScanSamples(levels, &srcPtr[index], count);
+	}
+	else
+	{
+		RMSLevelsScanSamples(levels, &srcPtr[index], N);
+		RMSLevelsScanSamples(levels, &srcPtr[0], count-N);
+	}
+/*
 	for (uint64_t N=R->count; N!=0; N--)
 	{
 		Float32 S = srcPtr[index&indexMask];
@@ -215,6 +232,7 @@ static void RMSLevelsUpdateWithBuffer
 		
 		index++;
 	}
+*/
 }
 
 
@@ -229,26 +247,28 @@ static void RMSLevelsUpdateWithBuffer
 		levels->sampleRate = sampleRate;
 	}
 
-	rmsbuffer_t *L = [self bufferAtIndex:0];
-	rmsbuffer_t *R = [self bufferAtIndex:1];
-	
-	uint64_t maxIndex = self.maxIndex;
 	uint64_t maxCount = self.length >> 1;
+	uint64_t maxIndex = self.maxIndex;
+	if (maxIndex == 0) return;
+
 	
 	// reset index if necessary
 	if (levels->index > maxIndex)
 	{ levels->index = 0; }
 	
 	// compute range since last update
-	rmsrange_t range = { levels->index, maxIndex-levels->index+1 };
+	rmsrange_t range = { levels->index, maxIndex+1-levels->index };
 	if (range.count > maxCount)
 	{
-		range.index = maxIndex - maxCount + 1;
+		range.index = maxIndex+1 - maxCount;
 		range.count = maxCount;
 	}
 
-	RMSLevelsUpdateWithBuffer(&levels->L, L, &range);
-	RMSLevelsUpdateWithBuffer(&levels->R, R, &range);
+	rmsbuffer_t *L = [self bufferAtIndex:0];
+	RMSLevelsScanBuffer(&levels->L, L, &range);
+
+	rmsbuffer_t *R = [self bufferAtIndex:1];
+	RMSLevelsScanBuffer(&levels->R, R, &range);
 	
 	levels->index = maxIndex;
 }

@@ -125,16 +125,19 @@ void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N)
 		// compute remaining count until end-of-buffer
 		count -= index;
 		
-		if (count > N)
-		{ count = N; }
-		
-		// copy directly to index
-		CopyFloats(&srcPtr[0], &dstPtr[index], count);
-		bufferPtr->index += count;
-		
-		// copy remaining samples to start-of-buffer
-		if ((N -= count) != 0)
+		if (N <= count)
 		{
+			// copy directly to index
+			CopyFloats(&srcPtr[0], &dstPtr[index], N);
+			bufferPtr->index += N;
+		}
+		else
+		{
+			CopyFloats(&srcPtr[0], &dstPtr[index], count);
+			bufferPtr->index += count;
+			
+			N -= count;
+			
 			CopyFloats(&srcPtr[count], &dstPtr[0], N);
 			bufferPtr->index += N;
 		}

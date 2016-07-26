@@ -55,18 +55,19 @@
 
 - (void) updateMaxLevel
 {
+	// lazily initialize response multiplier
+	if (mMaxM == 0.0)
+	{ mMaxM = kRMSDefaultMultiplier; }
+	
+	// reduce view value
+	mMax *= mMaxM;
+
+	// check if view value dropped below latest model value
 	if (mMax <= mLevels.max)
 	{
 		mMax = mLevels.max;
 		if (mClp < mMax)
 		{ mClp = mMax; }
-	}
-	else
-	{
-		if (mMaxM == 0.0)
-		{ mMaxM = kRMSDefaultMultiplier; }
-		
-		mMax *= mMaxM;
 	}
 	
 	if (mAvg > mMax)
@@ -77,16 +78,6 @@
 
 - (void) updateHoldLevel
 {
-	if (mHld <= mLevels.max)
-	{
-		mHld = mLevels.max;
-		
-		if (self.holdTime == 0)
-		{ self.holdTime = 1000.0; }
-		
-		mHldCount = 24 * (0.001 * self.holdTime);
-	}
-	else
 	if (mHldCount != 0)
 	{
 		mHldCount -= 1;
@@ -97,6 +88,16 @@
 		{ mHldM = kRMSDefaultMultiplier; }
 		
 		mHld *= mHldM;
+	}
+
+	if (mHld <= mLevels.max)
+	{
+		mHld = mLevels.max;
+		
+		if (self.holdTime == 0)
+		{ self.holdTime = 1000.0; }
+		
+		mHldCount = 24 * (0.001 * self.holdTime);
 	}
 }
 
@@ -283,8 +284,6 @@
 
 - (void) drawVertical
 {
-	// Source = mLevels
-	rmsresult_t levels = mLevels;
 	// Destination = frame
 	NSRect frame = self.bounds;
 	
@@ -293,19 +292,16 @@
 	
 	// Average
 	[[self avgColor] set];
-	frame.size.height = round(S * RMS2DISPLAY(levels.avg));
+	frame.size.height = round(S * RMS2DISPLAY(mAvg));
 	NSRectFill(frame);
 
 	[[self maxColor] set];
 	frame.origin.y += frame.size.height;
-	frame.size.height = round(S * RMS2DISPLAY(levels.max));
+	frame.size.height = round(S * RMS2DISPLAY(mMax));
 	frame.size.height -= frame.origin.y;
 	NSRectFill(frame);
 	
-	if (mHld < levels.max)
-	{ mHld = levels.max; }
-	
-	if (mHld < 1.0)
+	if (mHld <= 1.0)
 	[[self hldColor] set];
 	else
 	[[self clpColor] set];
@@ -314,34 +310,16 @@
 	frame.size.height = round(S * RMS2DISPLAY(mHld));
 	frame.size.height -= frame.origin.y;
 	NSRectFill(frame);
-}
 
-////////////////////////////////////////////////////////////////////////////////
-
-- (NSRect) boundsWithRatio:(double)ratio
-{
-	NSRect bounds = self.bounds;
-
-	// Adjust for display scale
-	ratio = RMS2DISPLAY(ratio);
-	
-	if (_direction == 0)
-	{ _direction = (bounds.size.width > bounds.size.height) ? 1 : 4; }
-	
-	if (_direction & 0x01)
-	{
-		bounds.size.width *= ratio;
-		if (_direction & 0x02)
-		bounds.origin.x += self.bounds.size.width - bounds.size.width;
-	}
+	if (mClp <= 1.0)
+	[[self hldColor] set];
 	else
-	{
-		bounds.size.height *= ratio;
-		if (_direction & 0x02)
-		bounds.origin.y += self.bounds.size.height - bounds.size.height;
-	}
+	[[self clpColor] set];
 	
-	return bounds;
+	frame = self.bounds;
+	frame.origin.y += round(S * RMS2DISPLAY(mClp));
+	frame.size.height = 1.0;
+	NSRectFill(frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

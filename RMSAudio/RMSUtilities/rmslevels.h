@@ -46,8 +46,6 @@ typedef struct rmsresult_t
 {
 	float avg;
 	float max;
-	float hld;
-	float clp;
 }
 rmsresult_t;
 
@@ -60,7 +58,7 @@ rmslevels_t RMSLevelsInit(double sampleRate);
 void RMSLevelsScanSample(rmslevels_t *levels, float sample);
 
 // Convenience routine for processing packed floats
-void RMSLevelsScanSamples32(rmslevels_t *levels, float *srcPtr, uint32_t n);
+void RMSLevelsScanSamples(rmslevels_t *levels, float *srcPtr, size_t n);
 
 // Get sqrt results. Save to call with levelsPtr == nil
 rmsresult_t RMSLevelsFetchResult(rmslevels_t *levels);

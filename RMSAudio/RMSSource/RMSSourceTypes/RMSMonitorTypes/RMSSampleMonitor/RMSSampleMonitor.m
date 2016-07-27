@@ -15,12 +15,8 @@
 
 @interface RMSSampleMonitor () <RMSTimerProtocol>
 {
-	size_t mCount;
-	rmsbuffer_t mBufferL;
-	rmsbuffer_t mBufferR;
-
-	
-	NSMutableArray *mObservers;
+	size_t mSampleCount;
+	rmsbuffer_t mBuffer[2];
 }
 
 @property (nonatomic, assign) BOOL pendingUpdate;
@@ -38,10 +34,10 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	(__bridge __unsafe_unretained RMSSampleMonitor *)rmsObject;
 	
 	float *srcPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
-	RMSBufferWriteSamples(&rmsSource->mBufferL, srcPtrL, infoPtr->frameCount);
+	RMSBufferWriteSamples(&rmsSource->mBuffer[0], srcPtrL, infoPtr->frameCount);
 
 	float *srcPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
-	RMSBufferWriteSamples(&rmsSource->mBufferR, srcPtrR, infoPtr->frameCount);
+	RMSBufferWriteSamples(&rmsSource->mBuffer[1], srcPtrR, infoPtr->frameCount);
 	
 	return noErr;
 }
@@ -66,9 +62,9 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	{
 		sampleCount = 1<<(int)ceil(log2(sampleCount));
 		
-		mCount = sampleCount;
-		mBufferL = RMSBufferBegin(sampleCount);
-		mBufferR = RMSBufferBegin(sampleCount);
+		mSampleCount = sampleCount;
+		mBuffer[0] = RMSBufferBegin(sampleCount);
+		mBuffer[1] = RMSBufferBegin(sampleCount);
 	}
 	
 	return self;
@@ -78,126 +74,68 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 - (void) dealloc
 {
-	RMSBufferEnd(&mBufferL);
-	RMSBufferEnd(&mBufferR);
+	RMSBufferEnd(&mBuffer[0]);
+	RMSBufferEnd(&mBuffer[1]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (size_t) length
 {
-	return mCount;
+	return mSampleCount;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (uint64_t) maxIndex
+- (uint64_t) minIndex
 {
-	uint64_t indexL = mBufferL.index;
-	uint64_t indexR = mBufferR.index;
+	uint64_t indexL = mBuffer[0].index;
+	uint64_t indexR = mBuffer[1].index;
 	uint64_t index = indexL < indexR ? indexL : indexR;
-	
-	// index points to next open slot
-	return index - (index!=0);
+
+	return index;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (rmsrange_t) availableRange
 {
-	uint64_t maxIndex = self.maxIndex;
+	uint64_t minIndex = self.minIndex;
 	uint64_t maxCount = self.length >> 1;
 	
-	return (rmsrange_t){ maxIndex+1-maxCount, maxCount };
+	if (maxCount > minIndex)
+	{ maxCount = minIndex; }
+	
+	return (rmsrange_t){ minIndex-maxCount, maxCount };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (rmsrange_t) availableRangeWithIndex:(uint64_t)index
 {
-	uint64_t maxIndex = self.maxIndex;
+	rmsrange_t R = self.availableRange;
 	
-	if (index == 0 || index > maxIndex)
-	{ index = maxIndex; }
+	if (index <= R.index)
+	{ return R; }
 	
-	uint64_t count = maxIndex + 1 - index;
-	uint64_t maxCount = self.length >> 1;
-
-	if (count > maxCount)
-	{
-		index += count;
-		index -= maxCount;
-		count = maxCount;
-	}
+	R.count += R.index;
+	R.count -= index <= R.count ? index : R.count;
+	R.index = index;
 	
-	return (rmsrange_t){ index, count };
+	return R;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (BOOL) getSamples:(float **)dstPtr count:(size_t)count
-{
-	uint64_t index = self.maxIndex;
-
-	if (count > mCount)
-	{ count = mCount; }
-	
-	rmsrange_t R = { index - count, count };
-	return [self getSamples:dstPtr withRange:R];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (BOOL) getSamples:(float **)dstPtr withRange:(rmsrange_t)R
-{
-	uint64_t maxIndex = self.maxIndex;
-	uint64_t minIndex = maxIndex > mCount ? maxIndex - mCount : 0;
-	
-	if ((minIndex <= R.index)&&((R.index+R.count) <= maxIndex))
-	{
-		uint64_t index = R.index;
-		uint64_t count = R.count;
-
-		RMSBufferReadSamplesFromIndex(&mBufferL, index, dstPtr[0], count);
-		RMSBufferReadSamplesFromIndex(&mBufferR, index, dstPtr[1], count);
-
-		return YES;
-	}
-	
-	return NO;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) getSamplesL:(float *)dstPtr withRange:(rmsrange_t)R
-{
-	uint64_t index = R.index;
-	uint64_t count = R.count;
-	RMSBufferReadSamplesFromIndex(&mBufferL, index, dstPtr, count);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) getSamplesR:(float *)dstPtr withRange:(rmsrange_t)R
-{
-	uint64_t index = R.index;
-	uint64_t count = R.count;
-	RMSBufferReadSamplesFromIndex(&mBufferR, index, dstPtr, count);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (rmsbuffer_t *) bufferAtIndex:(int)n
-{
-	return n ? &mBufferR : &mBufferL;
-}
+- (rmsbuffer_t *) bufferAtIndex:(NSUInteger)n
+{ return n < 2 ? &mBuffer[n] : nil; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) reset
 {
-	RMSBufferReset(&mBufferL);
-	RMSBufferReset(&mBufferR);
+	RMSBufferReset(&mBuffer[0]);
+	RMSBufferReset(&mBuffer[1]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -247,96 +185,49 @@ static void RMSLevelsScanBuffer
 		levels->sampleRate = sampleRate;
 	}
 
-	uint64_t maxCount = self.length >> 1;
-	uint64_t maxIndex = self.maxIndex;
-	if (maxIndex == 0) return;
+	// get available range
+	rmsrange_t R = [self availableRange];
 
-	
-	// reset index if necessary
-	if (levels->index > maxIndex)
-	{ levels->index = 0; }
-	
-	// compute range since last update
-	rmsrange_t range = { levels->index, maxIndex+1-levels->index };
-	if (range.count > maxCount)
-	{
-		range.index = maxIndex+1 - maxCount;
-		range.count = maxCount;
-	}
+	// make sure the ringbuffer has valid data available
+	if (R.count == 0) return;
 
-	rmsbuffer_t *L = [self bufferAtIndex:0];
-	RMSLevelsScanBuffer(&levels->L, L, &range);
-
-	rmsbuffer_t *R = [self bufferAtIndex:1];
-	RMSLevelsScanBuffer(&levels->R, R, &range);
-	
-	levels->index = maxIndex;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark
-////////////////////////////////////////////////////////////////////////////////
-
-- (BOOL) validateObserver:(id<RMSSampleMonitorObserverProtocol>)observer
-{
-	return observer != nil &&
-	[observer respondsToSelector:@selector(updateWithSampleMonitor:)];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) addObserver:(id<RMSSampleMonitorObserverProtocol>)observer
-{
-	if (mObservers == nil)
-	{ mObservers = [NSMutableArray new]; }
-	
-	if ([self validateObserver:observer] &&
-	[mObservers indexOfObjectIdenticalTo:observer] == NSNotFound)
-	{
-		[mObservers addObject:observer];
+	/*
+		levels->index represents the number of samples processed since the 
+		last update call, availableRange represents the current slice
+		in the ringbuffers available for reading.
 		
-		if (mObservers.count == 1)
-		{ [RMSTimer addRMSTimerObserver:self]; }
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) removeObserver:(id)observer
-{
-	[mObservers removeObjectIdenticalTo:observer];
-	if (mObservers.count == 0)
-	{ [RMSTimer removeRMSTimerObserver:self]; }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) globalRMSTimerDidFire
-{ [self updateObservers]; }
-
-- (void) updateObservers
-{
-/*
-	for(id observer in mObservers)
+		So we want to process from levels->index to the end of range.
+		Typically the available slice will be larger than the required slice 
+		which simply means we want to adjust the tail of range accordingly.
+		
+		If however levels->index falls outside the available range, 
+		we most likely need to reset our destination and process the entire
+		available range.
+	*/
+	
+	// adjust range to exclude previous run
+	if ((R.index <= levels->index)&&(levels->index < R.index+R.count))
 	{
-		[observer updateWithSampleMonitor:self];
-		if ([self.delegate respondsToSelector:
-			@selector(sampleMonitor:didUpdateObserver:)])
-		{ [self.delegate sampleMonitor:self didUpdateObserver:observer]; }
+		R.count += R.index;
+		R.index = levels->index;
+		R.count -= R.index;
 	}
-/*/
-	[mObservers enumerateObjectsWithOptions:NSEnumerationConcurrent
-	usingBlock:^(id observer, NSUInteger index, BOOL *stop)
-	{
-		[observer updateWithSampleMonitor:self];
-		if ([self.delegate respondsToSelector:
-			@selector(sampleMonitor:didUpdateObserver:)])
-		{
-			dispatch_async(dispatch_get_main_queue(),
-			^{ [self.delegate sampleMonitor:self didUpdateObserver:observer]; });
-		}
-	}];
-//*/
+
+	/* 
+		note that if levels->index falls outside range,
+		then the entire range will be processed and
+		levels->index will be reset
+		
+		TODO: possibly reset entire levels struct?
+	*/
+
+	rmsbuffer_t *bufferL = [self bufferAtIndex:0];
+	RMSLevelsScanBuffer(&levels->L, bufferL, &R);
+
+	rmsbuffer_t *bufferR = [self bufferAtIndex:1];
+	RMSLevelsScanBuffer(&levels->R, bufferR, &R);
+	
+	levels->index = R.index + R.count;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

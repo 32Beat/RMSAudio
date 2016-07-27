@@ -89,68 +89,69 @@ rmsbuffer_t *RMSBufferRelease(rmsbuffer_t *bufferPtr)
 void RMSBufferReset(rmsbuffer_t *bufferPtr)
 {
 	bufferPtr->index = 0;
-	RMSBufferClearSamples(bufferPtr);
+	RMSBufferClear(bufferPtr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RMSBufferClearSamples(rmsbuffer_t *bufferPtr)
+void RMSBufferClear(rmsbuffer_t *bufferPtr)
 {
-	if (bufferPtr && bufferPtr->sampleData)
-	{
-		uint64_t n = (bufferPtr->indexMask + 1) >> 1;
+	uint64_t n = (bufferPtr->indexMask + 1) >> 1;
 
-		while (n != 0)
-		{ ((uint64_t *)bufferPtr->sampleData)[(n -= 1)] = 0; }
+	while (n != 0)
+	{
+		((uint64_t *)bufferPtr->sampleData)[(n -= 1)] = 0;
+		((uint64_t *)bufferPtr->sampleData)[(n -= 1)] = 0;
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 static inline void CopyFloats(float *srcPtr, float *dstPtr, size_t n)
-{ memcpy(dstPtr, srcPtr, n*sizeof(float)); }
+{ memcpy(dstPtr, srcPtr, n<<2); }
 
 void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N)
 {
-	if (bufferPtr && bufferPtr->sampleData)
-	{
-		float *dstPtr = bufferPtr->sampleData;
-		uint64_t indexMask = bufferPtr->indexMask;
+	float *dstPtr = bufferPtr->sampleData;
+	uint64_t indexMask = bufferPtr->indexMask;
 //*
-		uint64_t index = bufferPtr->index;
-		uint64_t count = indexMask + 1;
-		
-		// compute index in ringbuffer
-		index &= indexMask;
-		// compute remaining count until end-of-buffer
-		count -= index;
-		
-		if (N <= count)
-		{
-			// copy directly to index
-			CopyFloats(&srcPtr[0], &dstPtr[index], N);
-			bufferPtr->index += N;
-		}
-		else
-		{
-			CopyFloats(&srcPtr[0], &dstPtr[index], count);
-			bufferPtr->index += count;
-			
-			N -= count;
-			
-			CopyFloats(&srcPtr[count], &dstPtr[0], N);
-			bufferPtr->index += N;
-		}
-		
-/*/
-		for (size_t n=0; n!=N; n++)
-		{
-			uint64_t index = bufferPtr->index+1;
-			dstPtr[index&indexMask] = srcPtr[n];
-			bufferPtr->index = index;
-		}
-//*/
+	uint64_t index = bufferPtr->index;
+	uint64_t count = indexMask + 1;
+	
+	// compute index in ringbuffer
+	index &= indexMask;
+	// compute remaining buffercount until end-of-buffer
+	count -= index;
+	
+	// if N fits the remaining buffercount...
+	if (N <= count)
+	{
+		// ... copy directly to index
+		CopyFloats(&srcPtr[0], &dstPtr[index], N);
+		bufferPtr->index += N;
 	}
+	else
+	// if N exceeds remaining buffercount...
+	{
+		// ... first copy to index and up to end-of-buffer
+		CopyFloats(&srcPtr[0], &dstPtr[index], count);
+		bufferPtr->index += count;
+		
+		N -= count;
+		
+		// ... then copy remainder to start-of-buffer
+		CopyFloats(&srcPtr[count], &dstPtr[0], N);
+		bufferPtr->index += N;
+	}
+	
+/*/
+	for (size_t n=0; n!=N; n++)
+	{
+		uint64_t index = bufferPtr->index+1;
+		dstPtr[index&indexMask] = srcPtr[n];
+		bufferPtr->index = index;
+	}
+//*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,6 +196,7 @@ float RMSBufferGetSample(rmsbuffer_t *buffer)
 void RMSBufferSetSample(rmsbuffer_t *buffer, float S)
 { RMSBufferSetSampleAtIndex(buffer, buffer->index, S); }
 
+// TODO: first write, then update index
 void RMSBufferWriteSample(rmsbuffer_t *buffer, float S)
 { RMSBufferSetSampleAtIndex(buffer, (buffer->index += 1), S); }
 

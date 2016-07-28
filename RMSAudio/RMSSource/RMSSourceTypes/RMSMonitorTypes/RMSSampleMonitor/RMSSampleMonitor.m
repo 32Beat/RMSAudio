@@ -8,18 +8,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #import "RMSSampleMonitor.h"
-#import "RMSTimer.h"
+#import "RMSUtilities.h"
 #import "rmsbuffer.h"
-#import <Accelerate/Accelerate.h>
 
 
-@interface RMSSampleMonitor () <RMSTimerProtocol>
+@interface RMSSampleMonitor ()
 {
 	size_t mSampleCount;
+	size_t mBufferCount;
 	rmsbuffer_t mBuffer[2];
 }
-
-@property (nonatomic, assign) BOOL pendingUpdate;
 
 @end
 
@@ -28,41 +26,64 @@
 @implementation RMSSampleMonitor
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
+static OSStatus renderCallback(void *bufferArray, const RMSCallbackInfo *infoPtr)
 {
-	__unsafe_unretained RMSSampleMonitor *rmsSource = \
-	(__bridge __unsafe_unretained RMSSampleMonitor *)rmsObject;
+	rmsbuffer_t *buffer = bufferArray;
 	
+	// move samples from AudioBufferList to internal ringBuffers
 	float *srcPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
-	RMSBufferWriteSamples(&rmsSource->mBuffer[0], srcPtrL, infoPtr->frameCount);
+	RMSBufferWriteSamples(&buffer[0], srcPtrL, infoPtr->frameCount);
 
 	float *srcPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
-	RMSBufferWriteSamples(&rmsSource->mBuffer[1], srcPtrR, infoPtr->frameCount);
-	
+	RMSBufferWriteSamples(&buffer[1], srcPtrR, infoPtr->frameCount);
+		
 	return noErr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (const RMSCallbackProcPtr) callbackPtr
++ (const RMSCallbackProcPtr) callbackProcPtr
 { return renderCallback; }
+
+- (const RMSCallbackDataPtr) callbackDataPtr
+{ return mBuffer; }
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+	Update frequency:
+	1/20th of a second @ 96000kHz = 4800 samples
+	1/25th of a second @ 96000kHz = 3850 samples
+	
+	x2 for spare room
+	with a little overlap requires 8k samples
+	no overlap requires 16k samples
+	
+	Update frequency:
+	1/20th of a second @ 44100kHz = 2250 samples
+	1/25th of a second @ 44100kHz = 1764 samples
+	
+	x2 for spare room
+	with a little overlap requires 4k samples
+	no overlap requires 8k samples
+*/
+- (instancetype) init
+{ return [self initWithCount:16*1024]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 + (instancetype) instanceWithCount:(size_t)size
 { return [[self alloc] initWithCount:size]; }
 
-- (instancetype) init
-{ return [self initWithCount:1024]; }
-
 - (instancetype) initWithCount:(size_t)sampleCount
 {
 	self = [super init];
 	if (self != nil)
 	{
+		// make sure sampleCount is a power of 2
 		sampleCount = 1<<(int)ceil(log2(sampleCount));
 		
 		mSampleCount = sampleCount;
+		mBufferCount = 2;
 		mBuffer[0] = RMSBufferBegin(sampleCount);
 		mBuffer[1] = RMSBufferBegin(sampleCount);
 	}
@@ -141,7 +162,11 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
-// TODO: move to more proper location
+/*
+ 	TODO: move to more appropriate location
+	
+	
+*/
 static void RMSLevelsScanBuffer
 (rmslevels_t *levels, const rmsbuffer_t *buffer, const rmsrange_t *R)
 {
@@ -173,6 +198,7 @@ static void RMSLevelsScanBuffer
 */
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 - (void) updateLevels:(RMSStereoLevels *)levels
 {

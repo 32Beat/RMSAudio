@@ -156,6 +156,22 @@ void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int RMSBufferCompareData(rmsbuffer_t *B1, rmsbuffer_t *B2)
+{
+	size_t n = B1->indexMask+1;
+	
+	while (n != 0)
+	{
+		n -= 1;
+		if (B1->sampleData[n] != B2->sampleData[n])
+		{ return n+1; }
+	}
+	
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void RMSBufferReadSamplesFromIndex
 (rmsbuffer_t *bufferPtr, uint64_t index, float *dstPtr, size_t N)
 {

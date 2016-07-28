@@ -205,6 +205,23 @@ AudioBufferList *dstListPtr, UInt32 dstIndex, UInt32 frameCount)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int RMSAudioBufferList_IsMono(AudioBufferList *listPtr, UInt32 frameCount)
+{
+	float *ptr1 = listPtr->mBuffers[0].mData;
+	float *ptr2 = listPtr->mBuffers[1].mData;
+	
+	UInt32 n = frameCount;
+	while (n != 0)
+	{
+		n -= 1;
+		if (ptr1[n] != ptr2[n])
+		{ return n + 1; }
+	}
+	
+	return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 
 

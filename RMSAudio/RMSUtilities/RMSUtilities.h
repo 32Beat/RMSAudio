@@ -85,6 +85,9 @@ static inline void RMSCopyFloat32(const float *srcPtr, float *dstPtr, UInt32 n)
 { memcpy(dstPtr, srcPtr, n<<2); }
 
 
+int RMSAudioBufferList_IsMono(AudioBufferList *listPtr, UInt32 frameCount);
+
+
 static inline void PCM_CopyStereo(
 	float *srcPtrL, float *srcPtrR,
 	float *dstPtrL, float *dstPtrR, UInt32 n)

@@ -65,7 +65,7 @@ inline void RMSLevelsScanSample(rmslevels_t *levels, float sample)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RMSLevelsScanSamples(rmslevels_t *levels, float *srcPtr, size_t N)
+void RMSLevelsScanSamples(rmslevels_t *levels, const float *srcPtr, size_t N)
 {
 	for(size_t n=0; n!=N; n++)
 	{ RMSLevelsScanSample(levels, srcPtr[n]); }

@@ -55,7 +55,7 @@ possible design concept: always as extension to RMSSampleMonitor
 - (rmsrange_t) availableRange;
 - (rmsrange_t) availableRangeWithIndex:(uint64_t)index;
 
-- (rmsbuffer_t *) bufferAtIndex:(int)n;
+- (rmsbuffer_t *) bufferAtIndex:(NSUInteger)n;
 
 - (void) reset;
 - (void) updateLevels:(RMSStereoLevels *)levels;

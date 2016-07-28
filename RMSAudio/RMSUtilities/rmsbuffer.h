@@ -91,6 +91,8 @@ void RMSBufferClear(rmsbuffer_t *bufferPtr);
 void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N);
 void RMSBufferReadSamplesFromIndex(rmsbuffer_t *bufferPtr, uint64_t index, float *dstPtr, size_t N);
 
+int RMSBufferCompareData(rmsbuffer_t *B1, rmsbuffer_t *B2);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Get & Set sample at current index modulo buffersize

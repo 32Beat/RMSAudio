@@ -36,8 +36,11 @@ typedef struct RMSCallbackInfo
 }
 RMSCallbackInfo;
 
+typedef void *RMSCallbackDataPtr;
+
 typedef OSStatus (*RMSCallbackProcPtr)
 (void *objectPtr, const RMSCallbackInfo *info);
+
 
 OSStatus RunRMSCallback
 (void *objectPtr, const RMSCallbackInfo *info);
@@ -54,14 +57,18 @@ OSStatus RunRMSCallback
 	RMSCallback contains the callback logic for RMSSource objects.
 
 	By default, the RMSCallbackProcPtr is assumed to be available thru
-	the class global method "callbackPtr". This allows normal object 
-	creation by using "new" or "init". The default refcon value supplied to 
-	the RMSCallbackProcPtr is "self".
+	the class global method "callbackProcPtr". This allows normal object
+	creation by using "new" or "init". 
+	
+	The default refcon value supplied to the RMSCallbackProcPtr is "self".
+	If a custom refcon value is desired, overwrite callbackDataPtr. 
+	(See RMSSampleMonitor for an example).
 */
 
 @interface RMSCallback : NSObject
 
-+ (const RMSCallbackProcPtr) callbackPtr;
++ (const RMSCallbackProcPtr) callbackProcPtr;
+- (const RMSCallbackDataPtr) callbackDataPtr;
 
 @end
 ////////////////////////////////////////////////////////////////////////////////

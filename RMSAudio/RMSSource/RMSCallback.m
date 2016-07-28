@@ -14,7 +14,8 @@
 
 @interface RMSCallback ()
 {
-	RMSCallbackProcPtr mProcPtr;
+	RMSCallbackProcPtr mCallbackProcPtr;
+	RMSCallbackDataPtr mCallbackDataPtr;
 }
 
 @end
@@ -24,10 +25,10 @@
 @implementation RMSCallback
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (const RMSCallbackProcPtr) callbackPtr
++ (const RMSCallbackProcPtr) callbackProcPtr
 {
 #if DEBUG
-	NSLog(@"%@", @"ERROR: no class global callbackPtr provided!");
+	NSLog(@"%@", @"ERROR: no class global callbackProcPtr provided!");
 	NSLog(@"%@", [NSThread callStackSymbols]);
 #endif
 
@@ -35,23 +36,26 @@
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+- (const RMSCallbackDataPtr) callbackDataPtr
+{
+	return (__bridge RMSCallbackDataPtr)self;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
 - (instancetype) init
-{ return [self initWithCallbackPtr:[[self class] callbackPtr]]; }
-
-////////////////////////////////////////////////////////////////////////////////
-
-+ (instancetype) instanceWithCallbackPtr:(void *)procPtr
-{ return [[self alloc] initWithCallbackPtr:procPtr]; }
-
-- (instancetype) initWithCallbackPtr:(void *)procPtr
 {
 	self = [super init];
 	if (self != nil)
 	{
-		mProcPtr = procPtr;
+		mCallbackProcPtr = [[self class] callbackProcPtr];
+		if (mCallbackProcPtr == nil) return nil;
+		
+		mCallbackDataPtr = [self callbackDataPtr];
+		if (mCallbackDataPtr == nil) return nil;
 	}
 	
 	return self;
@@ -63,7 +67,9 @@
 
 OSStatus RunRMSCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
-	return RMSCallbackBridge(objectPtr)->mProcPtr(objectPtr, infoPtr);
+	RMSCallbackProcPtr procPtr = RMSCallbackBridge(objectPtr)->mCallbackProcPtr;
+	RMSCallbackDataPtr dataPtr = RMSCallbackBridge(objectPtr)->mCallbackDataPtr;
+	return procPtr(dataPtr, infoPtr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

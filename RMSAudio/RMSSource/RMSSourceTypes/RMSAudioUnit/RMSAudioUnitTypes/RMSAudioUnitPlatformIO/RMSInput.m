@@ -10,26 +10,28 @@
 #import "RMSInput.h"
 #import "RMSAudio.h"
 #import "RMSRingBuffer.h"
+#import "RMSUtilities.h"
 #import <AVFoundation/AVFoundation.h>
 #import <mach/mach_time.h>
 
+
+typedef struct RMSRateInfo
+{
+	uint64 count;
+	double start;
+	double rate;
+}
+RMSRateInfo;
 
 
 @interface RMSInput ()
 {
 	NSInteger mChannelCount;
 	
-	double mStartTime;
-	UInt64 mSampleCount;
-	double mNominalSampleRate;
-	
 	Float64 mSourceSampleRate;
 	
-	UInt64 mInputStart;
-	double mInputRate;
-
-	UInt64 mOutputStart;
-	double mOutputRate;
+	RMSRateInfo mInputRate;
+	RMSRateInfo mOutputRate;
 	
 	UInt32 mInputIsBusy;
 	UInt32 mOutputIsBusy;
@@ -44,55 +46,22 @@
 @implementation RMSInput
 ////////////////////////////////////////////////////////////////////////////////
 
-//#define RMSInputDeviceReports
-
-#ifdef RMSInputDeviceReports
-
-static inline OSStatus RMSInputDeviceUpdateInputRate(__unsafe_unretained RMSInput *rmsObject)
+static inline OSStatus RMSRateInfoUpdate(RMSRateInfo *info)
 {
-	// Update timing and rate
-	if (rmsObject->mInputIndex == 0)
-	{ rmsObject->mInputStart = mach_absolute_time(); }
+	double time = RMSCurrentHostTimeInSeconds();
+
+	if (info->count == 0)
+	{
+		info->start = time;
+	}
 	else
 	{
-		double time = (1.0e-9)*(mach_absolute_time() - rmsObject->mInputStart);
-		rmsObject->mInputRate = rmsObject->mInputIndex/time;
-
-		static double lastTime = 0.0;
-		if (lastTime <= time-1.0)
-		{
-			lastTime = time;
-			NSLog(@"inputrate = %lf", rmsObject->mInputRate);
-		}
+		info->rate = info->count / (time - info->start);
 	}
 	
 	return noErr;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-static inline OSStatus RMSInputDeviceUpdateOutputRate(__unsafe_unretained RMSInput *rmsObject)
-{
-	// Update timing and rate
-	if (rmsObject->mOutputIndex == 0)
-	{ rmsObject->mOutputStart = mach_absolute_time(); }
-	else
-	{
-		double time = (1.0e-9)*(mach_absolute_time() - rmsObject->mOutputStart);
-		rmsObject->mOutputRate = rmsObject->mOutputIndex/time;
-
-		static double lastTime = 0.0;
-		if (lastTime <= time-1.0)
-		{
-			lastTime = time;
-			NSLog(@"outputrate = %lf", rmsObject->mOutputRate);
-		}
-	}
-	
-	return noErr;
-}
-
-#endif // RMSInputDeviceReports
 ////////////////////////////////////////////////////////////////////////////////
 
 static OSStatus inputCallback(
@@ -105,6 +74,7 @@ static OSStatus inputCallback(
 {
 	__unsafe_unretained RMSInput *rmsObject =
 	(__bridge __unsafe_unretained RMSInput *)refCon;
+
 	
 	// This should raise an exception
 	UInt32 maxFrameCount = rmsObject->mMaxFrameCount;
@@ -113,24 +83,6 @@ static OSStatus inputCallback(
 		NSLog(@"Input frameCount (%d) > kBufferSize (%d)", frameCount, maxFrameCount);
 		return paramErr;
 	}
-	
-#ifdef RMSInputDeviceReports
-	RMSInputDeviceUpdateInputRate(rmsObject);
-#endif
-
-	double time = RMSCurrentHostTimeInSeconds();
-
-	if (rmsObject->mSampleCount == 0)
-	{
-		rmsObject->mStartTime = RMSCurrentHostTimeInSeconds();
-	}
-	else
-	{
-		rmsObject->mNominalSampleRate =
-		rmsObject->mSampleCount / (time - rmsObject->mStartTime);
-	}
-
-	rmsObject->mSampleCount += frameCount;
 
 	
 	rmsObject->mInputIsBusy = 1;
@@ -175,10 +127,6 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 		NSLog(@"Output frameCount (%d) > kBufferSize (%d)", frameCount, maxFrameCount);
 		return paramErr;
 	}
-
-#ifdef RMSInputDeviceReports
-	RMSInputDeviceUpdateOutputRate(rmsObject);
-#endif
 	
 	RMSRingBufferReadStereoData
 	(&rmsObject->mRingBuffer, infoPtr->bufferListPtr, frameCount);
@@ -193,7 +141,7 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (RMSCallbackProcPtr) callbackPtr
++ (RMSCallbackProcPtr) callbackProcPtr
 { return outputCallback; }
 
 ////////////////////////////////////////////////////////////////////////////////

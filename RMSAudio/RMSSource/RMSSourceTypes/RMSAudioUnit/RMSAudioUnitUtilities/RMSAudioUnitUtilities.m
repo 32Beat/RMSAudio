@@ -301,8 +301,9 @@ UInt32 AudioUnitGetGlobalPropertySize(AudioUnit audioUnit, AudioUnitPropertyID p
 		case kAudioUnitProperty_SampleRate:
 			return sizeof(Float64);
 			
-		case kAudioOutputUnitProperty_IsRunning:
+		case kAudioUnitProperty_RenderQuality:
 		case kAudioUnitProperty_MaximumFramesPerSlice:
+		case kAudioOutputUnitProperty_IsRunning:
 			return sizeof(UInt32);
 	}
 	

@@ -128,7 +128,6 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-
 - (OSStatus) initializeAudioUnit
 {
 	OSStatus result = AudioUnitInitialize(mAudioUnit);
@@ -150,6 +149,25 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setRenderQuality:(float)quality
+{
+	UInt32 Q = 127 * quality + 0.5;
+	
+	if (Q > 127) Q = 127;
+	
+	OSStatus error = AudioUnitSetGlobalProperty
+	(mAudioUnit, kAudioUnitProperty_RenderQuality, &Q);
+	
+	if (error != noErr)
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 - (void) setSampleRate:(Float64)sampleRate
 {

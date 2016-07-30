@@ -30,6 +30,8 @@
 - (OSStatus) initializeAudioUnit;
 - (OSStatus) uninitializeAudioUnit;
 
+- (void) setRenderQuality:(float)quality;
+
 - (Float64) inputScopeSampleRate;
 //- (Float64) inputScopeSampleRateAtIndex:(UInt32)busIndex;
 - (void) setInputSampleRate:(Float64)sampleRate;

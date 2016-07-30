@@ -13,8 +13,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
-	typedef AURenderCallback RMSCallbackProcPtr;
-
 	The system AURenderCallback requires the following parameters:
 	
 		void 							*refCon,
@@ -26,8 +24,19 @@
 
 	In order to reduce stack preparation for function calls, 
 	we redefine the parameters supplied to the callback chain.
+	
+	In abstract a render function then looks like this:
+	
+		procPtr(dataPtr, infoPtr)
+	
+	dataPtr = the refCon value, typically will be an RMSSource pointer
+	infoPtr = the timing info and the corresponding bufferList
 */
 
+// refCon value
+typedef void RMSCallbackData;
+
+// timing & buffer info
 typedef struct RMSCallbackInfo
 {
 	UInt64				frameIndex;
@@ -36,19 +45,28 @@ typedef struct RMSCallbackInfo
 }
 RMSCallbackInfo;
 
-typedef void *RMSCallbackDataPtr;
+// callback function
+typedef OSStatus (RMSCallbackProc)
+(RMSCallbackData *dataPtr, const RMSCallbackInfo *infoPtr);
 
-typedef OSStatus (*RMSCallbackProcPtr)
-(void *objectPtr, const RMSCallbackInfo *info);
-
-
+// corresponding pointertypes
+typedef RMSCallbackProc *RMSCallbackProcPtr;
+typedef RMSCallbackData *RMSCallbackDataPtr;
+typedef RMSCallbackInfo *RMSCallbackInfoPtr;
+////////////////////////////////////////////////////////////////////////////////
+/*
+	RunRMSCallback
+	--------------
+	Triggers the callback function of an RMSCallback object via direct access.
+	Meant to be used by the audiothread for running the callback function of 
+	any RMSSource object using unmanaged access (unsafe, unretained).
+	Object existence should obviously be guaranteed by the main thread.
+	
+	See also RunRMSSource in RMSSource
+*/
 OSStatus RunRMSCallback
 (void *objectPtr, const RMSCallbackInfo *info);
 
-// macro for condensed, unmanaged access to the RMSCallback object
-// for use by the audiothread
-#define RMSCallbackBridge(objectPtr) \
-((__bridge __unsafe_unretained RMSCallback *)objectPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 /*

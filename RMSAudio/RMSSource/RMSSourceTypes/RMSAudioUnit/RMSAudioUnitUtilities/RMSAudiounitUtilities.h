@@ -66,6 +66,12 @@ AudioUnitElement streamIndex, const AudioStreamBasicDescription *resultPtr);
 OSStatus RMSAudioUnitSetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 maxFrames);
 OSStatus RMSAudioUnitGetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 *maxFrames);
 
+OSStatus AudioUnitGetGlobalProperty
+(AudioUnit audioUnit, AudioUnitPropertyID propertyID, void *resultPtr);
+OSStatus AudioUnitSetGlobalProperty
+(AudioUnit audioUnit, AudioUnitPropertyID propertyID, const void *sourcePtr);
+
+
 #endif // RMSAudioUnitUtilities_h
 
 

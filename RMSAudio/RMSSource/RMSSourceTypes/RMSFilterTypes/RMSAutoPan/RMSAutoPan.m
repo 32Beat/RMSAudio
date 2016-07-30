@@ -99,7 +99,7 @@ static OSStatus renderCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 	if (self != nil)
 	{
 		[self setSampleRate:44100.0];
-		[self setResponseTime:.25];
+		[self setResponseTime:1.0];
 	}
 	
 	return self;

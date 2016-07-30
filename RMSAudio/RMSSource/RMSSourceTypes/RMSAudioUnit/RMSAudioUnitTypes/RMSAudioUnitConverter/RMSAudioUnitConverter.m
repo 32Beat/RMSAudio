@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*
-	RMSAudioUnitVarispeed
+	RMSAudioUnitConverter
 	
 	Created by 32BT on 15/11/15.
 	Copyright © 2015 32BT. All rights reserved.
@@ -8,19 +8,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#import "RMSAudioUnitVarispeed.h"
+#import "RMSAudioUnitConverter.h"
 #import "RMSUtilities.h"
 #import "RMSAudio.h"
 
 
-@interface RMSAudioUnitVarispeed ()
+@interface RMSAudioUnitConverter ()
 {
 }
 @end
 
 
 ////////////////////////////////////////////////////////////////////////////////
-@implementation RMSAudioUnitVarispeed
+@implementation RMSAudioUnitConverter
 ////////////////////////////////////////////////////////////////////////////////
 /*
 	RMSSource callback = RMSAudioUnit callback = AudioUnitRender
@@ -47,16 +47,12 @@ static OSStatus renderCallback(
 		return paramErr;
 	}
 
-
-	__unsafe_unretained RMSAudioUnitVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSAudioUnitVarispeed *)inRefCon;
-
 	RMSCallbackInfo info;
 	info.frameIndex = timeStamp->mSampleTime;
 	info.frameCount = frameCount;
 	info.bufferListPtr = bufferList;
 		
-	OSStatus result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
+	OSStatus result = RunRMSSource(RMSSourceGetSource(inRefCon), &info);
 	
 	return result;
 }
@@ -68,7 +64,7 @@ static OSStatus renderCallback(
 	return
 	(AudioComponentDescription) {
 		.componentType = kAudioUnitType_FormatConverter,
-		.componentSubType = kAudioUnitSubType_Varispeed,
+		.componentSubType = kAudioUnitSubType_AUConverter,
 		.componentManufacturer = kAudioUnitManufacturer_Apple,
 		.componentFlags = 0,
 		.componentFlagsMask = 0 };
@@ -87,7 +83,7 @@ static OSStatus renderCallback(
 		/*
 			RMSSource callback = RMSAudioUnit callback = AudioUnitRender
 			
-			AudioUnitRender will trigger this renderCallback for input data
+			AudioUnitRender will trigger the actual RMS renderCallback for input data
 		*/
 		AudioUnitSetRenderCallback(mAudioUnit, renderCallback, (__bridge void *)self);
 		
@@ -125,38 +121,6 @@ static OSStatus renderCallback(
 		[self setSourceFormat:&streamFormat];
 		//[self setInputSampleRate:[source sampleRate]];
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (AudioUnitParameterValue) playbackRate
-{
-	AudioUnitParameterValue value = 0.0;
-	AudioUnitGetParameter(mAudioUnit,
-	kVarispeedParam_PlaybackRate, kAudioUnitScope_Global, 0, &value);
-	return value;
-}
-
-- (OSStatus) setPlaybackRate:(AudioUnitParameterValue)value
-{
-	return AudioUnitSetParameter(mAudioUnit,
-	kVarispeedParam_PlaybackRate, kAudioUnitScope_Global, 0, value, 0);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (AudioUnitParameterValue) playbackCents
-{
-	AudioUnitParameterValue value = 0.0;
-	AudioUnitGetParameter(mAudioUnit,
-	kVarispeedParam_PlaybackCents, kAudioUnitScope_Global, 0, &value);
-	return value;
-}
-
-- (OSStatus) setPlaybackCents:(AudioUnitParameterValue)value
-{
-	return AudioUnitSetParameter(mAudioUnit,
-	kVarispeedParam_PlaybackCents, kAudioUnitScope_Global, 0, value, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

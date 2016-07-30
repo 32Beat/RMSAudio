@@ -65,6 +65,8 @@
 		137CB2C51D4385DA00AA241A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C31D4385DA00AA241A /* Main.storyboard */; };
 		137CB2C71D4385DA00AA241A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C61D4385DA00AA241A /* Assets.xcassets */; };
 		137CB2CA1D4385DA00AA241A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */; };
+		13C2F9061D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */; };
+		13C2F9071D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -135,6 +137,8 @@
 		137CB2C61D4385DA00AA241A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		137CB2C91D4385DA00AA241A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		137CB2CB1D4385DA00AA241A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		13C2F9041D4CB26800B35F3E /* RMSAudioUnitConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnitConverter.h; sourceTree = "<group>"; };
+		13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitConverter.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -227,8 +231,9 @@
 		13488BAE1D447031009E99D6 /* RMSAudioUnitTypes */ = {
 			isa = PBXGroup;
 			children = (
-				13488BAF1D447031009E99D6 /* RMSAudioUnitFilePlayer */,
 				13488BB21D447032009E99D6 /* RMSAudioUnitPlatformIO */,
+				13C2F9031D4CB26800B35F3E /* RMSAudioUnitConverter */,
+				13488BAF1D447031009E99D6 /* RMSAudioUnitFilePlayer */,
 				13488BB91D447032009E99D6 /* RMSAudioUnitVarispeed */,
 			);
 			path = RMSAudioUnitTypes;
@@ -420,6 +425,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		13C2F9031D4CB26800B35F3E /* RMSAudioUnitConverter */ = {
+			isa = PBXGroup;
+			children = (
+				13C2F9041D4CB26800B35F3E /* RMSAudioUnitConverter.h */,
+				13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */,
+			);
+			path = RMSAudioUnitConverter;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -522,6 +536,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13C2F9061D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */,
 				1305C0CF1D44712B0062E2CA /* main.m in Sources */,
 				13488C0F1D447032009E99D6 /* RMSIndexView.m in Sources */,
 				13488BEB1D447032009E99D6 /* RMSAudioUnitFilePlayer.m in Sources */,
@@ -555,6 +570,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13C2F9071D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */,
 				13488C101D447032009E99D6 /* RMSIndexView.m in Sources */,
 				13488BEC1D447032009E99D6 /* RMSAudioUnitFilePlayer.m in Sources */,
 				137CB2C21D4385DA00AA241A /* ViewController.m in Sources */,

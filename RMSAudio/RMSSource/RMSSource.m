@@ -146,8 +146,6 @@ OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	OSStatus result = RunRMSCallback(rmsObject, infoPtr);
 	if (result != noErr) return result;
 	
-	
-	
 	// Run the filters if available
 	void *filter = RMSSourceGetFilter(rmsObject);
 	if (filter != nil)

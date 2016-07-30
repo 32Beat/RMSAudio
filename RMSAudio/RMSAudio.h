@@ -30,6 +30,7 @@
 #import "RMSAudioUnit.h"
 #import "RMSAudioUnitUtilities.h"
 #import "RMSAudioUnitFilePlayer.h"
+#import "RMSAudioUnitConverter.h"
 #import "RMSAudioUnitVarispeed.h"
 #import "RMSAudioUnitPlatformIO.h"
 #import "RMSInput.h"

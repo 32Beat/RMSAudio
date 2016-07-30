@@ -113,9 +113,15 @@ static inline void CopyFloats(float *srcPtr, float *dstPtr, size_t n)
 void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N)
 {
 	float *dstPtr = bufferPtr->sampleData;
-	uint64_t indexMask = bufferPtr->indexMask;
-//*
 	uint64_t index = bufferPtr->index;
+	uint64_t indexMask = bufferPtr->indexMask;
+/*
+	for (size_t n=0; n!=N; n++)
+	{
+		dstPtr[index&indexMask] = srcPtr[n];
+		bufferPtr->index = (index += 1);
+	}
+/*/
 	uint64_t count = indexMask + 1;
 	
 	// compute index in ringbuffer
@@ -143,31 +149,25 @@ void RMSBufferWriteSamples(rmsbuffer_t *bufferPtr, float *srcPtr, size_t N)
 		CopyFloats(&srcPtr[count], &dstPtr[0], N);
 		bufferPtr->index += N;
 	}
-	
-/*/
-	for (size_t n=0; n!=N; n++)
-	{
-		uint64_t index = bufferPtr->index+1;
-		dstPtr[index&indexMask] = srcPtr[n];
-		bufferPtr->index = index;
-	}
 //*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-int RMSBufferCompareData(rmsbuffer_t *B1, rmsbuffer_t *B2)
+/*
+	Ancient MacBook Pro seems to produce unequal samples from mic, 
+	even with ambient noisecancelling off
+*/
+size_t RMSBufferCompare(rmsbuffer_t *B1, rmsbuffer_t *B2)
 {
-	size_t n = B1->indexMask+1;
+	size_t n, N = B1->indexMask+1;
 	
-	while (n != 0)
+	for (n=0; n!=N; n++)
 	{
-		n -= 1;
 		if (B1->sampleData[n] != B2->sampleData[n])
-		{ return n+1; }
+		{ return n; }
 	}
 	
-	return true;
+	return n;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

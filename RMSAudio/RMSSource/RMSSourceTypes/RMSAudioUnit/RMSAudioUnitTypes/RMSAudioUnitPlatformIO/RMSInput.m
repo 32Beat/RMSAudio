@@ -17,7 +17,7 @@
 
 typedef struct RMSRateInfo
 {
-	uint64 count;
+	UInt64 count;
 	double start;
 	double rate;
 }

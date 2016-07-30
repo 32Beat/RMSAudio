@@ -286,7 +286,7 @@
 		RMSSource *source = self.inputSource;
 		if (source != nil)
 		{
-/*
+//*
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
 			{
@@ -300,7 +300,7 @@
 				source = [RMSVarispeed instanceWithSource:source];
 			}
 //*/
-//*
+/*
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
 			{

@@ -22,6 +22,7 @@
 
 
 @property (nonatomic) RMSMixer *mixer;
+@property (nonatomic) RMSFileRecorder *outputFile;
 
 @property (nonatomic) RMSOutput *audioOutput;
 
@@ -316,7 +317,7 @@
 			
 			if (!output.isRunning)
 			{ [output startRunning]; }
-
+			
 			// prepare render timing reports
 			[self startRenderTimingReports];
 		}
@@ -387,6 +388,9 @@
 	
 	if (self.autoPanFilter != nil)
 	{ self.balanceControl.floatValue = self.autoPanFilter.correctionBalance; }
+	
+	if (self.outputFile != nil)
+	{ [self.outputFile updateWithMonitor:self.outputMonitor]; }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -524,6 +528,49 @@
 	
 	id source = [RMSAudioUnitFilePlayer instanceWithURL:url];
 	[self setSource:source];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark Select Output File
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) didSelectOutputFileButton:(NSButton *)button
+{
+	if (self.outputFile != nil)
+	{ self.outputFile = nil; }
+	
+	[self selectOutputFile:nil];
+}
+
+- (IBAction) selectOutputFile:(id)sender
+{
+	NSSavePanel *panel = [NSSavePanel savePanel];
+	
+//	panel.allowedFileTypes = [RMSAudioUnitFilePlayer readableTypes];
+	
+	// start selection sheet ...
+	[panel beginSheetModalForWindow:self.windowForSheet
+
+		// ... with result block
+		completionHandler:^(NSInteger result)
+		{
+			if (result == NSFileHandlingPanelOKButton)
+			{
+				if ([panel URL] != nil)
+				{
+					NSURL *url = [panel URL];
+					[self startRecordingWithURL:url];
+				}
+			}
+		}];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) startRecordingWithURL:(NSURL *)url
+{
+	self.outputFile = [RMSFileRecorder instanceWithURL:url];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

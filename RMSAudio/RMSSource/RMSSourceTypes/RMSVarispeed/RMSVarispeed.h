@@ -10,6 +10,8 @@
 #import "RMSSource.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+// TODO: this is currently a resampler/converter not a varispeed
+// TODO: probably requires renaming
 
 @interface RMSVarispeed : RMSSource
 {

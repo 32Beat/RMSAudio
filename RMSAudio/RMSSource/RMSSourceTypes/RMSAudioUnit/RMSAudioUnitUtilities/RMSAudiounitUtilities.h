@@ -63,6 +63,7 @@ AudioUnitElement streamIndex, const AudioStreamBasicDescription *resultPtr);
 OSStatus RMSAudioUnitSetOutputScopeFormatAtIndex(AudioUnit audioUnit,
 AudioUnitElement streamIndex, const AudioStreamBasicDescription *resultPtr);
 
+OSStatus RMSAudioUnitGetLatency(AudioUnit audioUnit, Float64 *valuePtr);
 OSStatus RMSAudioUnitSetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 maxFrames);
 OSStatus RMSAudioUnitGetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 *maxFrames);
 

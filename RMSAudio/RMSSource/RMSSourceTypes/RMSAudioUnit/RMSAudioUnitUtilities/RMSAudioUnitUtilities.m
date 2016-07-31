@@ -298,6 +298,7 @@ UInt32 AudioUnitGetGlobalPropertySize(AudioUnit audioUnit, AudioUnitPropertyID p
 {
 	switch(propertyID)
 	{
+		case kAudioUnitProperty_Latency:
 		case kAudioUnitProperty_SampleRate:
 			return sizeof(Float64);
 			
@@ -373,6 +374,14 @@ OSStatus RMSAudioUnitSetMaximumFramesPerSlice(AudioUnit audioUnit, UInt32 maxFra
 {
 	return AudioUnitSetGlobalProperty
 	(audioUnit, kAudioUnitProperty_MaximumFramesPerSlice, &maxFrames);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSAudioUnitGetLatency(AudioUnit audioUnit, Float64 *valuePtr)
+{
+	return AudioUnitGetGlobalProperty
+	(audioUnit, kAudioUnitProperty_Latency, valuePtr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

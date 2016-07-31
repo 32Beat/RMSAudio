@@ -152,6 +152,20 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
+- (Float64) audioUnitLatency
+{
+	Float64 latency = 0.0;
+
+	OSStatus error = RMSAudioUnitGetLatency(mAudioUnit, &latency);
+	if (error != noErr)
+	{
+	}
+	
+	return latency;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (void) setRenderQuality:(float)quality
 {
 	UInt32 Q = 127 * quality + 0.5;
@@ -167,7 +181,6 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 - (void) setSampleRate:(Float64)sampleRate
 {

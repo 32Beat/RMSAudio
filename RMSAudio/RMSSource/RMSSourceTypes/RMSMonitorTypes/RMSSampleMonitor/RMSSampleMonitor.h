@@ -21,6 +21,7 @@
 #import "RMSSource.h"
 #import "rmsbuffer.h"
 #import "rmslevels.h"
+#import "RMSUtilities.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +63,8 @@ possible design concept: always as extension to RMSSampleMonitor
 - (void) updateLevels:(RMSStereoLevels *)levels;
 
 - (rmsresult_t) levelsAtIndex:(NSUInteger)index;
+
+- (RMSAudioBufferList) bufferListWithOffset:(UInt64)offset;
 
 @end
 

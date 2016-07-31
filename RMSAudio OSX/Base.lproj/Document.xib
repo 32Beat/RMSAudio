@@ -197,6 +197,17 @@
                             <action selector="selectOutput:" target="-2" id="8An-iC-USE"/>
                         </connections>
                     </popUpButton>
+                    <button verticalHuggingPriority="750" id="uWh-aw-TSV">
+                        <rect key="frame" x="289" y="244" width="81" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yjg-Fb-A44">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="didSelectOutputFileButton:" target="-2" id="S2U-d5-wZ7"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <connections>

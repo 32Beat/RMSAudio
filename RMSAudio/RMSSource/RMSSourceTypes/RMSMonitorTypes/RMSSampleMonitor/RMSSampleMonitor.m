@@ -157,6 +157,25 @@ static OSStatus renderCallback(void *bufferArray, const RMSCallbackInfo *infoPtr
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (RMSAudioBufferList) bufferListWithOffset:(UInt64)offset
+{
+	size_t index = offset & (mSampleCount-1);
+	size_t size = (mSampleCount - index) * sizeof(float);
+	
+	return (RMSAudioBufferList){
+		.bufferCount = 2,
+		.buffer[0].mNumberChannels = 1,
+		.buffer[0].mDataByteSize = (UInt32)size,
+		.buffer[0].mData = &mBuffer[0].sampleData[index],
+		.buffer[1].mNumberChannels = 1,
+		.buffer[1].mDataByteSize = (UInt32)size,
+		.buffer[1].mData = &mBuffer[1].sampleData[index] };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
 - (void) reset
 {
 	RMSBufferReset(&mBuffer[0]);

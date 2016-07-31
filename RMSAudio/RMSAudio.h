@@ -23,6 +23,7 @@
 #import "RMSTimer.h"
 #import "RMSDeviceManager.h"
 #import "RMSDevice.h"
+#import "RMSFileRecorder.h"
 
 #import "RMSCallback.h"
 #import "RMSSource.h"

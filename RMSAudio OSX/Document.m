@@ -311,7 +311,6 @@
 			}
 	
 //*/
-			
 			[output setSource:source];
 			mLevels.sampleRate = 0.0;
 			

@@ -15,7 +15,7 @@
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-- (RMSSource *) link;
+- (RMSLink *) link;
 - (void) setLink:(RMSSource *)link;
 - (void) addLink:(RMSSource *)link;
 - (void) removeLink:(RMSSource *)link;

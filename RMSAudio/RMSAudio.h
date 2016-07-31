@@ -28,6 +28,7 @@
 #import "RMSSource.h"
 #import "RMSLink.h"
 #import "RMSMixer.h"
+#import "RMSClip.h"
 
 #import "RMSAudioUnit.h"
 #import "RMSAudioUnitUtilities.h"

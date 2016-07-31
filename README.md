@@ -14,18 +14,42 @@ As an example, PlayThru (from mic to output) is as simple as:
     self.audioOutput = [RMSOutput defaultOutput];
     self.audioOutput.source = [RMSInput defaultInput];
    
-That just works. It even works with different sampleRates between input and output, as the RMSInput has a simple linear-interpolating ringbuffer build in, and the output object automatically sets the samplerate of its source. Setting the sampleRate of a source always refers to the “outputscope” of that source. 
+That just works. ~~It even works with different sampleRates between input and output, as the RMSInput has a simple linear-interpolating ringbuffer build in.~~ 
 
-If a more sophisticated algorithm would be desired for sampleRate conversion, it is just as simple to add the Varispeed audiounit in between input and output: 
+All digital audio has a sampleRate associated with it, this is of course no different for RMSAudio. Setting the sampleRate of a source always refers to the “outputscope” of that source. An input object may have a fixed sampleRate in which case you can use a converter to resample a source to the desired rate. 
+
+Because the output unit automatically sets the sampleRate of any attached source, it is just as simple to attach a converter as it is to attach the input directly: 
 ```obj-c
 RMSSource *source = [RMSInput defaultInput];
 
 if (source.sampleRate != self.audioOutput.sampleRate)
-{ source = [RMSAudioUnitVarispeed instanceWithSource:source]; }
+{ source = [RMSAudioUnitConverter instanceWithSource:source]; }
 
 self.audioOutput.source = source;
 ```
-Which builds a simple tree: input->varispeed->output
+Which builds a simple tree: input->converter->output
+
+For an even more sophisticated resampling construct, you can for example apply 8x oversampling as follows: 
+```obj-c
+RMSSource *source = [RMSInput defaultInput];
+
+if (source.sampleRate != self.audioOutput.sampleRate)
+{ 
+	// add converter for upsampling
+	source = [RMSVarispeed instanceWithSource:source]; 
+    
+	// set the output of RMSVarispeed to 8x the audio output rate
+	source.sampleRate = 8 * self.audioOutput.sampleRate;
+
+	// add converter for decimation
+	source = [RMSVarispeed instanceWithSource:source]; 
+}
+
+self.audioOutput.source = source;
+```
+Which builds: input->converter->converter->output
+
+(RMSVarispeed is used in lieu of the AUConverter as it allows 8x oversampling, even when the outputrate is 96000Hz.)
 
 
 ## Core object: RMSSource
@@ -62,12 +86,12 @@ static OSStatus renderCallback(void *objectPtr, RMSCallbackInfo *infoPtr)
 }
 
 
-+ (RMSCallbackProcPtr) callbackPtr
++ (RMSCallbackProcPtr) callbackProcPtr
 { return renderCallback; }
 
 ```
 
-The class globalscope callbackPtr method allow "new" and "init" to do all the required initialization. Getting your code to run then is as simple as:
+The class globalscope callbackProcPtr method allow "new" and "init" to do all the required initialization. Getting your code to run then is as simple as:
 
 ```obj-c
 self.audioOutput.source = [MyRMSSource new];

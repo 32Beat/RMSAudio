@@ -86,6 +86,13 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 	// for the management thread
 	[self.sourceObjects addObject:mixerSource];
+
+/*
+	Note that if the attached sampleMonitor is updated from
+	a separate thread, we can't rely on the audio trash 
+	to offer the correct protection. We can however rely on 
+	normal ARC behavior and locks by using an extra array.
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

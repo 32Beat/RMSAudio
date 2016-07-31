@@ -462,26 +462,28 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+	On OSX the audiounit samplerates for an inputdevice should match
+	on both scopes
+*/
 
 - (void) setSampleRate:(Float64)sampleRate
 {
 	if (mSampleRate != sampleRate)
 	{
-		[self stopRunning];
+/*
+		BOOL isRunning = self.isRunning;
 		
-		/*
-			On OSX the audiounit samplerates for an inputdevice should match
-			on both scopes, so we can not use super->setSampleRate, but should
-			use RMSSource->setSampleRate instead
-		*/
+		if (isRunning == YES)
+		{ [self stopRunning]; }
+		
 		mSampleRate = sampleRate;
 		[mFilter setSampleRate:sampleRate];
 		[mMonitor setSampleRate:sampleRate];
 		
-		[self updateRingBufferSpeed];
-		RMSRingBufferClear(&mRingBuffer);
-		
-		[self startRunning];
+		if (isRunning == YES)
+		{ [self startRunning]; }
+*/
 	}
 }
 

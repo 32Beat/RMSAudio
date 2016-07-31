@@ -21,6 +21,8 @@
 }
 
 
+@property (nonatomic) RMSMixer *mixer;
+
 @property (nonatomic) RMSOutput *audioOutput;
 
 @property (nonatomic) RMSVolume *volumeFilter;
@@ -310,6 +312,14 @@
 	
 //*/
 
+			if (self.mixer == nil)
+			{
+				self.mixer = [RMSMixer new];
+			}
+			
+			[self.mixer addSource:source];
+			source = self.mixer;
+			
 			[output setSource:source];
 			mLevels.sampleRate = 0.0;
 			
@@ -396,9 +406,11 @@
 	{
 		mProcessingLevels = YES;
 		
+		RMSSampleMonitor *monitor = self.outputMonitor;
+		
 		dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0),
 		^{
-			[self updateOutputLevels];
+			[self updateOutputLevelsWithMonitor:monitor];
 			
 			mProcessingLevels = NO;
 		});
@@ -407,11 +419,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) updateOutputLevels
+- (void) updateOutputLevelsWithMonitor:(RMSSampleMonitor *)monitor
 {
-	[self.outputMonitor updateLevels:&mLevels];
-	rmsresult_t L = RMSLevelsFetchResult(&mLevels.L);
-	rmsresult_t R = RMSLevelsFetchResult(&mLevels.R);
+	[monitor updateLevels];
+	rmsresult_t L = [monitor levelsAtIndex:0];
+	rmsresult_t R = [monitor levelsAtIndex:1];
 	dispatch_async(dispatch_get_main_queue(),
 	^{
 		self.resultViewL.levels = L;

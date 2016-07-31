@@ -205,6 +205,25 @@ AudioBufferList *dstListPtr, UInt32 dstIndex, UInt32 frameCount)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void RMSAudioBufferList_AddFrames(
+AudioBufferList *srcListPtr,
+AudioBufferList *dstListPtr, UInt32 frameCount)
+{
+	UInt32 n = dstListPtr->mNumberBuffers;
+	if (n > srcListPtr->mNumberBuffers)
+	{ n = srcListPtr->mNumberBuffers; }
+	
+	while (n != 0)
+	{
+		n -= 1;
+		float *srcPtr = srcListPtr->mBuffers[n].mData;
+		float *dstPtr = dstListPtr->mBuffers[n].mData;
+		vDSP_vadd(srcPtr, 1, dstPtr, 1, dstPtr, 1, frameCount);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 int RMSAudioBufferList_IsMono(AudioBufferList *listPtr, UInt32 frameCount)
 {
 	float *ptr1 = listPtr->mBuffers[0].mData;

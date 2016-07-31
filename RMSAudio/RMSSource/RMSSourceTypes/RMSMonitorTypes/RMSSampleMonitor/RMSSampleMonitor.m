@@ -17,7 +17,11 @@
 	size_t mSampleCount;
 	size_t mBufferCount;
 	rmsbuffer_t mBuffer[2];
+	rmslevels_t mLevels[2];
 }
+
+@property (nonatomic, assign) Float64 levelsRate;
+@property (nonatomic, assign) UInt64 levelsIndex;
 
 @end
 
@@ -196,6 +200,55 @@ static void RMSLevelsScanBuffer
 		index++;
 	}
 */
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (rmsresult_t) levelsAtIndex:(NSUInteger)index
+{
+	if (index > 1)
+	{ index = 0; }
+	
+	return RMSLevelsFetchResult(&mLevels[index]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) updateLevels
+{
+	if (self.levelsRate != self.sampleRate)
+	{
+		Float64 sampleRate = self.sampleRate;
+		mLevels[0] = RMSLevelsInit(sampleRate);
+		mLevels[1] = RMSLevelsInit(sampleRate);
+		self.levelsRate = sampleRate;
+	}
+	
+	// get available range
+	rmsrange_t R = [self availableRange];
+
+	// make sure the ringbuffer has valid data available
+	if (R.count == 0) return;
+
+	// adjust range to exclude previous run
+	if ((R.index <= self.levelsIndex)&&(self.levelsIndex < R.index+R.count))
+	{
+		R.count += R.index;
+		R.index = self.levelsIndex;
+		R.count -= R.index;
+	}
+
+	/* 
+		note that if levels->index falls outside range,
+		then the entire range will be processed and
+		levels->index will be reset
+		
+		TODO: possibly reset entire levels struct?
+	*/
+
+	RMSLevelsScanBuffer(&mLevels[0], &mBuffer[0], &R);
+	RMSLevelsScanBuffer(&mLevels[1], &mBuffer[1], &R);
+	self.levelsIndex = R.index + R.count;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

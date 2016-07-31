@@ -64,6 +64,8 @@ typedef union RMSAudioBufferList
 }
 RMSAudioBufferList;
 
+typedef RMSAudioBufferList RMSStereoBufferList;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void RMSAudioBufferList_ClearBuffers(AudioBufferList *bufferList);
@@ -76,6 +78,12 @@ void RMSAudioBufferList_ClearBuffers(AudioBufferList *bufferList);
 	bufferList pointers.
 */
 void RMSAudioBufferList_ClearFrames(AudioBufferList *bufferList, UInt32 frameCount);
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSAudioBufferList_AddFrames(
+AudioBufferList *srcListPtr,
+AudioBufferList *dstListPtr, UInt32 frameCount);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -58,7 +58,10 @@ possible design concept: always as extension to RMSSampleMonitor
 - (rmsbuffer_t *) bufferAtIndex:(NSUInteger)n;
 
 - (void) reset;
+- (void) updateLevels;
 - (void) updateLevels:(RMSStereoLevels *)levels;
+
+- (rmsresult_t) levelsAtIndex:(NSUInteger)index;
 
 @end
 

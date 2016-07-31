@@ -71,6 +71,7 @@
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+@property (nonatomic, assign) BOOL shouldUpdateSource;
 
 - (RMSSource *) source;
 - (void) setSource:(RMSSource *)source;

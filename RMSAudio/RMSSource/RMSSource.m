@@ -168,6 +168,8 @@ OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 
 void *RMSSourceGetSource(void *source)
 { return (__bridge void *)((__bridge RMSSource *)source)->mSource; }
@@ -178,6 +180,8 @@ void *RMSSourceGetFilter(void *source)
 void *RMSSourceGetMonitor(void *source)
 { return (__bridge void *)((__bridge RMSSource *)source)->mMonitor; }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
 - (RMSSource *) source
@@ -197,6 +201,9 @@ void *RMSSourceGetMonitor(void *source)
 	{
 		id oldSource = mSource;
 		
+		if (self.shouldUpdateSource == YES)
+		{ [source setSampleRate:self.sampleRate]; }
+		
 		mSource = source;
 
 		[self trashObject:oldSource];
@@ -208,7 +215,7 @@ void *RMSSourceGetMonitor(void *source)
 - (void) addSource:(RMSSource *)source
 {
 	if (mSource == nil)
-	{ mSource = source; }
+	{ [self setSource:source]; }
 	else
 	{ [mSource addSource:source]; }
 }
@@ -350,11 +357,23 @@ void *RMSSourceGetMonitor(void *source)
 	if (mSampleRate != sampleRate)
 	{
 		mSampleRate = sampleRate;
-		//[mSource setSampleRate:sampleRate];
-		[mFilter setSampleRate:sampleRate];
-		[mMonitor setSampleRate:sampleRate];
+		if (self.shouldUpdateSource == YES)
+		{ [self setSourceSampleRate:sampleRate]; }
+		[self setFilterSampleRate:sampleRate];
+		[self setMonitorSampleRate:sampleRate];
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setSourceSampleRate:(Float64)sampleRate
+{ [mSource setSampleRate:sampleRate]; }
+
+- (void) setFilterSampleRate:(Float64)sampleRate
+{ [mFilter setSampleRate:sampleRate]; }
+
+- (void) setMonitorSampleRate:(Float64)sampleRate
+{ [mMonitor setSampleRate:sampleRate]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 @end

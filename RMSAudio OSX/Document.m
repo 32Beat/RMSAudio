@@ -311,14 +311,6 @@
 			}
 	
 //*/
-
-			if (self.mixer == nil)
-			{
-				self.mixer = [RMSMixer new];
-			}
-			
-			[self.mixer addSource:source];
-			source = self.mixer;
 			
 			[output setSource:source];
 			mLevels.sampleRate = 0.0;

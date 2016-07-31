@@ -149,6 +149,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 - (void) updateLevels
 {
+/*
 	RMSLink *link = self.link;
 	
 	while (link != nil)
@@ -161,13 +162,15 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 		link = link.link;
 	}
-	
+*/
+/*
 	[self.sourceObjects enumerateObjectsWithOptions:NSEnumerationConcurrent
 	usingBlock:^(id mixerSource, NSUInteger index, BOOL *stop)
 	{
 		RMSSampleMonitor *monitor = (RMSSampleMonitor *)[mixerSource monitor];
 		[monitor updateLevels];
 	}];
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

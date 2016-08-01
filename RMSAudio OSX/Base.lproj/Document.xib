@@ -14,6 +14,7 @@
                 <outlet property="logView" destination="gFb-O5-cO1" id="RRe-FU-gwk"/>
                 <outlet property="outputMenu" destination="L8w-2t-PU0" id="1or-ac-caB"/>
                 <outlet property="progressIndicator" destination="uYu-VS-Dx4" id="klF-JC-UwQ"/>
+                <outlet property="recordButton" destination="uWh-aw-TSV" id="hR5-7t-HnB"/>
                 <outlet property="resultViewL" destination="IYx-wO-ckQ" id="4VA-WJ-vKY"/>
                 <outlet property="resultViewR" destination="AYM-L1-uCH" id="4X8-hJ-xUf"/>
                 <outlet property="sourceMenu" destination="XPc-t6-YeH" id="nH6-8r-ias"/>
@@ -198,9 +199,9 @@
                         </connections>
                     </popUpButton>
                     <button verticalHuggingPriority="750" id="uWh-aw-TSV">
-                        <rect key="frame" x="289" y="244" width="81" height="32"/>
+                        <rect key="frame" x="288" y="244" width="83" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yjg-Fb-A44">
+                        <buttonCell key="cell" type="push" title="Record" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yjg-Fb-A44">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>

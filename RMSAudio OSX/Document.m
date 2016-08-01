@@ -21,10 +21,9 @@
 }
 
 
-@property (nonatomic) RMSMixer *mixer;
-@property (nonatomic) RMSFileRecorder *outputFile;
-
 @property (nonatomic) RMSOutput *audioOutput;
+
+@property (nonatomic) RMSMixer *mixer;
 
 @property (nonatomic) RMSVolume *volumeFilter;
 @property (nonatomic, weak) IBOutlet NSSlider *gainControl;
@@ -38,6 +37,8 @@
 @property (nonatomic, weak) IBOutlet RMSResultView *resultViewL;
 @property (nonatomic, weak) IBOutlet RMSResultView *resultViewR;
 
+@property (nonatomic) RMSFileRecorder *outputFile;
+@property (nonatomic, weak) IBOutlet NSButton *recordButton;
 
 @property (nonatomic) NSArray *inputDevices;
 @property (nonatomic, weak) IBOutlet NSPopUpButton *sourceMenu;
@@ -538,10 +539,17 @@
 - (IBAction) didSelectOutputFileButton:(NSButton *)button
 {
 	if (self.outputFile != nil)
-	{ self.outputFile = nil; }
-	
-	[self selectOutputFile:nil];
+	{
+		self.outputFile = nil;
+		[self.recordButton setTitle:@"Record"];
+	}
+	else
+	{
+		[self selectOutputFile:nil];
+	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction) selectOutputFile:(id)sender
 {
@@ -571,6 +579,10 @@
 - (void) startRecordingWithURL:(NSURL *)url
 {
 	self.outputFile = [RMSFileRecorder instanceWithURL:url];
+	if (self.outputFile != nil)
+	{
+		[self.recordButton setTitle:@"Stop"];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

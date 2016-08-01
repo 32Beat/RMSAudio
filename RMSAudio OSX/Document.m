@@ -451,7 +451,7 @@
 {
 	if (sender == self.gainControl)
 	{
-		self.volumeFilter.gain = sender.floatValue;
+		self.volumeFilter.gain = 10*sender.floatValue;
 	}
 	else
 	if (sender == self.volumeControl)
@@ -547,7 +547,7 @@
 {
 	NSSavePanel *panel = [NSSavePanel savePanel];
 	
-//	panel.allowedFileTypes = [RMSAudioUnitFilePlayer readableTypes];
+	panel.allowedFileTypes = [RMSFileRecorder writeableTypes];
 	
 	// start selection sheet ...
 	[panel beginSheetModalForWindow:self.windowForSheet

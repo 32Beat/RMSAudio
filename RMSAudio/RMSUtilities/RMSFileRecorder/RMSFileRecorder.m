@@ -20,32 +20,12 @@
 
 @end
 
-
-
-static const AudioStreamBasicDescription RMSDefaultOutputFileFormat =
-{
-	.mSampleRate 		= 44100.0,
-	.mFormatID 			= kAudioFormatLinearPCM,
-	.mFormatFlags 		=
-		kAudioFormatFlagIsFloat | \
-		kAudioFormatFlagIsNativeEndian | \
-		kAudioFormatFlagIsPacked,
-	.mBytesPerPacket 	= 2 * sizeof(float),
-	.mFramesPerPacket 	= 1,
-	.mBytesPerFrame 	= 2 * sizeof(float),
-	.mChannelsPerFrame 	= 2,
-	.mBitsPerChannel 	= 8 * sizeof(float),
-	.mReserved 			= 0
-};
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSFileRecorder
 ////////////////////////////////////////////////////////////////////////////////
 
 + (instancetype) instanceWithURL:(NSURL *)url
-{ return [self instanceWithURL:url fileType:kAudioFileCAFType]; }
+{ return [self instanceWithURL:url fileType:kAudioFileM4AType]; }
 
 + (instancetype) instanceWithURL:(NSURL *)url fileType:(AudioFileTypeID)typeID
 { return [[self alloc] initWithURL:url fileType:typeID]; }
@@ -58,29 +38,7 @@ static const AudioStreamBasicDescription RMSDefaultOutputFileFormat =
 	if (self != nil)
 	{
 		_url = url;
-		
-		AudioStreamBasicDescription fileFormat = RMSDefaultOutputFileFormat;
-		
-		OSStatus error = ExtAudioFileCreateWithURL(
-			(__bridge CFURLRef)url,
-			typeID,
-			&fileFormat,
-			nil,
-			kAudioFileFlags_EraseFile,
-			&mFileRef);
-		
-		if (error != noErr)
-		{ return nil; }
-
-		error = ExtAudioFileSetProperty(mFileRef,
-					kExtAudioFileProperty_ClientDataFormat,
-					sizeof(RMSPreferredAudioFormat),
-					&RMSPreferredAudioFormat);
-		
-		if (error != noErr)
-		{ return nil; }
-		
-		ExtAudioFileWriteAsync(mFileRef, 0, nil);
+		_fileType = typeID;
 	}
 	
 	return self;
@@ -101,9 +59,55 @@ static const AudioStreamBasicDescription RMSDefaultOutputFileFormat =
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
++ (NSArray *) writeableTypes
+{ return @[@"m4a", @"aif"]; }
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (OSStatus) startFileWithSampleRate:(Float64)sampleRate
+{
+	OSStatus error = noErr;
+	
+	AudioStreamBasicDescription fileFormat =
+	{
+		.mSampleRate 		= sampleRate,
+		.mFormatID 			= kAudioFormatAppleLossless,
+		.mChannelsPerFrame 	= 2,
+	};
+	
+	error = ExtAudioFileCreateWithURL(
+		(__bridge CFURLRef)self.url,
+		self.fileType,
+		&fileFormat,
+		nil,
+		kAudioFileFlags_EraseFile,
+		&mFileRef);
+	
+	if (error != noErr) return error;
+
+	error = ExtAudioFileSetProperty(mFileRef,
+				kExtAudioFileProperty_ClientDataFormat,
+				sizeof(RMSPreferredAudioFormat),
+				&RMSPreferredAudioFormat);
+
+	if (error != noErr) return error;
+	
+	error = ExtAudioFileWriteAsync(mFileRef, 0, nil);
+	
+	return error;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (OSStatus) updateWithMonitor:(RMSSampleMonitor *)sampleMonitor
 {
 	OSStatus error = noErr;
+	
+	if (mFileRef == nil)
+	{
+		error = [self startFileWithSampleRate:sampleMonitor.sampleRate];
+		if (error != noErr) return error;
+	}
 	
 	rmsrange_t R = sampleMonitor.availableRange;
 	UInt64 sampleCount = R.index + R.count;
@@ -115,10 +119,11 @@ static const AudioStreamBasicDescription RMSDefaultOutputFileFormat =
 
 	while (sliceIndex < sliceCount)
 	{
-		// write slice from monitor to file
+		// write slice from monitor...
 		RMSAudioBufferList stereoBuffer =
 		[sampleMonitor bufferListWithOffset:sliceIndex * 512];
 		
+		// ... to file
 		error = ExtAudioFileWriteAsync(mFileRef, 512, &stereoBuffer.list);
 		if (error != noErr)
 		{ return error; }

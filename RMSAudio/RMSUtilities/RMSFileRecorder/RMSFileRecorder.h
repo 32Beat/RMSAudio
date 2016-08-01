@@ -12,6 +12,9 @@
 @interface RMSFileRecorder : NSObject
 
 @property (nonatomic, readonly) NSURL *url;
+@property (nonatomic, readonly) AudioFileTypeID fileType;
+
++ (NSArray *) writeableTypes;
 
 + (instancetype) instanceWithURL:(NSURL *)url;
 + (instancetype) instanceWithURL:(NSURL *)url fileType:(AudioFileTypeID)typeID;

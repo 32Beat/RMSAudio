@@ -65,9 +65,18 @@ void *RMSLinkGetLink(void *source)
 - (void) addLink:(RMSLink *)link
 {
 	if (mLink == nil)
-	{ [self setLink:link]; }
+	{ mLink = link; }
 	else
 	{ [mLink addLink:link]; }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) insertLink:(RMSLink *)link
+{
+	if (mLink != nil)
+	{ [link addLink:mLink]; }
+	mLink = link;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

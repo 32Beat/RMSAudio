@@ -67,11 +67,12 @@
 // macro for condensed, unmanaged access to the RMSCallback object
 // for use by the audiothread
 #define RMSCallbackBridge(objectPtr) \
-((__bridge __unsafe_unretained RMSCallback *)objectPtr)
+((__bridge __unsafe_unretained RMSCallback *)(objectPtr))
 ////////////////////////////////////////////////////////////////////////////////
 
 OSStatus RunRMSCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
+	RMSLinkUpdateTrash(objectPtr);
 	RMSCallbackProcPtr procPtr = RMSCallbackBridge(objectPtr)->mCallbackProcPtr;
 	RMSCallbackDataPtr dataPtr = RMSCallbackBridge(objectPtr)->mCallbackDataPtr;
 	return procPtr(dataPtr, infoPtr);

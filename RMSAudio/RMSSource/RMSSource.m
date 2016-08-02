@@ -100,6 +100,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RunRMSChain(void *link, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus result = noErr;
+	
+	link = RMSLinkGetLink(link);
+	while (link != nil)
+	{
+		result = RunRMSSource(link, infoPtr);
+		if (result != noErr) return result;
+		
+		link = RMSLinkGetLink(link);
+	}
+	
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /*
 
 	Step 1:
@@ -126,22 +144,6 @@
 
 OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
-	__unsafe_unretained RMSSource *rmsSource =
-	(__bridge __unsafe_unretained RMSSource *)rmsObject;
-
-
-
-	// Communicate prerender trash to main
-	if (rmsSource->mTrash != nil)
-	{
-		if (rmsSource->mTrashSeen == nil)
-		{
-			rmsSource->mTrashSeen = (__bridge void *)rmsSource->mTrash;
-		}
-	}
-	
-	
-	
 	// Run the callback for self
 	OSStatus result = RunRMSCallback(rmsObject, infoPtr);
 	if (result != noErr) return result;
@@ -150,7 +152,7 @@ OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	void *filter = RMSSourceGetFilter(rmsObject);
 	if (filter != nil)
 	{
-		result = RunRMSSource(filter, infoPtr);
+		result = RunRMSChain(filter, infoPtr);
 		if (result != noErr) return result;
 	}
 	
@@ -158,11 +160,9 @@ OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	void *monitor = RMSSourceGetMonitor(rmsObject);
 	if (monitor != nil)
 	{
-		result = RunRMSSource(monitor, infoPtr);
+		result = RunRMSChain(monitor, infoPtr);
 		if (result != noErr) return result;
 	}
-	
-	
 	
 	return result;
 }
@@ -170,181 +170,133 @@ OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
+// macro for condensed, unmanaged access
+// for use by the audiothread
+#define RMSSourceBridge(objectPtr) \
+((__bridge __unsafe_unretained RMSSource *)(objectPtr))
+////////////////////////////////////////////////////////////////////////////////
 
 void *RMSSourceGetSource(void *source)
-{ return (__bridge void *)((__bridge RMSSource *)source)->mSource; }
+{ return (__bridge void *)RMSSourceBridge(source)->mSource; }
 
 void *RMSSourceGetFilter(void *source)
-{ return (__bridge void *)((__bridge RMSSource *)source)->mFilter; }
+{ return (__bridge void *)RMSSourceBridge(source)->mFilter; }
 
 void *RMSSourceGetMonitor(void *source)
-{ return (__bridge void *)((__bridge RMSSource *)source)->mMonitor; }
+{ return (__bridge void *)RMSSourceBridge(source)->mMonitor; }
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-- (RMSSource *) source
-{ return mSource; }
-
-- (RMSSource *) filter
-{ return mFilter; }
-
-- (RMSSource *) monitor
-{ return mMonitor; }
+- (RMSLink *) source
+{
+	if (mSource == nil)
+	{ mSource = [RMSLink new]; }
+	return mSource;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) setSource:(RMSSource *)source
+- (RMSLink *) filter
 {
-	if (mSource != source)
-	{
-		id oldSource = mSource;
-		
-		if (self.shouldUpdateSource == YES)
-		{ [source setSampleRate:self.sampleRate]; }
-		
-		mSource = source;
-
-		[self trashObject:oldSource];
-	}
+	if (mFilter == nil)
+	{ mFilter = [RMSLink new]; }
+	return mFilter;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (RMSLink *) monitor
+{
+	if (mMonitor == nil)
+	{ mMonitor = [RMSLink new]; }
+	return mMonitor;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setSource:(RMSSource *)source
+{ [self addSource:source]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) addSource:(RMSSource *)source
-{
-	if (mSource == nil)
-	{ [self setSource:source]; }
-	else
-	{ [mSource addSource:source]; }
-}
+{ [self.source addLink:source]; }
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) insertSource:(RMSSource *)source
+{ [self.source insertLink:source]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeSource:(RMSSource *)source
-{
-	if (mSource == source)
-	{ [self removeSource]; }
-	else
-	{ [mSource removeSource:source]; }
-}
+{ [mSource removeLink:source]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeSource
-{
-	if (mSource != nil)
-	{ [self setSource:[mSource source]]; }
-}
+{ [mSource removeLink]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setFilter:(RMSSource *)filter
-{
-	if (mFilter != filter)
-	{
-		id oldFilter = mFilter;
-		
-		[filter setSampleRate:[self sampleRate]];
-		mFilter = filter;
-		
-		[self trashObject:oldFilter];
-	}
-}
+{ [self addFilter:filter]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) addFilter:(RMSSource *)filter
-{
-	if (self == filter)
-	{ NSLog(@"%@", @"addFilter error!"); return; }
-	
-	if (mFilter == nil)
-	{ [self setFilter:filter]; }
-	else
-	{ [mFilter addFilter:filter]; }
-}
+{ [self.filter addLink:filter]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) insertFilter:(RMSSource *)filter
-{
-	if (mFilter != nil)
-	{ [filter addFilter:mFilter]; }
-	[self setFilter:filter];
-}
+{ [self.filter insertLink:filter]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeFilter:(RMSSource *)filter
-{
-	if (mFilter == filter)
-	{ [self removeFilter]; }
-	else
-	{ [mFilter removeFilter:filter]; }
-}
+{ [mFilter removeLink:filter]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeFilter
-{
-	if (mFilter != nil)
-	{ [self setFilter:[mFilter filter]]; }
-}
+{ [mFilter removeLink]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setMonitor:(RMSSource *)monitor
-{
-	if (mMonitor != monitor)
-	{
-		id oldMonitor = mMonitor;
-		
-		[monitor setSampleRate:[self sampleRate]];
-		mMonitor = monitor;
-		
-		[self trashObject:oldMonitor];
-	}
-}
+{ [self addMonitor:monitor]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) addMonitor:(RMSSource *)monitor
-{
-	if (self == monitor)
-	{ NSLog(@"%@", @"addMonitor error!"); return; }
+{ [self.monitor addLink:monitor]; }
 
-	if (mMonitor == nil)
-	{ [self setMonitor:monitor]; }
-	else
-	{ [mMonitor addMonitor:monitor]; }
-}
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) insertMonitor:(RMSSource *)monitor
+{ [self.monitor insertLink:monitor]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeMonitor:(RMSSource *)monitor
-{
-	if (mMonitor == monitor)
-	{ [self removeMonitor]; }
-	else
-	{ [mMonitor removeMonitor:monitor]; }
-}
+{ [mMonitor removeLink:monitor]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeMonitor
-{
-	if (mMonitor != nil)
-	{ [self setMonitor:[mMonitor monitor]]; }
-}
+{ [mMonitor removeLink]; }
 
 ////////////////////////////////////////////////////////////////////////////////
-#pragma mark
+#pragma mark 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (Float64) sampleRate
@@ -367,13 +319,22 @@ void *RMSSourceGetMonitor(void *source)
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setSourceSampleRate:(Float64)sampleRate
-{ [mSource setSampleRate:sampleRate]; }
+{
+	[mSource makeLinksPerformSelector:@selector(setSampleRate:)
+	withObject:[NSNumber numberWithDouble:sampleRate]];
+}
 
 - (void) setFilterSampleRate:(Float64)sampleRate
-{ [mFilter setSampleRate:sampleRate]; }
+{
+	[mFilter makeLinksPerformSelector:@selector(setSampleRate:)
+	withObject:[NSNumber numberWithDouble:sampleRate]];
+}
 
 - (void) setMonitorSampleRate:(Float64)sampleRate
-{ [mMonitor setSampleRate:sampleRate]; }
+{
+	[mMonitor makeLinksPerformSelector:@selector(setSampleRate:)
+	withObject:[NSNumber numberWithDouble:sampleRate]];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 @end

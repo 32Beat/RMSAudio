@@ -7,8 +7,8 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#import "RMSLink.h"
+#import "RMSSource.h"
 
-@interface RMSMixer : RMSLink
+@interface RMSMixer : RMSSource
 
 @end

@@ -73,7 +73,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 - (void) addSource:(RMSSource *)source
 {
-	RMSLink *mixerSource = [RMSLink new];
+	RMSSource *mixerSource = [RMSSource new];
 	mixerSource.source = source;
 	mixerSource.filter = [RMSVolume new];
 	mixerSource.monitor = [RMSSampleMonitor new];

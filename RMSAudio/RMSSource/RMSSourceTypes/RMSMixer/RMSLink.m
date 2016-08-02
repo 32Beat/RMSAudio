@@ -12,38 +12,113 @@
 #import "RMSUtilities.h"
 #import "RMSAudio.h"
 
+
+@interface RMSLink ()
+{
+	RMSLink *mLink;
+
+	RMSLink *mTrash;
+	NSTimer *mTrashTimer;
+	void *mTrashSeen;
+}
+@end
+
+
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSLink
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark Trash Management
+////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
+- (void) trashObject:(id)object
 {
-	OSStatus result = noErr;
-	
-	void *source = RMSSourceGetSource(rmsObject);
-	if (source != nil)
-	{ result = RunRMSSource(source, infoPtr); }
-	
-	return result;
+	if (object != nil)
+	{ [self insertTrash:object]; }
+	[self updateTrash:nil];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-+ (const RMSCallbackProcPtr) callbackProcPtr
-{ return renderCallback; }
+- (void) insertTrash:(id)object
+{
+	if (mTrash != nil)
+	{ [object insertTrash:mTrash]; }
+	mTrash = object;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) removeTrash:(void *)object
+{
+	if (mTrash == object)
+	{ mTrash = nil; }
+	else
+	{ [mTrash removeTrash:object]; }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) updateTrash:(id)sender
+{
+	// Reset timer if necessary
+	if (mTrashTimer == sender)
+	{ mTrashTimer = nil; }
+	
+	if (mTrashSeen != nil)
+	{
+		[self removeTrash:mTrashSeen];
+		mTrashSeen = nil;
+	}
+	
+	// Try emptying more trash later if necessary
+	if (mTrash != nil)
+	{
+		/*
+			caller is either a previous timer, 
+			or the trashObject method. In the latter case 
+			there may already be an active timer.
+		*/
+		if (mTrashTimer == nil)
+		{
+			mTrashTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+			target:self selector:@selector(updateTrash:) userInfo:nil repeats:NO];
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+// macro for condensed, unmanaged access
+// for use by the audiothread
+#define RMSLinkBridge(objectPtr) \
+((__bridge __unsafe_unretained RMSLink *)(objectPtr))
+////////////////////////////////////////////////////////////////////////////////
+
+void *RMSLinkGetLink(void *linkPtr)
+{ return (__bridge void *)RMSLinkBridge(linkPtr)->mLink; }
+
+void RMSLinkUpdateTrash(void *linkPtr)
+{
+	__unsafe_unretained RMSLink *link =
+	(__bridge __unsafe_unretained RMSLink *)linkPtr;
+
+	// Communicate current trash to main
+	if (link != nil && link->mTrash != nil)
+	{
+		if (link->mTrashSeen == nil)
+		{
+			link->mTrashSeen = (__bridge void *)link->mTrash;
+		}
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-void *RMSLinkGetLink(void *source)
-{ return (__bridge void *)((__bridge RMSLink *)source)->mLink; }
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark
-////////////////////////////////////////////////////////////////////////////////
-
-- (RMSLink *) link
+- (id) link
 { return mLink; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,11 +127,9 @@ void *RMSLinkGetLink(void *source)
 {
 	if (mLink != link)
 	{
-		id oldLink = mLink;
-		
+		id trash = mLink;
 		mLink = link;
-
-		[self trashObject:oldLink];
+		[self trashObject:trash];
 	}
 }
 
@@ -68,6 +141,15 @@ void *RMSLinkGetLink(void *source)
 	{ [self setLink:link]; }
 	else
 	{ [mLink addLink:link]; }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) insertLink:(RMSLink *)link
+{
+	if (mLink != nil)
+	{ [link addLink:mLink]; }
+	[self setLink:link];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,13 +171,15 @@ void *RMSLinkGetLink(void *source)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#pragma mark
-////////////////////////////////////////////////////////////////////////////////
 
-- (void) setSampleRate:(Float64)sampleRate
+- (void) makeLinksPerformSelector:(SEL)selector withObject:(id)object
 {
-	[super setSampleRate:sampleRate];
-	[mLink setSampleRate:sampleRate];
+	RMSLink *link = self.link;
+	while (link != nil)
+	{
+		[link performSelector:selector withObject:object];
+		link = link.link;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

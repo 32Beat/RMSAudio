@@ -7,27 +7,32 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#import "RMSSource.h"
+#import <Foundation/Foundation.h>
 
-@interface RMSLink : RMSSource
+@interface RMSLink : NSObject
 {
-	RMSLink *mLink;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-- (RMSLink *) link;
-- (void) setLink:(RMSSource *)link;
-- (void) addLink:(RMSSource *)link;
-- (void) removeLink:(RMSSource *)link;
+
+- (void) trashObject:(id)object;
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (id) link;
+- (void) setLink:(RMSLink *)link;
+- (void) addLink:(RMSLink *)link;
+- (void) insertLink:(RMSLink *)link;
+- (void) removeLink:(RMSLink *)link;
 - (void) removeLink;
 
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) setSampleRate:(Float64)sampleRate;
+- (void) makeLinksPerformSelector:(SEL)selector withObject:(id)object;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Get the value of the corresponding objectpointers in an RMSSource
-void *RMSLinkGetLink(void *source);
+
+// unmanaged access for audiothread use
+void *RMSLinkGetLink(void *linkPtr);
+void RMSLinkUpdateTrash(void *linkPtr);
 
 @end
 ////////////////////////////////////////////////////////////////////////////////

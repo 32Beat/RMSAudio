@@ -7,6 +7,7 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+#import "RMSLink.h"
 #import <AudioToolbox/AudioToolbox.h>
 #import <AudioUnit/AudioUnit.h>
 #import <Foundation/Foundation.h>
@@ -83,7 +84,7 @@ OSStatus RunRMSCallback
 	(See RMSSampleMonitor for an example).
 */
 
-@interface RMSCallback : NSObject
+@interface RMSCallback : RMSLink
 
 + (const RMSCallbackProcPtr) callbackProcPtr;
 - (const RMSCallbackDataPtr) callbackDataPtr;

@@ -388,7 +388,7 @@ AudioUnitElement	inElement)
 
 - (void) setSampleRate:(Float64)sampleRate
 {
-	[mSource setSampleRate:sampleRate];
+	[self setSourceSampleRate:sampleRate];
 	[super setSampleRate:sampleRate];
 	[self setInputSampleRate:sampleRate];
 }
@@ -400,7 +400,7 @@ AudioUnitElement	inElement)
 	Float64 srcRate = [self inputScopeSampleRate];
 	if (srcRate != sampleRate)
 	{
-		[mSource setSampleRate:sampleRate];
+		[self setSourceSampleRate:sampleRate];
 		[super setInputSampleRate:sampleRate];
 	}
 }

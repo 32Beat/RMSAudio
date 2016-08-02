@@ -145,8 +145,8 @@
 		137CB2C61D4385DA00AA241A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		137CB2C91D4385DA00AA241A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		137CB2CB1D4385DA00AA241A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		137EA07B1D4DCF9A00961DBA /* RMSLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSLink.h; sourceTree = "<group>"; };
-		137EA07C1D4DCF9A00961DBA /* RMSLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSLink.m; sourceTree = "<group>"; };
+		137EA07B1D4DCF9A00961DBA /* RMSLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RMSLink.h; path = RMSSourceTypes/RMSMixer/RMSLink.h; sourceTree = "<group>"; };
+		137EA07C1D4DCF9A00961DBA /* RMSLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RMSLink.m; path = RMSSourceTypes/RMSMixer/RMSLink.m; sourceTree = "<group>"; };
 		13C2F9041D4CB26800B35F3E /* RMSAudioUnitConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnitConverter.h; sourceTree = "<group>"; };
 		13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitConverter.m; sourceTree = "<group>"; };
 		13C2F9091D4CD28300B35F3E /* RMSMixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSMixer.h; sourceTree = "<group>"; };
@@ -213,6 +213,8 @@
 		13488BA51D447031009E99D6 /* RMSSource */ = {
 			isa = PBXGroup;
 			children = (
+				137EA07B1D4DCF9A00961DBA /* RMSLink.h */,
+				137EA07C1D4DCF9A00961DBA /* RMSLink.m */,
 				13488BA61D447031009E99D6 /* RMSCallback.h */,
 				13488BA71D447031009E99D6 /* RMSCallback.m */,
 				13488BA81D447031009E99D6 /* RMSSource.h */,
@@ -456,8 +458,6 @@
 		13C2F9081D4CD28300B35F3E /* RMSMixer */ = {
 			isa = PBXGroup;
 			children = (
-				137EA07B1D4DCF9A00961DBA /* RMSLink.h */,
-				137EA07C1D4DCF9A00961DBA /* RMSLink.m */,
 				13C2F9091D4CD28300B35F3E /* RMSMixer.h */,
 				13C2F90A1D4CD28300B35F3E /* RMSMixer.m */,
 			);

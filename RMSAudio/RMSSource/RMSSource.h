@@ -65,21 +65,21 @@
 {
 	Float64 mSampleRate;
 
-	RMSSource *mSource;
-	RMSSource *mFilter;
-	RMSSource *mMonitor;
+	RMSLink *mSource;
+	RMSLink *mFilter;
+	RMSLink *mMonitor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 @property (nonatomic, assign) BOOL shouldUpdateSource;
 
-- (RMSSource *) source;
+- (RMSLink *) source;
 - (void) setSource:(RMSSource *)source;
 - (void) addSource:(RMSSource *)source;
 - (void) removeSource:(RMSSource *)source;
 - (void) removeSource;
 
-- (RMSSource *) filter;
+- (RMSLink *) filter;
 - (void) setFilter:(RMSSource *)filter;
 - (void) addFilter:(RMSSource *)filter;
 - (void) insertFilter:(RMSSource *)filter;
@@ -96,7 +96,9 @@
 
 - (Float64) sampleRate;
 - (void) setSampleRate:(Float64)sampleRate;
-
+- (void) setSourceSampleRate:(Float64)sampleRate;
+- (void) setFilterSampleRate:(Float64)sampleRate;
+- (void) setMonitorSampleRate:(Float64)sampleRate;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) trashObject:(id)object;

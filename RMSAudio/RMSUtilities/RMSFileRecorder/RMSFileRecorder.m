@@ -48,6 +48,7 @@
 
 - (void) dealloc
 {
+	NSLog(@"dealloc: %@", self);
 	if (mFileRef != nil)
 	{
 		ExtAudioFileDispose(mFileRef);

@@ -140,6 +140,22 @@ OSStatus RunRMSSource(void *objectPtr, const RMSCallbackInfo *infoPtr)
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
+
+static OSStatus renderCallback(void *sourcePtr, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus error = noErr;
+	
+	error = RunRMSSourceChain(sourcePtr, infoPtr);
+
+	return error;
+}
+
++ (const RMSCallbackProcPtr) callbackProcPtr
+{ return renderCallback; }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 // macro for condensed, unmanaged access
 // for use by the audiothread
 #define RMSSourceBridge(objectPtr) \
@@ -192,17 +208,29 @@ void *RMSSourceGetMonitor(void *source)
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setSource:(RMSSource *)source
-{ [self.source setLink:source]; }
+{
+	if (self.shouldUpdateSource == YES)
+	{ [source setSampleRate:self.sampleRate]; }
+	[self.source setLink:source];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) addSource:(RMSSource *)source
-{ [self.source addLink:source]; }
+{
+	if (self.shouldUpdateSource == YES)
+	{ [source setSampleRate:self.sampleRate]; }
+	[self.source addLink:source];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) insertSource:(RMSSource *)source
-{ [self.source insertLink:source]; }
+{
+	if (self.shouldUpdateSource == YES)
+	{ [source setSampleRate:self.sampleRate]; }
+	[self.source insertLink:source];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -219,17 +247,26 @@ void *RMSSourceGetMonitor(void *source)
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setFilter:(RMSSource *)filter
-{ [self addFilter:filter]; }
+{
+	[filter setSampleRate:self.sampleRate];
+	[self setLink:filter];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) addFilter:(RMSSource *)filter
-{ [self.filter addLink:filter]; }
+{
+	[filter setSampleRate:self.sampleRate];
+	[self.filter addLink:filter];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) insertFilter:(RMSSource *)filter
-{ [self.filter insertLink:filter]; }
+{
+	[filter setSampleRate:self.sampleRate];
+	[self.filter insertLink:filter];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -246,17 +283,26 @@ void *RMSSourceGetMonitor(void *source)
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setMonitor:(RMSSource *)monitor
-{ [self addMonitor:monitor]; }
+{
+	[monitor setSampleRate:self.sampleRate];
+	[self addMonitor:monitor];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) addMonitor:(RMSSource *)monitor
-{ [self.monitor addLink:monitor]; }
+{
+	[monitor setSampleRate:self.sampleRate];
+	[self.monitor addLink:monitor];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) insertMonitor:(RMSSource *)monitor
-{ [self.monitor insertLink:monitor]; }
+{
+	[monitor setSampleRate:self.sampleRate];
+	[self.monitor insertLink:monitor];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

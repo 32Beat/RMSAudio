@@ -36,28 +36,32 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	__unsafe_unretained RMSMixer *rmsMixer = \
 	(__bridge __unsafe_unretained RMSMixer *)rmsObject;
 
-
-	void *link = RMSLinkGetLink(rmsObject);
+	// get sources link
+	void *source = RMSSourceGetSource(rmsObject);
+	if (source == nil) return noErr;
 	
+	// get first source
+	void *link = RMSLinkGetLink(source);
 	while (link != nil)
 	{
 		// get local copy of callbackInfo
 		RMSCallbackInfo localInfo = *infoPtr;
 
-		// get local copy of stereoBufferList
+		// get local copy of cache bufferList
 		RMSStereoBufferList stereoBuffers = rmsMixer->mStereoBuffer;
 		
 		// reset bufferListPtr
 		localInfo.bufferListPtr = &stereoBuffers.list;
 		
+		// run entire source (callback + filters + monitors)
 		result = RunRMSSource(link, &localInfo);
-		if (result == noErr)
-		{
-			// add localInfo->bufferListPtr to infoPtr->bufferListPtr
-			RMSAudioBufferList_AddFrames
-			(localInfo.bufferListPtr, infoPtr->bufferListPtr, infoPtr->frameCount);
-		}
+		if (result != noErr) return result;
+
+		// add localInfo->bufferListPtr to infoPtr->bufferListPtr
+		RMSAudioBufferList_AddFrames
+		(localInfo.bufferListPtr, infoPtr->bufferListPtr, infoPtr->frameCount);
 		
+		// get next source
 		link = RMSLinkGetLink(link);
 	}
 
@@ -82,7 +86,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	[mixerSource setSampleRate:self.sampleRate];
 	
 	// for the audio thread
-	[self addLink:mixerSource];
+	[super addSource:mixerSource];
 
 	// for the management thread
 	[self.sourceObjects addObject:mixerSource];

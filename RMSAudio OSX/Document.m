@@ -304,15 +304,26 @@
 				source = [RMSVarispeed instanceWithSource:source];
 			}
 //*/
+
 /*
+// RMSAudioUnitConverter test
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
 			{
 				// change source to resampler with original source
 				source = [RMSAudioUnitConverter instanceWithSource:source];
 			}
-	
 //*/
+
+/* 
+//mixer test
+			if (self.mixer == nil)
+			{ self.mixer = [RMSMixer new]; }
+			
+			[self.mixer addSource:source];
+			source = self.mixer;
+//*/
+
 			[output setSource:source];
 			mLevels.sampleRate = 0.0;
 			

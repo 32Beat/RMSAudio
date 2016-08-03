@@ -93,7 +93,7 @@
 
 	if (error != noErr) return error;
 	
-	error = ExtAudioFileWriteAsync(mFileRef, 0, nil);
+	//error = ExtAudioFileWriteAsync(mFileRef, 0, nil);
 	
 	return error;
 }

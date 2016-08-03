@@ -46,15 +46,13 @@ static OSStatus renderCallback(
 		timeStamp = &sampleTime;
 		return paramErr;
 	}
-
+	
 	RMSCallbackInfo info;
 	info.frameIndex = timeStamp->mSampleTime;
 	info.frameCount = frameCount;
 	info.bufferListPtr = bufferList;
-		
-	OSStatus result = RunRMSSource(RMSSourceGetSource(inRefCon), &info);
-	
-	return result;
+
+	return RunRMSSourceChain(inRefCon, &info);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

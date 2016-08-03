@@ -172,9 +172,6 @@ static OSStatus outputCallback(
 
 static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
-	// initialize return value
-	OSStatus result = noErr;
-
 	// silence outputbuffers
 	RMSAudioBufferList_ClearFrames(infoPtr->bufferListPtr, infoPtr->frameCount);
 
@@ -184,7 +181,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 	// test RMSOutput samplerate against AudioUnit samplerate
 	Float64 sampleRate = 0.0;
-	result = RMSAudioUnitGetOutputScopeSampleRateAtIndex(rmsOutput->mAudioUnit, 0, &sampleRate);
+	RMSAudioUnitGetOutputScopeSampleRateAtIndex(rmsOutput->mAudioUnit, 0, &sampleRate);
 	if ((sampleRate != 0.0) && (sampleRate != rmsOutput->mSampleRate))
 	{
 		/*
@@ -199,13 +196,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		return paramErr;
 	}
 	
-	void *source = RMSSourceGetSource(rmsObject);
-	if (source != nil)
-	{
-		result = RunRMSChain(source, infoPtr);
-	}
-	
-	return result;
+	return RunRMSSourceChain(rmsObject, infoPtr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -290,7 +290,7 @@
 		RMSSource *source = self.inputSource;
 		if (source != nil)
 		{
-//*
+/*
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
 			{
@@ -312,6 +312,16 @@
 			{
 				// change source to resampler with original source
 				source = [RMSAudioUnitConverter instanceWithSource:source];
+			}
+//*/
+
+//*
+// RMSVarispeed test
+			// check for sampleRate conversion
+			if (source.sampleRate != output.sampleRate) \
+			{
+				// change source to resampler with original source
+				source = [RMSVarispeed instanceWithSource:source];
 			}
 //*/
 

@@ -10,8 +10,6 @@
 #import <Foundation/Foundation.h>
 
 @interface RMSLink : NSObject
-{
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +24,8 @@
 - (void) removeLink:(RMSLink *)link;
 - (void) removeLink;
 
-- (void) makeLinksPerformSelector:(SEL)selector withObject:(id)object;
+- (id) linkAtIndex:(UInt32)index;
+- (void) iterateLinksUsingBlock:(void (^)(RMSLink *link))blockPtr;
 
 ////////////////////////////////////////////////////////////////////////////////
 

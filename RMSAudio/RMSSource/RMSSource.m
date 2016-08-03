@@ -28,82 +28,21 @@
 */
 @interface RMSSource ()
 {
-	RMSSource *mTrash;
-	NSTimer *mTrashTimer;
-	void *mTrashSeen;
+	RMSLink *mSource;
+	RMSLink *mFilter;
+	RMSLink *mMonitor;
 }
 @end
 
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSSource
 ////////////////////////////////////////////////////////////////////////////////
-#pragma mark
-#pragma mark Trash Management
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) trashObject:(id)object
-{
-	if (object != nil)
-	{ [self insertTrash:object]; }
-	[self updateTrash:nil];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) insertTrash:(id)object
-{
-	if (mTrash != nil)
-	{ [object insertTrash:mTrash]; }
-	mTrash = object;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) removeTrash:(void *)object
-{
-	if (mTrash == object)
-	{ mTrash = nil; }
-	else
-	{ [mTrash removeTrash:object]; }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) updateTrash:(id)sender
-{
-	// Reset timer if necessary
-	if (mTrashTimer == sender)
-	{ mTrashTimer = nil; }
-	
-	if (mTrashSeen != nil)
-	{
-		[self removeTrash:mTrashSeen];
-		mTrashSeen = nil;
-	}
-	
-	// Try emptying more trash later if necessary
-	if (mTrash != nil)
-	{
-		/*
-			caller is either a previous timer, 
-			or the trashObject method. In the latter case 
-			there may already be an active timer.
-		*/
-		if (mTrashTimer == nil)
-		{
-			mTrashTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-			target:self selector:@selector(updateTrash:) userInfo:nil repeats:NO];
-		}
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark
-////////////////////////////////////////////////////////////////////////////////
 
 OSStatus RunRMSChain(void *link, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
+	
+	RMSLinkUpdateTrash(link);
 	
 	link = RMSLinkGetLink(link);
 	while (link != nil)
@@ -115,6 +54,45 @@ OSStatus RunRMSChain(void *link, const RMSCallbackInfo *infoPtr)
 	}
 	
 	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RunRMSSourceChain(void *source, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus  error = noErr;
+	
+	void *link = RMSSourceGetSource(source);
+	if (link != nil)
+	{ error = RunRMSChain(link, infoPtr); }
+	
+	return error;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RunRMSFilterChain(void *source, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus  error = noErr;
+	
+	void *link = RMSSourceGetFilter(source);
+	if (link != nil)
+	{ error = RunRMSChain(link, infoPtr); }
+	
+	return error;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RunRMSMonitorChain(void *source, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus  error = noErr;
+	
+	void *link = RMSSourceGetMonitor(source);
+	if (link != nil)
+	{ error = RunRMSChain(link, infoPtr); }
+	
+	return error;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -142,27 +120,19 @@ OSStatus RunRMSChain(void *link, const RMSCallbackInfo *infoPtr)
 
 */
 
-OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
+OSStatus RunRMSSource(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
 	// Run the callback for self
-	OSStatus result = RunRMSCallback(rmsObject, infoPtr);
+	OSStatus result = RunRMSCallback(objectPtr, infoPtr);
 	if (result != noErr) return result;
 	
 	// Run the filters if available
-	void *filter = RMSSourceGetFilter(rmsObject);
-	if (filter != nil)
-	{
-		result = RunRMSChain(filter, infoPtr);
-		if (result != noErr) return result;
-	}
+	result = RunRMSFilterChain(objectPtr, infoPtr);
+	if (result != noErr) return result;
 	
 	// Run the monitors if available
-	void *monitor = RMSSourceGetMonitor(rmsObject);
-	if (monitor != nil)
-	{
-		result = RunRMSChain(monitor, infoPtr);
-		if (result != noErr) return result;
-	}
+	result = RunRMSMonitorChain(objectPtr, infoPtr);
+	if (result != noErr) return result;
 	
 	return result;
 }
@@ -196,6 +166,9 @@ void *RMSSourceGetMonitor(void *source)
 	return mSource;
 }
 
+- (RMSSource *) sourceAtIndex:(UInt32)n
+{ return [mSource linkAtIndex:n]; }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 - (RMSLink *) filter
@@ -219,7 +192,7 @@ void *RMSSourceGetMonitor(void *source)
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) setSource:(RMSSource *)source
-{ [self addSource:source]; }
+{ [self.source setLink:source]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -320,20 +293,20 @@ void *RMSSourceGetMonitor(void *source)
 
 - (void) setSourceSampleRate:(Float64)sampleRate
 {
-	[mSource makeLinksPerformSelector:@selector(setSampleRate:)
-	withObject:[NSNumber numberWithDouble:sampleRate]];
+	[mSource iterateLinksUsingBlock:^(RMSLink *link)
+	{ ((RMSSource *)link).sampleRate = sampleRate; }];
 }
 
 - (void) setFilterSampleRate:(Float64)sampleRate
 {
-	[mFilter makeLinksPerformSelector:@selector(setSampleRate:)
-	withObject:[NSNumber numberWithDouble:sampleRate]];
+	[mFilter iterateLinksUsingBlock:^(RMSLink *link)
+	{ ((RMSSource *)link).sampleRate = sampleRate; }];
 }
 
 - (void) setMonitorSampleRate:(Float64)sampleRate
 {
-	[mMonitor makeLinksPerformSelector:@selector(setSampleRate:)
-	withObject:[NSNumber numberWithDouble:sampleRate]];
+	[mMonitor iterateLinksUsingBlock:^(RMSLink *link)
+	{ ((RMSSource *)link).sampleRate = sampleRate; }];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

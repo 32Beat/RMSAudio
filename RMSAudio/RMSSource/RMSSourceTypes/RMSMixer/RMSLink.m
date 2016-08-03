@@ -18,8 +18,8 @@
 	RMSLink *mLink;
 
 	RMSLink *mTrash;
-	NSTimer *mTrashTimer;
 	void *mTrashSeen;
+	NSTimer *mTrashTimer;
 }
 @end
 
@@ -35,7 +35,7 @@
 {
 	if (object != nil)
 	{ [self insertTrash:object]; }
-	[self updateTrash:nil];
+	[self updateTrash];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,12 +59,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) updateTrash:(id)sender
+- (void) updateTrash
 {
-	// Reset timer if necessary
-	if (mTrashTimer == sender)
-	{ mTrashTimer = nil; }
-	
 	if (mTrashSeen != nil)
 	{
 		[self removeTrash:mTrashSeen];
@@ -74,16 +70,9 @@
 	// Try emptying more trash later if necessary
 	if (mTrash != nil)
 	{
-		/*
-			caller is either a previous timer, 
-			or the trashObject method. In the latter case 
-			there may already be an active timer.
-		*/
-		if (mTrashTimer == nil)
-		{
-			mTrashTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-			target:self selector:@selector(updateTrash:) userInfo:nil repeats:NO];
-		}
+		dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, 1.0e+8);
+		dispatch_after(time, dispatch_get_main_queue(),
+		^{ [self updateTrash]; });
 	}
 }
 
@@ -104,7 +93,6 @@ void RMSLinkUpdateTrash(void *linkPtr)
 	__unsafe_unretained RMSLink *link =
 	(__bridge __unsafe_unretained RMSLink *)linkPtr;
 
-	// Communicate current trash to main
 	if (link != nil && link->mTrash != nil)
 	{
 		if (link->mTrashSeen == nil)
@@ -116,6 +104,13 @@ void RMSLinkUpdateTrash(void *linkPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) dealloc
+{
+	NSLog(@"%@", self);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 - (id) link
@@ -138,7 +133,7 @@ void RMSLinkUpdateTrash(void *linkPtr)
 - (void) addLink:(RMSLink *)link
 {
 	if (mLink == nil)
-	{ [self setLink:link]; }
+	{ mLink = link; }
 	else
 	{ [mLink addLink:link]; }
 }
@@ -149,7 +144,7 @@ void RMSLinkUpdateTrash(void *linkPtr)
 {
 	if (mLink != nil)
 	{ [link addLink:mLink]; }
-	[self setLink:link];
+	mLink = link;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -172,12 +167,28 @@ void RMSLinkUpdateTrash(void *linkPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) makeLinksPerformSelector:(SEL)selector withObject:(id)object
+- (id) linkAtIndex:(UInt32)index
+{
+	RMSLink *link = self.link;
+	UInt32 n = 0;
+	
+	while (link != nil && n != index)
+	{
+		link = link.link;
+		n += 1;
+	}
+	
+	return link;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) iterateLinksUsingBlock:(void (^)(RMSLink *link))blockPtr
 {
 	RMSLink *link = self.link;
 	while (link != nil)
 	{
-		[link performSelector:selector withObject:object];
+		blockPtr(link);
 		link = link.link;
 	}
 }

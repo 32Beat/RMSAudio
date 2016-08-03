@@ -64,16 +64,14 @@
 @interface RMSSource : RMSCallback
 {
 	Float64 mSampleRate;
-
-	RMSLink *mSource;
-	RMSLink *mFilter;
-	RMSLink *mMonitor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 @property (nonatomic, assign) BOOL shouldUpdateSource;
 
 - (RMSLink *) source;
+- (RMSSource *) sourceAtIndex:(UInt32)n;
+
 - (void) setSource:(RMSSource *)source;
 - (void) addSource:(RMSSource *)source;
 - (void) removeSource:(RMSSource *)source;
@@ -99,9 +97,8 @@
 - (void) setSourceSampleRate:(Float64)sampleRate;
 - (void) setFilterSampleRate:(Float64)sampleRate;
 - (void) setMonitorSampleRate:(Float64)sampleRate;
-////////////////////////////////////////////////////////////////////////////////
 
-- (void) trashObject:(id)object;
+////////////////////////////////////////////////////////////////////////////////
 
 // Get the value of the corresponding objectpointers in an RMSSource
 void *RMSSourceGetSource(void *source);
@@ -120,6 +117,11 @@ void *RMSSourceGetMonitor(void *source);
 	Can be used in a rendercallback to produce audio from a source
 */
 OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr);
+
+OSStatus RunRMSSourceChain(void *source, const RMSCallbackInfo *infoPtr);
+OSStatus RunRMSFilterChain(void *source, const RMSCallbackInfo *infoPtr);
+OSStatus RunRMSMonitorChain(void *source, const RMSCallbackInfo *infoPtr);
+OSStatus RunRMSChain(void *link, const RMSCallbackInfo *infoPtr);
 
 ////////////////////////////////////////////////////////////////////////////////
 

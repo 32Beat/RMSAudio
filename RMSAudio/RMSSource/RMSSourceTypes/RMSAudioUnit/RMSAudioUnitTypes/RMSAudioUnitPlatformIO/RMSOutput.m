@@ -199,9 +199,10 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		return paramErr;
 	}
 	
-	if (rmsOutput->mSource != nil)
+	void *source = RMSSourceGetSource(rmsObject);
+	if (source != nil)
 	{
-		result = RunRMSSource((__bridge void *)rmsOutput->mSource, infoPtr);
+		result = RunRMSChain(source, infoPtr);
 	}
 	
 	return result;

@@ -88,11 +88,15 @@ static OSStatus RefreshBuffer(void *rmsObject, UInt64 index)
 	info.bufferListPtr = (AudioBufferList *)&rmsSource->mSrcList;
 
 	// fetch source samples
-	result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
-	if (result == noErr)
+	void *source = RMSSourceGetSource(rmsObject);
+	if (source != nil)
 	{
-		rmsSource->mSrcListIndex = info.frameIndex;
-		rmsSource->mSrcListCount = info.frameCount;
+		result = RunRMSChain(source, &info);
+		if (result == noErr)
+		{
+			rmsSource->mSrcListIndex = info.frameIndex;
+			rmsSource->mSrcListCount = info.frameCount;
+		}
 	}
 	
 	return result;
@@ -389,7 +393,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 - (void) updateRatio
 {
-	double srcRate = [mSource sampleRate];
+	double srcRate = [[self sourceAtIndex:0] sampleRate];
 	double dstRate = [self sampleRate];
 	
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;

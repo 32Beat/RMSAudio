@@ -47,16 +47,12 @@ static OSStatus renderCallback(
 		return paramErr;
 	}
 
-
-	__unsafe_unretained RMSAudioUnitVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSAudioUnitVarispeed *)inRefCon;
-
 	RMSCallbackInfo info;
 	info.frameIndex = timeStamp->mSampleTime;
 	info.frameCount = frameCount;
 	info.bufferListPtr = bufferList;
 		
-	OSStatus result = RunRMSSource((__bridge void *)rmsSource->mSource, &info);
+	OSStatus result = RunRMSChain(RMSSourceGetSource(inRefCon), &info);
 	
 	return result;
 }

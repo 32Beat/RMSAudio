@@ -19,7 +19,8 @@
 
 	RMSLink *mTrash;
 	void *mTrashSeen;
-	NSTimer *mTrashTimer;
+	
+	BOOL mTrashUpdatePending;
 }
 @end
 
@@ -69,10 +70,22 @@
 	
 	// Try emptying more trash later if necessary
 	if (mTrash != nil)
+	{ [self triggerTrashUpdate]; }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) triggerTrashUpdate
+{
+	if (mTrashUpdatePending == NO)
 	{
+		mTrashUpdatePending = YES;
 		dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, 1.0e+8);
 		dispatch_after(time, dispatch_get_main_queue(),
-		^{ [self updateTrash]; });
+		^{
+			mTrashUpdatePending = NO;
+			[self updateTrash];
+		});
 	}
 }
 

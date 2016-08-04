@@ -144,19 +144,6 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 	Float64 srcFraction = rmsSource->mSrcFraction;
 	const Float64 srcStep = rmsSource->mSrcStep;
 
-	// test if buffer is empty 
-	if ((srcIndex == 0)&&(srcFraction == 0.0))
-	{
-		for (UInt32 n=0; n!=3; n++)
-		{
-			float src[2];
-			RMSCacheFetch(objectPtr, n, src);
-			RMSStereoInterpolatorUpdate(&rmsSource->mInterpolator, src);
-		}
-
-		srcIndex += 3;
-	}
-
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
 		// test if next src sample is required
@@ -365,12 +352,28 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	double srcRate = [[self sourceAtIndex:0] sampleRate];
 	double dstRate = [self sampleRate];
 	
-	mFilterL = RMSFilterInit(0.5 * srcRate, dstRate);
-	mFilterR = RMSFilterInit(0.5 * srcRate, dstRate);
-	
+	if (srcRate < dstRate)
+	{
+		// remove high-freq after upsampling
+		mFilterL = RMSFilterInit(0.5 * srcRate, dstRate);
+		mFilterR = RMSFilterInit(0.5 * srcRate, dstRate);
+	}
+	else
+	{
+		// remove high-freq before downsampling
+		mFilterL = RMSFilterInit(0.5 * dstRate, srcRate);
+		mFilterR = RMSFilterInit(0.5 * dstRate, srcRate);
+	}
 	
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
 	
+	if (mSrcStep < 1.0)
+	{
+		// interpolators can be primed with 3 samples before first fetch
+		mSrcFraction = 3.0;
+		mResampleProc = InterpolateSource;
+	}
+	else
 	if (mSrcStep > 1.0)
 	{
 		mResampleProc = DecimateSource;
@@ -382,11 +385,10 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		}
 	}
 	else
-	if (mSrcStep == 1.0)
-	mResampleProc = nil;
-	else
-	if (mSrcStep < 1.0)
-	mResampleProc = InterpolateSource;
+	{
+		// this will simply invoke source for 1:1 samples
+		mResampleProc = nil;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

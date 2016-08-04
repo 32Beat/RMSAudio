@@ -67,6 +67,8 @@
 		137CB2CA1D4385DA00AA241A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */; };
 		137EA07D1D4DCF9A00961DBA /* RMSLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 137EA07C1D4DCF9A00961DBA /* RMSLink.m */; };
 		137EA07E1D4DCFA100961DBA /* RMSLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 137EA07C1D4DCF9A00961DBA /* RMSLink.m */; };
+		13BAC0C41D52FB4600E14AD0 /* RMSCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BAC0C31D52FB4600E14AD0 /* RMSCache.m */; };
+		13BAC0C51D52FB4600E14AD0 /* RMSCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BAC0C31D52FB4600E14AD0 /* RMSCache.m */; };
 		13C2F9061D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */; };
 		13C2F9071D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */; };
 		13C2F90B1D4CD28300B35F3E /* RMSMixer.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F90A1D4CD28300B35F3E /* RMSMixer.m */; };
@@ -147,6 +149,8 @@
 		137CB2CB1D4385DA00AA241A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		137EA07B1D4DCF9A00961DBA /* RMSLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RMSLink.h; path = RMSSourceTypes/RMSMixer/RMSLink.h; sourceTree = "<group>"; };
 		137EA07C1D4DCF9A00961DBA /* RMSLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RMSLink.m; path = RMSSourceTypes/RMSMixer/RMSLink.m; sourceTree = "<group>"; };
+		13BAC0C21D52FB4600E14AD0 /* RMSCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSCache.h; sourceTree = "<group>"; };
+		13BAC0C31D52FB4600E14AD0 /* RMSCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSCache.m; sourceTree = "<group>"; };
 		13C2F9041D4CB26800B35F3E /* RMSAudioUnitConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnitConverter.h; sourceTree = "<group>"; };
 		13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitConverter.m; sourceTree = "<group>"; };
 		13C2F9091D4CD28300B35F3E /* RMSMixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSMixer.h; sourceTree = "<group>"; };
@@ -227,6 +231,7 @@
 		13488BAA1D447031009E99D6 /* RMSSourceTypes */ = {
 			isa = PBXGroup;
 			children = (
+				13BAC0C11D52FB4600E14AD0 /* RMSCache */,
 				13CFA1CC1D4E0C9C00728B03 /* RMSClip */,
 				13C2F9081D4CD28300B35F3E /* RMSMixer */,
 				13488BAB1D447031009E99D6 /* RMSAudioUnit */,
@@ -446,6 +451,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		13BAC0C11D52FB4600E14AD0 /* RMSCache */ = {
+			isa = PBXGroup;
+			children = (
+				13BAC0C21D52FB4600E14AD0 /* RMSCache.h */,
+				13BAC0C31D52FB4600E14AD0 /* RMSCache.m */,
+			);
+			path = RMSCache;
+			sourceTree = "<group>";
+		};
 		13C2F9031D4CB26800B35F3E /* RMSAudioUnitConverter */ = {
 			isa = PBXGroup;
 			children = (
@@ -595,6 +609,7 @@
 				13488BFF1D447032009E99D6 /* rmsbuffer.c in Sources */,
 				13488BF11D447032009E99D6 /* RMSOutput.m in Sources */,
 				13488C0B1D447032009E99D6 /* RMSTimer.m in Sources */,
+				13BAC0C41D52FB4600E14AD0 /* RMSCache.m in Sources */,
 				13488C0D1D447032009E99D6 /* RMSUtilities.m in Sources */,
 				1305C0CD1D44712B0062E2CA /* Document.m in Sources */,
 				13488C111D447032009E99D6 /* RMSResultView.m in Sources */,
@@ -633,6 +648,7 @@
 				13488C001D447032009E99D6 /* rmsbuffer.c in Sources */,
 				13488BF21D447032009E99D6 /* RMSOutput.m in Sources */,
 				13488C0C1D447032009E99D6 /* RMSTimer.m in Sources */,
+				13BAC0C51D52FB4600E14AD0 /* RMSCache.m in Sources */,
 				13488C0E1D447032009E99D6 /* RMSUtilities.m in Sources */,
 				137CB2BF1D4385DA00AA241A /* AppDelegate.m in Sources */,
 				13488C121D447032009E99D6 /* RMSResultView.m in Sources */,

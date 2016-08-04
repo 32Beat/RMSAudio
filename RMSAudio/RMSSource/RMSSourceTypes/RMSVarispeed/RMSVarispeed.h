@@ -7,18 +7,15 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#import "RMSSource.h"
+#import "RMSCache.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO: this is currently a resampler/converter not a varispeed
 // TODO: probably requires renaming
 
-@interface RMSVarispeed : RMSSource
+@interface RMSVarispeed : RMSCache
 {
 }
-
-+ (instancetype) instanceWithSource:(RMSSource *)source;
-- (instancetype) initWithSource:(RMSSource *)source;
 
 @end
 

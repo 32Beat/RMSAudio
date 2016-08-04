@@ -121,7 +121,7 @@ void RMSLinkUpdateTrash(void *linkPtr)
 
 - (void) dealloc
 {
-	NSLog(@"%@", self);
+	NSLog(@"dealloc: %@", self);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

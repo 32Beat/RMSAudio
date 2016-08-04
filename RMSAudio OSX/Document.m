@@ -288,6 +288,8 @@
 		[output setSource:nil];
 		
 		RMSSource *source = self.inputSource;
+//		source = [RMSClip sineWaveWithLength:10];
+//		source.sampleRate = 8000;
 		if (source != nil)
 		{
 /*

@@ -23,6 +23,10 @@ typedef struct rmscrb_t
 
 	double C1;
 	double C2;
+	
+	double V1;
+	double V2;
+	double V3;
 }
 rmscrb_t;
 

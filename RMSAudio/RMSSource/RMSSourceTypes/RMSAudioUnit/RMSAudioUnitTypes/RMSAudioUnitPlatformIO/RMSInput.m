@@ -64,7 +64,11 @@ static inline OSStatus RMSRateInfoUpdate(RMSRateInfo *info)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
+	Note that the audioUnit doesn't seem to accept renderSizes < frameCount
+	The proper way to effectively reduce input responsetime on the desktop 
+	is to reduce the device bufferSize.
+*/
 static OSStatus inputCallback(
 	void *							refCon,
 	AudioUnitRenderActionFlags *	actionFlagsPtr,
@@ -78,34 +82,22 @@ static OSStatus inputCallback(
 	__unsafe_unretained RMSInput *rmsObject =
 	(__bridge __unsafe_unretained RMSInput *)refCon;
 
-	
 	rmsObject->mInputIsBusy = 1;
 
-
-		AudioTimeStamp localStamp = *timeStampPtr;
-		UInt32 burstIndex = 0;
-		UInt32 burstCount = 32;
+		// bufferListPtr is nil, use AudioUnitRender to render directly to ring buffer
+		RMSAudioBufferList stereoBuffer =
+		RMSRingBufferGetWriteBufferList(&rmsObject->mRingBuffer);
+		
+		result = AudioUnitRender(rmsObject->mAudioUnit, \
+		actionFlagsPtr, timeStampPtr, busNumber, frameCount, &stereoBuffer.list);
 	
-		while (burstIndex < frameCount)
+		if (rmsObject->mChannelCount == 1)
 		{
-			// bufferListPtr is nil, use AudioUnitRender to render directly to ring buffer
-			RMSAudioBufferList stereoBuffer =
-			RMSRingBufferGetWriteBufferList(&rmsObject->mRingBuffer);
-			
-			result = AudioUnitRender(rmsObject->mAudioUnit, \
-			actionFlagsPtr, &localStamp, busNumber, burstCount, &stereoBuffer.list);
-		
-			if (rmsObject->mChannelCount == 1)
-			{
-				RMSAudioBufferList_CopyBuffer
-				(&stereoBuffer.list, 0, &stereoBuffer.list, 1, burstCount);
-			}
-		
-			RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, burstCount);
-			
-			localStamp.mSampleTime += burstCount;
-			burstIndex += burstCount;
+			RMSAudioBufferList_CopyBuffer
+			(&stereoBuffer.list, 0, &stereoBuffer.list, 1, frameCount);
 		}
+	
+		RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
 	
 	rmsObject->mInputIsBusy = 0;
 
@@ -439,10 +431,8 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 - (OSStatus) prepareBuffers
 {
 	UInt32 frameCount = 512;
-	
-	[self setMaximumFramesPerSlice:32];
 	OSStatus result = RMSAudioUnitGetMaximumFramesPerSlice(mAudioUnit, &frameCount);
-
+	
 	if (frameCount < 512)
 	{ frameCount = 512; }
 	

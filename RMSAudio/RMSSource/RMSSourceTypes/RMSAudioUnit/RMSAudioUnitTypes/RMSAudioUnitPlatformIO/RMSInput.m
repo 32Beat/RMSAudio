@@ -36,6 +36,7 @@ RMSRateInfo;
 	UInt32 mInputIsBusy;
 	UInt32 mOutputIsBusy;
 	
+	UInt64 mIndex;
 	UInt32 mMaxFrameCount;
 	RMSRingBuffer mRingBuffer;
 }
@@ -72,35 +73,39 @@ static OSStatus inputCallback(
 	UInt32							frameCount,
 	AudioBufferList * __nullable	bufferListPtr)
 {
+	OSStatus result = noErr;
+	
 	__unsafe_unretained RMSInput *rmsObject =
 	(__bridge __unsafe_unretained RMSInput *)refCon;
 
 	
-	// This should raise an exception
-	UInt32 maxFrameCount = rmsObject->mMaxFrameCount;
-	if (frameCount > maxFrameCount)
-	{
-		NSLog(@"Input frameCount (%d) > kBufferSize (%d)", frameCount, maxFrameCount);
-		return paramErr;
-	}
-
-	
 	rmsObject->mInputIsBusy = 1;
 
-		// bufferListPtr is nil, use AudioUnitRender to render directly to ring buffer
-		RMSAudioBufferList stereoBuffer =
-		RMSRingBufferGetWriteBufferList(&rmsObject->mRingBuffer);
 
-		OSStatus result = AudioUnitRender(rmsObject->mAudioUnit, \
-		actionFlagsPtr, timeStampPtr, busNumber, frameCount, &stereoBuffer.list);
+		AudioTimeStamp localStamp = *timeStampPtr;
+		UInt32 burstIndex = 0;
+		UInt32 burstCount = 32;
 	
-		if (rmsObject->mChannelCount == 1)
+		while (burstIndex < frameCount)
 		{
-			RMSAudioBufferList_CopyBuffer
-			(&stereoBuffer.list, 0, &stereoBuffer.list, 1, frameCount);
+			// bufferListPtr is nil, use AudioUnitRender to render directly to ring buffer
+			RMSAudioBufferList stereoBuffer =
+			RMSRingBufferGetWriteBufferList(&rmsObject->mRingBuffer);
+			
+			result = AudioUnitRender(rmsObject->mAudioUnit, \
+			actionFlagsPtr, &localStamp, busNumber, burstCount, &stereoBuffer.list);
+		
+			if (rmsObject->mChannelCount == 1)
+			{
+				RMSAudioBufferList_CopyBuffer
+				(&stereoBuffer.list, 0, &stereoBuffer.list, 1, burstCount);
+			}
+		
+			RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, burstCount);
+			
+			localStamp.mSampleTime += burstCount;
+			burstIndex += burstCount;
 		}
-	
-		RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
 	
 	rmsObject->mInputIsBusy = 0;
 
@@ -293,6 +298,8 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	
 	if (device != nil)
 	{
+		result = [device setBufferSize:32];
+		
 		// Attach device on inputside of inputstream
 		result = AudioUnitAttachDevice(mAudioUnit, device.deviceID);
 		if (result != noErr) return result;
@@ -432,21 +439,18 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 - (OSStatus) prepareBuffers
 {
 	UInt32 frameCount = 512;
+	
+	[self setMaximumFramesPerSlice:32];
 	OSStatus result = RMSAudioUnitGetMaximumFramesPerSlice(mAudioUnit, &frameCount);
 
-	if (result != noErr)
-	{ NSLog(@"AudioUnitGetMaximumFramesPerSlice error: %ld", result); }
-		
-	UInt32 maxFrameCount = 2;
+	if (frameCount < 512)
+	{ frameCount = 512; }
+	
+	UInt32 maxFrameCount = 4;
 	while (maxFrameCount < frameCount)
 	{ maxFrameCount <<= 1; }
 	
 	frameCount = maxFrameCount;
-	
-	
-	if (frameCount == 0)
-	{ frameCount = 512; }
-	
 	
 	return [self prepareBuffersWithMaxFrameCount:frameCount];
 }

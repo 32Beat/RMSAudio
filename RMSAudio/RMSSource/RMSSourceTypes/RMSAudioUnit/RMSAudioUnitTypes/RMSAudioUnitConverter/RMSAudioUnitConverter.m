@@ -87,7 +87,8 @@ static OSStatus renderCallback(
 		
 		[self setSource:source];
 		[self setRenderQuality:1.0];
-
+		//[self setComplexity:2];
+		
 		[self initializeAudioUnit];
 	}
 	
@@ -125,6 +126,25 @@ static OSStatus renderCallback(
 
 - (void) setSourceSampleRate:(Float64)sampleRate
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setComplexity:(UInt32)N
+{
+	UInt32 C[] = {
+	kAudioUnitSampleRateConverterComplexity_Linear,
+	kAudioUnitSampleRateConverterComplexity_Normal,
+	kAudioUnitSampleRateConverterComplexity_Mastering };
+	
+	if (N > 2) N = 2;
+	
+	OSStatus error = AudioUnitSetGlobalProperty
+	(mAudioUnit, kAudioUnitProperty_SampleRateConverterComplexity, &C[N]);
+	
+	if (error != noErr)
+	{
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

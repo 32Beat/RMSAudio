@@ -27,6 +27,8 @@ typedef UInt32 AudioDeviceID;
 
 + (instancetype) instanceWithDeviceID:(AudioDeviceID)deviceID;
 
+- (OSStatus) setBufferSize:(UInt32)bufferSize;
+
 @end
 ////////////////////////////////////////////////////////////////////////////////
 

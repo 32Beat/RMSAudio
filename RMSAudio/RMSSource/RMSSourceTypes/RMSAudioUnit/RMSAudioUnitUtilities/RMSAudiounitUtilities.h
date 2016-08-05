@@ -26,6 +26,8 @@ OSStatus RMSAudioDeviceGetClass(AudioDeviceID deviceID, AudioClassID *classID);
 OSStatus RMSAudioDeviceGetName(AudioObjectID objectID, CFStringRef *str);
 OSStatus RMSAudioDeviceGetUniqueID(AudioDeviceID deviceID, CFStringRef *str);
 OSStatus RMSAudioDeviceGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sampleRate);
+OSStatus RMSAudioDeviceGetBufferFrameSize(AudioDeviceID deviceID, UInt32 *frameSize);
+OSStatus RMSAudioDeviceSetBufferFrameSize(AudioDeviceID deviceID, UInt32 frameSize);
 
 OSStatus AudioUnitAttachDevice
 (AudioUnit audioUnit, AudioDeviceID deviceID);

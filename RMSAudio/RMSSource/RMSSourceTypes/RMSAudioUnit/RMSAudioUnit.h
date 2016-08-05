@@ -31,6 +31,8 @@
 - (OSStatus) uninitializeAudioUnit;
 
 - (Float64) audioUnitLatency;
+- (void) setMaximumFramesPerSlice;
+- (void) setMaximumFramesPerSlice:(UInt32)frameCount;
 - (void) setRenderQuality:(float)quality;
 
 - (Float64) inputScopeSampleRate;

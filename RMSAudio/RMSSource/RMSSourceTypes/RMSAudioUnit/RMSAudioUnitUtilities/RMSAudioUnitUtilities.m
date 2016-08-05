@@ -64,6 +64,26 @@ OSStatus RMSAudioObjectGetGlobalProperty
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSAudioObjectSetGlobalProperty
+(AudioObjectID objectID, AudioObjectPropertySelector selectorID, void *dataPtr)
+{
+	AudioObjectPropertyAddress address = {
+		selectorID,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster };
+
+	UInt32 size = 0;
+	OSStatus error = AudioObjectGetPropertyDataSize(objectID, &address, 0, nil, &size);
+	if (error == noErr)
+	{
+		error = AudioObjectSetPropertyData(objectID, &address, 0, nil, size, dataPtr);
+	}
+	
+	return error;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark System Object Utilities
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -185,6 +205,22 @@ OSStatus RMSAudioDeviceGetNominalSampleRate(AudioDeviceID deviceID, Float64 *sam
 {
 	return RMSAudioObjectGetGlobalProperty
 	(deviceID, kAudioDevicePropertyNominalSampleRate, sampleRate);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSAudioDeviceGetBufferFrameSize(AudioDeviceID deviceID, UInt32 *frameSize)
+{
+	return RMSAudioObjectGetGlobalProperty
+	(deviceID, kAudioDevicePropertyBufferFrameSize, frameSize);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSAudioDeviceSetBufferFrameSize(AudioDeviceID deviceID, UInt32 frameSize)
+{
+	return RMSAudioObjectSetGlobalProperty
+	(deviceID, kAudioDevicePropertyBufferFrameSize, &frameSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@
 
 #import "RMSDevice.h"
 #import "RMSUtilities.h"
+#import "RMSAudioUnitUtilities.h"
 
 
 @interface RMSDevice ()
@@ -212,6 +213,29 @@
 	
 	return size;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (UInt32) bufferSize
+{
+	UInt32 bufferSize = 0;
+	OSStatus error = RMSAudioDeviceGetBufferFrameSize(self.deviceID, &bufferSize);
+	if (error != noErr)
+	{
+	}
+	
+	return bufferSize;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (OSStatus) setBufferSize:(UInt32)bufferSize
+{
+	OSStatus result = RMSAudioDeviceSetBufferFrameSize(self.deviceID, bufferSize);
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 #endif
 ////////////////////////////////////////////////////////////////////////////////
 @end

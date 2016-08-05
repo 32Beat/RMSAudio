@@ -54,10 +54,10 @@ static void RMSStereoInterpolatorFetch
 // TEMP
 typedef struct rmsfilter_t
 {
-	double M;
-	double S0;
-	double S1;
-	double S2;
+	float M;
+	float S0;
+	float S1;
+	float S2;
 }
 rmsfilter_t;
 
@@ -66,9 +66,15 @@ rmsfilter_t RMSFilterInit(double Fc, double Fs)
 
 float RMSFilterApply(rmsfilter_t *filterInfo, float S)
 {
+//*
 	S = (filterInfo->S0 += (S - filterInfo->S0) * filterInfo->M);
 	S = (filterInfo->S1 += (S - filterInfo->S1) * filterInfo->M);
 	S = (filterInfo->S2 += (S - filterInfo->S2) * filterInfo->M);
+/*/
+	filterInfo->S0 = S = fmaf(filterInfo->M, S-filterInfo->S0, filterInfo->S0);
+	filterInfo->S1 = S = fmaf(filterInfo->M, S-filterInfo->S1, filterInfo->S1);
+	filterInfo->S2 = S = fmaf(filterInfo->M, S-filterInfo->S2, filterInfo->S2);
+//*/
 	return S;
 }
 
@@ -305,7 +311,7 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	if (rmsSource->mResampleProc != nil)
 	{ result = rmsSource->mResampleProc(rmsObject, infoPtr); }
 	else
-	{ result = RunRMSSource(RMSSourceGetSource(rmsObject), infoPtr); }
+	{ result = RunRMSSourceChain(rmsObject, infoPtr); }
 	
 	return result;
 }

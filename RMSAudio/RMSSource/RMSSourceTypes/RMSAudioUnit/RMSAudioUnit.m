@@ -166,6 +166,21 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void) setMaximumFramesPerSlice
+{ return [self setMaximumFramesPerSlice:4096]; }
+
+- (void) setMaximumFramesPerSlice:(UInt32)frameCount
+{
+	OSStatus error = AudioUnitSetGlobalProperty
+	(mAudioUnit, kAudioUnitProperty_MaximumFramesPerSlice, &frameCount);
+	
+	if (error != noErr)
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (void) setRenderQuality:(float)quality
 {
 	UInt32 Q = 127 * quality + 0.5;

@@ -10,8 +10,6 @@
 #ifndef RMSInterpolator_h
 #define RMSInterpolator_h
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct rmscrb_t
@@ -23,15 +21,18 @@ typedef struct rmscrb_t
 
 	double C1;
 	double C2;
-	
-	double V1;
-	double V2;
-	double V3;
+
+	double e;
 }
 rmscrb_t;
 
 void RMSResamplerWrite(rmscrb_t *ptr, double S);
 double RMSResamplerFetch(rmscrb_t *ptr, double t);
+
+void RMSResamplerWriteWithParameter(rmscrb_t *ptr, double S, double P);
+double RMSResamplerNearestFetch(rmscrb_t *ptr, double t);
+double RMSResamplerJitteredFetch(rmscrb_t *ptr, double t);
+double RMSResamplerLinearFetch(rmscrb_t *ptr, double t);
 
 ////////////////////////////////////////////////////////////////////////////////
 

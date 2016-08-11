@@ -67,6 +67,10 @@
 		137CB2CA1D4385DA00AA241A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 137CB2C81D4385DA00AA241A /* LaunchScreen.storyboard */; };
 		137EA07D1D4DCF9A00961DBA /* RMSLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 137EA07C1D4DCF9A00961DBA /* RMSLink.m */; };
 		137EA07E1D4DCFA100961DBA /* RMSLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 137EA07C1D4DCF9A00961DBA /* RMSLink.m */; };
+		138A0AAB1D59E0EF007B735F /* rmssum.c in Sources */ = {isa = PBXBuildFile; fileRef = 138A0AA91D59E0EF007B735F /* rmssum.c */; };
+		138A0AAC1D59E0EF007B735F /* rmssum.c in Sources */ = {isa = PBXBuildFile; fileRef = 138A0AA91D59E0EF007B735F /* rmssum.c */; };
+		1394662A1D5C8EFF00CC2B88 /* rmsfilter.c in Sources */ = {isa = PBXBuildFile; fileRef = 137D946D1D59B7040033A8AB /* rmsfilter.c */; };
+		1394662B1D5C8F0000CC2B88 /* rmsfilter.c in Sources */ = {isa = PBXBuildFile; fileRef = 137D946D1D59B7040033A8AB /* rmsfilter.c */; };
 		13BAC0C41D52FB4600E14AD0 /* RMSCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BAC0C31D52FB4600E14AD0 /* RMSCache.m */; };
 		13BAC0C51D52FB4600E14AD0 /* RMSCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BAC0C31D52FB4600E14AD0 /* RMSCache.m */; };
 		13C2F9061D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */; };
@@ -147,8 +151,12 @@
 		137CB2C61D4385DA00AA241A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		137CB2C91D4385DA00AA241A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		137CB2CB1D4385DA00AA241A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		137D946D1D59B7040033A8AB /* rmsfilter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rmsfilter.c; sourceTree = "<group>"; };
+		137D946E1D59B7040033A8AB /* rmsfilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rmsfilter.h; sourceTree = "<group>"; };
 		137EA07B1D4DCF9A00961DBA /* RMSLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RMSLink.h; path = RMSSourceTypes/RMSMixer/RMSLink.h; sourceTree = "<group>"; };
 		137EA07C1D4DCF9A00961DBA /* RMSLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RMSLink.m; path = RMSSourceTypes/RMSMixer/RMSLink.m; sourceTree = "<group>"; };
+		138A0AA91D59E0EF007B735F /* rmssum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rmssum.c; sourceTree = "<group>"; };
+		138A0AAA1D59E0EF007B735F /* rmssum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rmssum.h; sourceTree = "<group>"; };
 		13BAC0C21D52FB4600E14AD0 /* RMSCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSCache.h; sourceTree = "<group>"; };
 		13BAC0C31D52FB4600E14AD0 /* RMSCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSCache.m; sourceTree = "<group>"; };
 		13C2F9041D4CB26800B35F3E /* RMSAudioUnitConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSAudioUnitConverter.h; sourceTree = "<group>"; };
@@ -360,6 +368,10 @@
 		13488BCD1D447032009E99D6 /* RMSUtilities */ = {
 			isa = PBXGroup;
 			children = (
+				138A0AA91D59E0EF007B735F /* rmssum.c */,
+				138A0AAA1D59E0EF007B735F /* rmssum.h */,
+				137D946D1D59B7040033A8AB /* rmsfilter.c */,
+				137D946E1D59B7040033A8AB /* rmsfilter.h */,
 				13CFA1D11D4E279400728B03 /* RMSFileRecorder */,
 				13488BD01D447032009E99D6 /* RMSDeviceManager */,
 				13488BD51D447032009E99D6 /* RMSInterpolators */,
@@ -614,10 +626,12 @@
 				1305C0CD1D44712B0062E2CA /* Document.m in Sources */,
 				13488C111D447032009E99D6 /* RMSResultView.m in Sources */,
 				13CFA1CF1D4E0C9C00728B03 /* RMSClip.m in Sources */,
+				1394662A1D5C8EFF00CC2B88 /* rmsfilter.c in Sources */,
 				13488BED1D447032009E99D6 /* RMSAudioUnitPlatformIO.m in Sources */,
 				13488C091D447032009E99D6 /* RMSRingBuffer.m in Sources */,
 				13CFA1D41D4E279400728B03 /* RMSFileRecorder.m in Sources */,
 				13488C011D447032009E99D6 /* RMSDevice.m in Sources */,
+				138A0AAB1D59E0EF007B735F /* rmssum.c in Sources */,
 				13488BE71D447032009E99D6 /* RMSSource.m in Sources */,
 				13488BF31D447032009E99D6 /* RMSAudioUnitVarispeed.m in Sources */,
 				13488C051D447032009E99D6 /* RMSBezierInterpolator.m in Sources */,
@@ -653,10 +667,12 @@
 				137CB2BF1D4385DA00AA241A /* AppDelegate.m in Sources */,
 				13488C121D447032009E99D6 /* RMSResultView.m in Sources */,
 				13CFA1D01D4E0C9C00728B03 /* RMSClip.m in Sources */,
+				1394662B1D5C8F0000CC2B88 /* rmsfilter.c in Sources */,
 				13488BEE1D447032009E99D6 /* RMSAudioUnitPlatformIO.m in Sources */,
 				13488C0A1D447032009E99D6 /* RMSRingBuffer.m in Sources */,
 				13CFA1D51D4E279400728B03 /* RMSFileRecorder.m in Sources */,
 				13488C021D447032009E99D6 /* RMSDevice.m in Sources */,
+				138A0AAC1D59E0EF007B735F /* rmssum.c in Sources */,
 				13488BE81D447032009E99D6 /* RMSSource.m in Sources */,
 				13488BF41D447032009E99D6 /* RMSAudioUnitVarispeed.m in Sources */,
 				137CB2BC1D4385DA00AA241A /* main.m in Sources */,

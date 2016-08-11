@@ -52,6 +52,7 @@
 
 #import "rmsbuffer.h"
 #import "rmslevels.h"
+#import "rmssum.h"
 
 
 

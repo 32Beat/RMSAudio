@@ -17,6 +17,9 @@
 {
 }
 
+@property (nonatomic, assign) float parameter;
+@property (nonatomic, assign) BOOL shouldFilter;
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -54,11 +54,34 @@ void RMSResamplerWrite(rmscrb_t *ptr, double S)
 	ptr->P3 = S;
 	
 	ptr->C1 = ptr->P1 - (ptr->C2 - ptr->P1);
-	ptr->C2 = ptr->P2 - (ptr->P3 - ptr->P1)*(0.5*0.3547);
-	//0.33333 = true catmull-rom
-	//0.35468 = approximation of Lanczos2 normalized response
-	//0.37864 = approximation of Lanczos2 impulse response
-	//0.39822 = approximation of Lanczos2 edge response
+	ptr->C2 = ptr->P2 - (ptr->P3 - ptr->P1)*(0.5*0.71592);
+	/*
+		0.33333 = true catmull-rom
+		0.35468 = approximation of Lanczos2 normalized response
+		0.37864 = approximation of Lanczos2 impulse response
+		0.39822 = approximation of Lanczos2 edge response
+		0.71592 = approximation of sinc center lobe
+		
+		oddly enough, the latter seems to give best audible result
+	*/
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSResamplerWriteWithParameter(rmscrb_t *ptr, double S, double P)
+{
+	ptr->P0 = ptr->P1;
+	ptr->P1 = ptr->P2;
+	ptr->P2 = ptr->P3;
+	ptr->P3 = S;
+	
+	ptr->C1 = ptr->P1 - (ptr->C2 - ptr->P1);
+
+	double D1 = ptr->P2 - ptr->P1;
+	double D2 = ptr->P3 - ptr->P2;
+	double D = 0.5 * (D1+D2);
+		
+	ptr->C2 = ptr->P2 - P*D;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,6 +103,36 @@ double RMSResamplerFetch(rmscrb_t *ptr, double t)
 	P1 += t * (C1-P1);
 
 	return P1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSResamplerNearestFetch(rmscrb_t *ptr, double t)
+{ return t < 0.5 ? ptr->P1 : ptr->P2; }
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSResamplerJitteredFetch(rmscrb_t *ptr, double t)
+{
+	// compensate previous offset
+	if ((t+ptr->e) < 0.5)
+	{
+		ptr->e = +t;
+		return ptr->P1;
+		
+	}
+	else
+	{
+		ptr->e = -(1.0-t);
+		return ptr->P2;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSResamplerLinearFetch(rmscrb_t *ptr, double t)
+{
+	return ptr->P1 + t * (ptr->P2 - ptr->P1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

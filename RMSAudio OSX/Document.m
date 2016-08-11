@@ -48,6 +48,11 @@
 @property (nonatomic) RMSSource *inputSource;
 @property (nonatomic, weak) IBOutlet NSProgressIndicator *progressIndicator;
 
+@property (nonatomic) RMSVarispeed *resampler;
+@property (nonatomic, weak) IBOutlet NSSlider *parameterSlider;
+@property (nonatomic, weak) IBOutlet NSButton *filterButton;
+
+
 
 @end
 
@@ -319,11 +324,24 @@
 
 //*
 // RMSVarispeed test
+			self.resampler = nil;
+			
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
 			{
 				// change source to resampler with original source
 				source = [RMSVarispeed instanceWithSource:source];
+				
+				self.resampler = (RMSVarispeed *)source;
+				self.resampler.parameter = self.parameterSlider.floatValue;
+				self.resampler.shouldFilter = self.filterButton.intValue;
+/*
+				// set output rate to oversampling
+				source.sampleRate = 8.0 * self.audioOutput.sampleRate;
+				
+				// change source to downsampler with resampler
+				source = [RMSVarispeed instanceWithSource:source];
+*/
 			}
 //*/
 
@@ -505,6 +523,25 @@
 		self.autoPanFilter = nil;
 		[self.balanceControl setEnabled:YES];
 		[self.balanceControl setFloatValue:self.volumeFilter.balance];
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) didAdjustParameter:(NSSlider *)slider
+{
+	[self.resampler setParameter:slider.floatValue];
+}
+
+- (IBAction) didSelectFilterButton:(NSButton *)button
+{
+	if (button.intValue != 0)
+	{
+		self.resampler.shouldFilter = YES;
+	}
+	else
+	{
+		self.resampler.shouldFilter = NO;
 	}
 }
 

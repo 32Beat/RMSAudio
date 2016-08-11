@@ -16,8 +16,7 @@
 {
 	UInt64 mCacheIndex;
 	UInt32 mCacheCount;
-	UInt32 mCacheSize;
-	RMSStereoBufferList mStereoBuffer;
+//	UInt32 mCacheSize;
 	float *mSampleData[2];
 }
 @end
@@ -27,7 +26,20 @@
 @implementation RMSCache
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus RefreshBuffer(void *objectPtr, UInt64 index)
+BOOL RMSCacheShouldRefreshBuffer(void *objectPtr, UInt64 index)
+{
+	__unsafe_unretained RMSCache *rmsCache = \
+	(__bridge __unsafe_unretained RMSCache *)objectPtr;
+	
+	UInt64 cacheIndex = rmsCache->mCacheIndex;
+	UInt64 cacheCount = rmsCache->mCacheCount;
+	
+	return (index >= cacheIndex+cacheCount);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+OSStatus RMSCacheRefreshBuffer(void *objectPtr, UInt64 index)
 {
 	OSStatus result = noErr;
 
@@ -40,7 +52,7 @@ static OSStatus RefreshBuffer(void *objectPtr, UInt64 index)
 	RMSCallbackInfo info;
 	info.frameIndex = index&(~(cacheCount-1));
 	info.frameCount = cacheCount;
-	info.bufferListPtr = &rmsCache->mStereoBuffer.list;
+	info.bufferListPtr = &rmsCache->mCacheBuffer.list;
 
 	// fetch source samples
 	result = RunRMSSourceChain(objectPtr, &info);
@@ -65,7 +77,7 @@ OSStatus RMSCacheFetch(void *cachePtr, UInt64 index, float *dstPtr)
 	
 	if (index >= cacheIndex+cacheCount)
 	{
-		OSStatus error = RefreshBuffer(cachePtr, index);
+		OSStatus error = RMSCacheRefreshBuffer(cachePtr, index);
 		if (error != noErr) return error;
 		
 		cacheIndex = rmsCache->mCacheIndex;
@@ -141,13 +153,13 @@ static OSStatus renderCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 		mSampleData[0] = calloc(count, sizeof(float));
 		mSampleData[1] = calloc(count, sizeof(float));
 		
-		mStereoBuffer.bufferCount = 2;
-		mStereoBuffer.buffer[0].mNumberChannels = 1;
-		mStereoBuffer.buffer[0].mDataByteSize = count*sizeof(float);
-		mStereoBuffer.buffer[0].mData = mSampleData[0];
-		mStereoBuffer.buffer[1].mNumberChannels = 1;
-		mStereoBuffer.buffer[1].mDataByteSize = count*sizeof(float);
-		mStereoBuffer.buffer[1].mData = mSampleData[1];
+		mCacheBuffer.bufferCount = 2;
+		mCacheBuffer.buffer[0].mNumberChannels = 1;
+		mCacheBuffer.buffer[0].mDataByteSize = count*sizeof(float);
+		mCacheBuffer.buffer[0].mData = mSampleData[0];
+		mCacheBuffer.buffer[1].mNumberChannels = 1;
+		mCacheBuffer.buffer[1].mDataByteSize = count*sizeof(float);
+		mCacheBuffer.buffer[1].mData = mSampleData[1];
 		
 		self.source = source;
 	}

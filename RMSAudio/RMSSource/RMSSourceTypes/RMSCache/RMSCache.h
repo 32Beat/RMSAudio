@@ -8,13 +8,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #import "RMSSource.h"
+#import "RMSUtilities.h"
 
 @interface RMSCache : RMSSource
+{
+	UInt32 mCacheSize;
+	RMSStereoBufferList mCacheBuffer;
+}
 
 + (instancetype)instanceWithSource:(RMSSource *)source;
 + (instancetype)instanceWithSource:(RMSSource *)source length:(UInt32)length;
 - (instancetype)initWithSource:(RMSSource *)source length:(UInt32)length;
 
+BOOL RMSCacheShouldRefreshBuffer(void *objectPtr, UInt64 index);
+OSStatus RMSCacheRefreshBuffer(void *objectPtr, UInt64 index);
 OSStatus RMSCacheFetch(void *cachePtr, UInt64 index, float *dstPtr);
 
 @end

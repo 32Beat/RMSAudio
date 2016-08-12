@@ -24,21 +24,19 @@ double RMSFilterAdjustMultiplier(double M, int order)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-rmsfilter_t RMSFilterInitWithMultiplier(double M, int order)
-{ return (rmsfilter_t){ .M = M, 0.0, 0.0, 0.0, 0.0, order }; }
+rmsfilter_t RMSFilterInitWithMultiplier(double M)
+{ return (rmsfilter_t){ .A = 0.0, .M = M }; }
 
-rmsfilter_t RMSFilterInitWithRateChange(double srcRate, double dstRate, int order)
+rmsfilter_t RMSFilterInitWithRateChange(double srcRate, double dstRate)
 {
 	double size = dstRate / srcRate;
-	size = 1.0 + (size - 1.0) / order;
-	return RMSFilterInitWithMultiplier(1.0/size, order);
+	return RMSFilterInitWithMultiplier(1.0/size);
 }
 
-rmsfilter_t RMSFilterInitWithCutoff(double Fc, double Fs, int order)
+rmsfilter_t RMSFilterInitWithCutoff(double Fc, double Fs)
 {
 	double M = RMSFilterMultiplierWithCutoff(Fc, Fs);
-	M = RMSFilterAdjustMultiplier(M, order);
-	return RMSFilterInitWithMultiplier(M, order);
+	return RMSFilterInitWithMultiplier(M);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,33 +50,9 @@ static inline float FMA(float A, float B, float C)
 #endif
 }
 
-float RMSFilterApply1(rmsfilter_t *F, float S)
+static inline float RMSFilterApply(rmsfilter_t *F, float S)
 {
-	F->A0 = S = FMA(F->M, S - F->A0, F->A0);
-	return S;
-}
-
-float RMSFilterApply2(rmsfilter_t *F, float S)
-{
-	F->A0 = S = FMA(F->M, S - F->A0, F->A0);
-	F->A1 = S = FMA(F->M, S - F->A1, F->A1);
-	return S;
-}
-
-float RMSFilterApply3(rmsfilter_t *F, float S)
-{
-	F->A0 = S = FMA(F->M, S - F->A0, F->A0);
-	F->A1 = S = FMA(F->M, S - F->A1, F->A1);
-	F->A2 = S = FMA(F->M, S - F->A2, F->A2);
-	return S;
-}
-
-float RMSFilterApply4(rmsfilter_t *F, float S)
-{
-	F->A0 = S = FMA(F->M, S - F->A0, F->A0);
-	F->A1 = S = FMA(F->M, S - F->A1, F->A1);
-	F->A2 = S = FMA(F->M, S - F->A2, F->A2);
-	F->A3 = S = FMA(F->M, S - F->A3, F->A3);
+	F->A = S = FMA(F->M, S - F->A, F->A);
 	return S;
 }
 
@@ -86,21 +60,8 @@ float RMSFilterApply4(rmsfilter_t *F, float S)
 
 void RMSFilterRun(rmsfilter_t *F, float *ptr, uint32_t N)
 {
-	if (F->order <= 1)
 	for (uint32_t n=0; n!=N; n++)
-	{ ptr[n] = RMSFilterApply1(F, ptr[n]); }
-	else
-	if (F->order == 2)
-	for (uint32_t n=0; n!=N; n++)
-	{ ptr[n] = RMSFilterApply2(F, ptr[n]); }
-	else
-	if (F->order == 3)
-	for (uint32_t n=0; n!=N; n++)
-	{ ptr[n] = RMSFilterApply3(F, ptr[n]); }
-	else
-	//if (F->order >= 4)
-	for (uint32_t n=0; n!=N; n++)
-	{ ptr[n] = RMSFilterApply4(F, ptr[n]); }
+	{ ptr[n] = RMSFilterApply(F, ptr[n]); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

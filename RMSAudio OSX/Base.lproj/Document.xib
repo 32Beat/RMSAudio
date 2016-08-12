@@ -214,7 +214,7 @@
                     <slider verticalHuggingPriority="750" id="mG5-eV-hoR">
                         <rect key="frame" x="38" y="225" width="435" height="27"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="1" tickMarkPosition="below" numberOfTickMarks="11" allowsTickMarkValuesOnly="YES" sliderType="linear" id="P5v-Hl-EcE"/>
+                        <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="1" tickMarkPosition="below" numberOfTickMarks="21" allowsTickMarkValuesOnly="YES" sliderType="linear" id="P5v-Hl-EcE"/>
                         <connections>
                             <action selector="didAdjustParameter:" target="-2" id="1VU-Cy-Kip"/>
                         </connections>
@@ -235,7 +235,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
-            <point key="canvasLocation" x="-2285.5" y="149"/>
+            <point key="canvasLocation" x="-2702.5" y="277"/>
         </window>
     </objects>
 </document>

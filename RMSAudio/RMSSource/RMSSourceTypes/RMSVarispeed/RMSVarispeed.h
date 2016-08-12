@@ -19,6 +19,7 @@
 
 @property (nonatomic, assign) float parameter;
 @property (nonatomic, assign) BOOL shouldFilter;
+@property (nonatomic, assign) int filterOrder;
 
 @end
 

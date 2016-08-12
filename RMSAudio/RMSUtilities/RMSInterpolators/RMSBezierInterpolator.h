@@ -12,7 +12,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct rmscrb_t
+typedef struct rmscrb_t rmscrb_t;
+
+struct rmscrb_t
 {
 	double P0;
 	double P1;
@@ -23,8 +25,9 @@ typedef struct rmscrb_t
 	double C2;
 
 	double e;
-}
-rmscrb_t;
+	
+	int type;
+};
 
 void RMSResamplerWrite(rmscrb_t *ptr, double S);
 double RMSResamplerFetch(rmscrb_t *ptr, double t);
@@ -33,6 +36,7 @@ void RMSResamplerWriteWithParameter(rmscrb_t *ptr, double S, double P);
 double RMSResamplerNearestFetch(rmscrb_t *ptr, double t);
 double RMSResamplerJitteredFetch(rmscrb_t *ptr, double t);
 double RMSResamplerLinearFetch(rmscrb_t *ptr, double t);
+double RMSResamplerSplineFetch(rmscrb_t *ptr, double t);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -21,20 +21,16 @@
 
 typedef struct rmsfilter_t
 {
+	float A;
 	float M;
-	float A0;
-	float A1;
-	float A2;
-	float A3;
-	int order;
 }
 rmsfilter_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-rmsfilter_t RMSFilterInitWithMultiplier(double M, int order);
-rmsfilter_t RMSFilterInitWithRateChange(double srcRate, double dstRate, int order);
-rmsfilter_t RMSFilterInitWithCutoff(double Fc, double Fs, int order);
+rmsfilter_t RMSFilterInitWithMultiplier(double M);
+rmsfilter_t RMSFilterInitWithRateChange(double srcRate, double dstRate);
+rmsfilter_t RMSFilterInitWithCutoff(double Fc, double Fs);
 
 void RMSFilterRun(rmsfilter_t *filterInfo, float *ptr, uint32_t N);
 

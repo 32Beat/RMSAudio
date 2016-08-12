@@ -22,24 +22,7 @@ typedef struct RMSStereoInterpolator
 	rmscrb_t R;
 }
 RMSStereoInterpolator;
-/*
-static void RMSStereoInterpolatorUpdate
-(RMSStereoInterpolator *ptr, RMSAudioBufferList *src, UInt32 index)
-{
-	Float32 *srcPtrL = src->buffer[0].mData;
-	RMSResamplerWrite(&ptr->L, srcPtrL[index]);
 
-	Float32 *srcPtrR = src->buffer[1].mData;
-	RMSResamplerWrite(&ptr->R, srcPtrR[index]);
-}
-*/
-
-static void RMSStereoInterpolatorUpdate
-(RMSStereoInterpolator *ptr, float *srcPtr)
-{
-	RMSResamplerWrite(&ptr->L, srcPtr[0]);
-	RMSResamplerWrite(&ptr->R, srcPtr[1]);
-}
 
 static void RMSStereoInterpolatorUpdateWithParameter
 (RMSStereoInterpolator *ptr, float *srcPtr, float P)
@@ -59,88 +42,102 @@ static void RMSStereoInterpolatorFetch
 	dstPtrR[index] = RMSResamplerFetch(&ptr->R, t);
 }
 
-static void RMSStereoInterpolatorFetchJittered
-(RMSStereoInterpolator *ptr, double t, AudioBufferList *dst, UInt32 index)
-{
-	Float32 *dstPtrL = dst->mBuffers[0].mData;
-	dstPtrL[index] = RMSResamplerJitteredFetch(&ptr->L, t);
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 
-	Float32 *dstPtrR = dst->mBuffers[1].mData;
-	dstPtrR[index] = RMSResamplerJitteredFetch(&ptr->R, t);
+typedef struct RMSStereoDecimator
+{
+	double M;
+	double L0;
+	double L1;
+	double R0;
+	double R1;
+}
+RMSStereoDecimator;
+
+
+static void _RMSStereoDecimatorUpdate
+(RMSStereoDecimator *decimator, float *sampleData)
+{
+	decimator->L0 = decimator->L1;
+	decimator->L1 += (sampleData[0] - decimator->L1) * decimator->M;
+	decimator->R0 = decimator->R1;
+	decimator->R1 += (sampleData[1] - decimator->R1) * decimator->M;
 }
 
-static void RMSStereoInterpolatorFetchLinear
-(RMSStereoInterpolator *ptr, double t, AudioBufferList *dst, UInt32 index)
+static void _RMSStereoDecimatorFetch
+(RMSStereoDecimator *decimator, double t, AudioBufferList *dst, UInt32 index)
 {
 	Float32 *dstPtrL = dst->mBuffers[0].mData;
-	dstPtrL[index] = RMSResamplerLinearFetch(&ptr->L, t);
+	dstPtrL[index] = decimator->L0 + t * (decimator->L1 - decimator->L0);
 
 	Float32 *dstPtrR = dst->mBuffers[1].mData;
-	dstPtrR[index] = RMSResamplerLinearFetch(&ptr->R, t);
+	dstPtrR[index] = decimator->R0 + t * (decimator->R1 - decimator->R0);
+}
+
+
+static void RMSStereoDecimatorUpdate
+(RMSStereoDecimator *decimator, float *sampleData)
+{
+	decimator->L0 += decimator->L1;
+	decimator->L1 = sampleData[0];
+	decimator->R0 += decimator->R1;
+	decimator->R1 = sampleData[1];
+}
+
+
+static void RMSStereoDecimatorFetch
+(RMSStereoDecimator *decimator, double t, AudioBufferList *dst, UInt32 index)
+{
+	double L = t * decimator->L1;
+	decimator->L0 += L;
+	decimator->L1 -= L;
+	((Float32 *)dst->mBuffers[0].mData)[index] = decimator->L0 * decimator->M;
+	decimator->L0 = 0.0;
+
+	double R = t * decimator->R1;
+	decimator->R0 += R;
+	decimator->R1 -= R;
+	((Float32 *)dst->mBuffers[1].mData)[index] = decimator->R0 * decimator->M;
+	decimator->R0 = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TEMP
-typedef struct rmsfltr_t
-{
-	float M;
-	UInt32 index;
-	UInt32 count;
-	float A[2][32];
-}
-rmsfltr_t;
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
 
-rmsfltr_t RMSFltrInit(int N)
+typedef struct rmstest_t
 {
-	rmsfltr_t F;
-	memset(&F, 0, sizeof(F));
-	
-	F.count = N;
-	F.M = 1.0/pow(2.0, F.count);
-	
-	return F;
+	double M;
+	double Q;
+	double V;
+	double E;
 }
+rmstest_t;
 
-rmsfltr_t RMSFltrInitWithCutoff(double Fc, double Fs)
+
+static inline float RMSTestApply(rmstest_t *F, float S)
 {
-	// wavelength = sampleRate / freq
-	double wl = Fs / Fc;
-	// samplewidth = wavelength / 2.0
-	double sw = wl / 2.0;
+	double E = S - F->V;
+	F->E += (E - F->E)*F->Q*F->Q;
+	F->V += F->E * F->M;
 	
-	return RMSFltrInit(ceil(sw));
+	return F->V;
 }
 
 
-
-
-float RMSFltrApply(rmsfltr_t *F, float S)
+void RMSTestRun(rmstest_t *F, float *ptr, uint32_t N)
 {
-	float *A0 = F->A[F->index];
-	float *A1 = F->A[F->index^1];
-
-	UInt32 n=F->count;
-	while (n != 0)
-	{
-		n -= 1;
-		A0[n] = S;
-		S += A1[n];
-	}
-	
-	F->index ^= 1;
-	
-	return F->M * S;
+	for (uint32_t n=0; n!=N; n++)
+	{ ptr[n] = RMSTestApply(F, ptr[n]); }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 
-
-void RMSFltrRun(rmsfltr_t *filterInfo, float *ptr, UInt32 N)
-{
-	for (UInt32 n=0; n!=N; n++)
-	{ ptr[n] = RMSFltrApply(filterInfo, ptr[n]); }
-}
-
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
 @interface RMSVarispeed ()
@@ -150,17 +147,14 @@ void RMSFltrRun(rmsfltr_t *filterInfo, float *ptr, UInt32 N)
 	Float64 mSrcFraction;
 	Float64 mSrcStep;
 	
-	float M;
-	float A[2];
-	
 	RMSCallbackProcPtr mResampleProc;
 	RMSStereoInterpolator mInterpolator;
+	RMSStereoDecimator mDecimator;
 	
-	rmsfilter_t mFilterL;
-	rmsfilter_t mFilterR;
-
-	rmsfltr_t mFltrL;
-	rmsfltr_t mFltrR;
+	rmstest_t mTest[2];
+	
+	rmsfilter_t mFilterL[4];
+	rmsfilter_t mFilterR[4];
 
 	rmssum_t *mSumL[4];
 	rmssum_t *mSumR[4];
@@ -175,7 +169,7 @@ void RMSFltrRun(rmsfltr_t *filterInfo, float *ptr, UInt32 N)
 ////////////////////////////////////////////////////////////////////////////////
 @implementation RMSVarispeed
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
 static OSStatus ApplyFilter(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
@@ -191,39 +185,32 @@ static OSStatus ApplyFilter(void *objectPtr, const RMSCallbackInfo *infoPtr)
 	
 	return result;
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus ApplyFilter1(void *objectPtr, const RMSCallbackInfo *infoPtr)
+static OSStatus ApplyFilter(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
 
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
 
-	float *ptrL = infoPtr->bufferListPtr->mBuffers[0].mData;
-	RMSFilterRun(&rmsSource->mFilterL, ptrL, infoPtr->frameCount);
-	
-	float *ptrR = infoPtr->bufferListPtr->mBuffers[1].mData;
-	RMSFilterRun(&rmsSource->mFilterR, ptrR, infoPtr->frameCount);
-	
-	return result;
-}
+	rmsSource->mTest[0].Q = rmsSource->_parameter;
+	rmsSource->mTest[1].Q = rmsSource->_parameter;
 
-////////////////////////////////////////////////////////////////////////////////
-
-static OSStatus ApplyFilter2(void *objectPtr, const RMSCallbackInfo *infoPtr)
-{
-	OSStatus result = noErr;
-
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
-
-	float *ptrL = infoPtr->bufferListPtr->mBuffers[0].mData;
-	RMSFltrRun(&rmsSource->mFltrL, ptrL, infoPtr->frameCount);
-	
-	float *ptrR = infoPtr->bufferListPtr->mBuffers[1].mData;
-	//RMSFltrRun(&rmsSource->mFltrR, ptrR, infoPtr->frameCount);
+	UInt32 n = 1;//rmsSource->_filterOrder;
+	while (n!=0)
+	{
+		n -= 1;
+		
+		float *ptrL = infoPtr->bufferListPtr->mBuffers[0].mData;
+		//RMSFilterRun(&rmsSource->mFilterL[n], ptrL, infoPtr->frameCount);
+		RMSTestRun(&rmsSource->mTest[0], ptrL, infoPtr->frameCount);
+		
+		float *ptrR = infoPtr->bufferListPtr->mBuffers[1].mData;
+//		RMSFilterRun(&rmsSource->mFilterR[n], ptrR, infoPtr->frameCount);
+		RMSTestRun(&rmsSource->mTest[1], ptrR, infoPtr->frameCount);
+	}
 	
 	return result;
 }
@@ -233,159 +220,9 @@ static OSStatus ApplyFilter2(void *objectPtr, const RMSCallbackInfo *infoPtr)
 #pragma mark Interpolation
 ////////////////////////////////////////////////////////////////////////////////
 /*
-	InterpolateSource0
-	------------------
-	Upsampling algorithm Nearest Neighbor
-*/
-
-static OSStatus InterpolateSource0(void *objectPtr, const RMSCallbackInfo *infoPtr)
-{
-	OSStatus result = noErr;
-
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
-
-	// TODO: need better var naming
-	UInt64 srcIndex = rmsSource->mSrcIndex;
-	Float64 srcFraction = rmsSource->mSrcFraction;
-	const Float64 srcStep = rmsSource->mSrcStep;
-
-	float src[2];
-
-	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
-	{
-		// test if next src sample is required
-		while (srcFraction >= 1.0)
-		{
-			RMSCacheFetch(objectPtr, srcIndex, src);
-			
-			// update src index
-			srcIndex += 1;
-			
-			// update fraction
-			srcFraction -= 1.0;
-		}
-		
-		((float *)(infoPtr->bufferListPtr->mBuffers[0].mData))[n] = src[0];
-		((float *)(infoPtr->bufferListPtr->mBuffers[1].mData))[n] = src[1];
-		
-		// increase fraction by 1 dst sample
-		srcFraction += srcStep;
-	}
-	
-	rmsSource->mSrcIndex = srcIndex;
-	rmsSource->mSrcFraction = srcFraction;
-	
-	if (rmsSource->_shouldFilter)
-	{ ApplyFilter(objectPtr, infoPtr); }
-	
-	return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-static OSStatus InterpolateSourceJ(void *objectPtr, const RMSCallbackInfo *infoPtr)
-{
-	OSStatus result = noErr;
-
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
-
-	// TODO: need better var naming
-	UInt64 srcIndex = rmsSource->mSrcIndex;
-	Float64 srcFraction = rmsSource->mSrcFraction;
-	const Float64 srcStep = rmsSource->mSrcStep;
-
-	float src[2];
-
-	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
-	{
-		// test if next src sample is required
-		while (srcFraction >= 1.0)
-		{
-			RMSCacheFetch(objectPtr, srcIndex, src);
-
-			RMSStereoInterpolatorUpdateWithParameter \
-			(&rmsSource->mInterpolator, src, rmsSource->_parameter);
-			
-			// update src index
-			srcIndex += 1;
-			
-			// update fraction
-			srcFraction -= 1.0;
-		}
-		
-		// fetch interpolated value
-		RMSStereoInterpolatorFetchJittered
-		(&rmsSource->mInterpolator, srcFraction, infoPtr->bufferListPtr, n);
-		
-		// increase fraction by 1 dst sample
-		srcFraction += srcStep;
-	}
-	
-	rmsSource->mSrcIndex = srcIndex;
-	rmsSource->mSrcFraction = srcFraction;
-	
-	if (rmsSource->_shouldFilter)
-	{ ApplyFilter(objectPtr, infoPtr); }
-	
-	return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-static OSStatus InterpolateSource1(void *objectPtr, const RMSCallbackInfo *infoPtr)
-{
-	OSStatus result = noErr;
-
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
-
-	// TODO: need better var naming
-	UInt64 srcIndex = rmsSource->mSrcIndex;
-	Float64 srcFraction = rmsSource->mSrcFraction;
-	const Float64 srcStep = rmsSource->mSrcStep;
-
-	float src[2];
-
-	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
-	{
-		// test if next src sample is required
-		while (srcFraction >= 1.0)
-		{
-			RMSCacheFetch(objectPtr, srcIndex, src);
-
-			RMSStereoInterpolatorUpdateWithParameter \
-			(&rmsSource->mInterpolator, src, rmsSource->_parameter);
-			
-			// update src index
-			srcIndex += 1;
-			
-			// update fraction
-			srcFraction -= 1.0;
-		}
-		
-		// fetch interpolated value
-		RMSStereoInterpolatorFetchLinear
-		(&rmsSource->mInterpolator, srcFraction, infoPtr->bufferListPtr, n);
-		
-		// increase fraction by 1 dst sample
-		srcFraction += srcStep;
-	}
-	
-	rmsSource->mSrcIndex = srcIndex;
-	rmsSource->mSrcFraction = srcFraction;
-	
-	if (rmsSource->_shouldFilter)
-	{ ApplyFilter(objectPtr, infoPtr); }
-	
-	return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/*
 	InterpolateSource
 	-----------------
-	Upsampling algorithm (CRB interpolation)
+	Upsampling algorithm (Spline interpolation)
 */
 
 static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPtr)
@@ -405,9 +242,12 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 		// test if next src sample is required
 		while (srcFraction >= 1.0)
 		{
+			// fetch next sample from cache
+			// (this will trigger rendercycle on source if necessary)
 			float src[2];
 			RMSCacheFetch(objectPtr, srcIndex, src);
-			//RMSStereoInterpolatorUpdate(&rmsSource->mInterpolator, src);
+			
+			// update interpolator with sample
 			RMSStereoInterpolatorUpdateWithParameter \
 			(&rmsSource->mInterpolator, src, rmsSource->_parameter);
 			
@@ -429,6 +269,7 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 	rmsSource->mSrcIndex = srcIndex;
 	rmsSource->mSrcFraction = srcFraction;
 	
+	// apply post-filtering if desired
 	if (rmsSource->_shouldFilter)
 	{ ApplyFilter(objectPtr, infoPtr); }
 	
@@ -438,6 +279,58 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 #pragma mark Decimation
+////////////////////////////////////////////////////////////////////////////////
+/*
+	DecimateSource
+	--------------
+	Downsampling algorithm (weighted average)
+*/
+static OSStatus DecimateSource(void *objectPtr, const RMSCallbackInfo *infoPtr)
+{
+	OSStatus result = noErr;
+
+	__unsafe_unretained RMSVarispeed *rmsSource = \
+	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
+
+	// TODO: need better var naming
+	UInt64 srcIndex = rmsSource->mSrcIndex;
+	Float64 srcFraction = rmsSource->mSrcFraction;
+	const Float64 srcStep = rmsSource->mSrcStep;
+
+	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
+	{
+		// test if next src sample is required
+		while (srcFraction >= 1.0)
+		{
+			// fetch next sample from cache
+			// (this will trigger rendercycle on source if necessary)
+			float src[2];
+			RMSCacheFetch(objectPtr, srcIndex, src);
+			
+			// update decimator with sample
+			RMSStereoDecimatorUpdate(&rmsSource->mDecimator, src);
+			
+			// update src index
+			srcIndex += 1;
+			
+			// update fraction
+			srcFraction -= 1.0;
+		}
+		
+		// fetch interpolated value
+		RMSStereoDecimatorFetch
+		(&rmsSource->mDecimator, srcFraction, infoPtr->bufferListPtr, n);
+		
+		// increase fraction by 1 dst sample
+		srcFraction += srcStep;
+	}
+	
+	rmsSource->mSrcIndex = srcIndex;
+	rmsSource->mSrcFraction = srcFraction;
+
+	return noErr;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /*
 	DecimateSource
@@ -526,9 +419,9 @@ static void RMSDecimatorRunAverage(void *objectPtr)
 	__unsafe_unretained RMSVarispeed *rmsSource = \
 	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
 	
-	float M = rmsSource->M;
-	float *A = rmsSource->A;
-	RunAverage(M, A, &rmsSource->mCacheBuffer.list, rmsSource->mCacheSize);
+//	float M = rmsSource->M;
+//	float *A = rmsSource->A;
+//	RunAverage(M, A, &rmsSource->mCacheBuffer.list, rmsSource->mCacheSize);
 }
 
 OSStatus RMSDecimatorPrepareFetch(void *objectPtr, UInt64 index)
@@ -596,10 +489,6 @@ static OSStatus DecimateSourceByN(void *rmsObject, const RMSCallbackInfo *infoPt
 	Float32 *dstPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
 	Float32 *dstPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
 
-	float M = rmsSource->M;
-	float *A = rmsSource->A;
-
-
 	UInt32 N = rmsSource->mSrcStep;
 	UInt64 index = rmsSource->mSrcIndex;
 	UInt64 indexMask = rmsSource->mSrcIndexMask;
@@ -622,8 +511,6 @@ static OSStatus DecimateSourceByN(void *rmsObject, const RMSCallbackInfo *infoPt
 		index += N;
 	}
 
-	rmsSource->A[0] = A[0];
-	rmsSource->A[1] = A[1];
 	rmsSource->mSrcIndex += infoPtr->frameCount * N;
 
 	return noErr;
@@ -631,7 +518,7 @@ static OSStatus DecimateSourceByN(void *rmsObject, const RMSCallbackInfo *infoPt
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus DecimateSource(void *rmsObject, const RMSCallbackInfo *infoPtr)
+static OSStatus DecimateSource2(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
 
@@ -720,35 +607,35 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	double srcRate = [[self sourceAtIndex:0] sampleRate];
 	double dstRate = [self sampleRate];
 	
+	double filterCutoff, filterRate;
+	
 	if (srcRate < dstRate)
 	{
 		// remove high-freq after upsampling
-		mFilterL = RMSFilterInitWithCutoff(0.5 * srcRate, dstRate, 4);
-		mFilterR = RMSFilterInitWithCutoff(0.5 * srcRate, dstRate, 4);
-
-		// remove high-freq after upsampling
-		mFltrL = RMSFltrInitWithCutoff(0.5 * srcRate, dstRate);
-		mFltrR = RMSFltrInitWithCutoff(0.5 * srcRate, dstRate);
-		
-		for (UInt32 n=0; n!=4; n++)
-		{
-			RMSSumRelease(mSumL[n]);
-			RMSSumRelease(mSumR[n]);
-			mSumL[n] = RMSSumNew(ceil(dstRate/srcRate));
-			mSumR[n] = RMSSumNew(ceil(dstRate/srcRate));
-		}
+		filterCutoff = 0.5 * srcRate;
+		filterRate = dstRate;
 	}
 	else
 	{
 		// remove high-freq before downsampling
-		mFilterL = RMSFilterInitWithCutoff(0.5 * dstRate, srcRate, 4);
-		mFilterR = RMSFilterInitWithCutoff(0.5 * dstRate, srcRate, 4);
+		filterCutoff = 0.5 * dstRate;
+		filterRate = srcRate;
+	}
+	
+	// spline interpolation + second order filter
+	self.filterOrder = 2;
+	for (UInt32 n=0; n!=4; n++)
+	{
+		mFilterL[n] = RMSFilterInitWithCutoff(filterCutoff, filterRate);
+		mFilterR[n] = RMSFilterInitWithCutoff(filterCutoff, filterRate);
 	}
 	
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
 	
 	if (mSrcStep < 1.0)
 	{
+		mTest[0].M = mSrcStep;
+		mTest[1].M = mSrcStep;
 		// interpolators can be primed with 3 samples before first fetch
 		mSrcFraction = 3.0;
 		mResampleProc = InterpolateSource;
@@ -756,13 +643,15 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	else
 	if (mSrcStep > 1.0)
 	{
+		mDecimator.M = 1.0 / mSrcStep;
+		mSrcFraction = 1.0 + mSrcStep;
 		mResampleProc = DecimateSource;
 		
 		double N = log2(mSrcStep);
 		if ((N-floor(N))==0.0)
 		{
-			M = (1.0/mSrcStep);
-			mResampleProc = DecimateSourceByN;
+			//mDecimationM = (1.0/mSrcStep);
+			//mResampleProc = DecimateSourceByN;
 		}
 	}
 	else

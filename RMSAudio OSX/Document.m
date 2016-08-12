@@ -341,7 +341,7 @@
 				
 				// change source to downsampler with resampler
 				source = [RMSVarispeed instanceWithSource:source];
-*/
+//*/
 			}
 //*/
 

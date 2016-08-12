@@ -14,6 +14,7 @@
 
 @interface RMSCache ()
 {
+	UInt64 mFetchIndex;
 	UInt64 mCacheIndex;
 	UInt32 mCacheCount;
 //	UInt32 mCacheSize;
@@ -83,10 +84,8 @@ OSStatus RMSCacheFetch(void *cachePtr, UInt64 index, float *dstPtr)
 		cacheIndex = rmsCache->mCacheIndex;
 	}
 		
-	float *srcPtrL = rmsCache->mSampleData[0];
-	float *srcPtrR = rmsCache->mSampleData[1];
-	dstPtr[0] = srcPtrL[index-cacheIndex];
-	dstPtr[1] = srcPtrR[index-cacheIndex];
+	dstPtr[0] = rmsCache->mSampleData[0][index-cacheIndex];
+	dstPtr[1] = rmsCache->mSampleData[1][index-cacheIndex];
 	
 	return noErr;
 }

@@ -88,21 +88,10 @@ void RMSResamplerWriteWithParameter(rmscrb_t *ptr, double S, double P)
 
 double RMSResamplerFetch(rmscrb_t *ptr, double t)
 {
-	double P1 = ptr->P1;
-	double C1 = ptr->C1;
-	double C2 = ptr->C2;
-	double P2 = ptr->P2;
-	
-	P1 += t * (C1-P1);
-	C1 += t * (C2-C1);
-	C2 += t * (P2-C2);
-
-	P1 += t * (C1-P1);
-	C1 += t * (C2-C1);
-
-	P1 += t * (C1-P1);
-
-	return P1;
+//	return RMSResamplerNearestFetch(ptr, t);
+	return RMSResamplerJitteredFetch(ptr, t);
+//	return RMSResamplerLinearFetch(ptr, t);
+//	return RMSResamplerSplineFetch(ptr, t);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +122,27 @@ double RMSResamplerJitteredFetch(rmscrb_t *ptr, double t)
 double RMSResamplerLinearFetch(rmscrb_t *ptr, double t)
 {
 	return ptr->P1 + t * (ptr->P2 - ptr->P1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSResamplerSplineFetch(rmscrb_t *ptr, double t)
+{
+	double P1 = ptr->P1;
+	double C1 = ptr->C1;
+	double C2 = ptr->C2;
+	double P2 = ptr->P2;
+	
+	P1 += t * (C1-P1);
+	C1 += t * (C2-C1);
+	C2 += t * (P2-C2);
+
+	P1 += t * (C1-P1);
+	C1 += t * (C2-C1);
+
+	P1 += t * (C1-P1);
+
+	return P1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

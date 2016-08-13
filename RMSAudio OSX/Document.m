@@ -335,13 +335,6 @@
 				self.resampler = (RMSVarispeed *)source;
 				self.resampler.parameter = self.parameterSlider.floatValue;
 				self.resampler.shouldFilter = self.filterButton.intValue;
-/*
-				// set output rate to oversampling
-				source.sampleRate = 8.0 * self.audioOutput.sampleRate;
-				
-				// change source to downsampler with resampler
-				source = [RMSVarispeed instanceWithSource:source];
-//*/
 			}
 //*/
 

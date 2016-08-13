@@ -22,6 +22,7 @@
 
 BOOL RMSCacheShouldRefreshBuffer(void *objectPtr, UInt64 index);
 OSStatus RMSCacheRefreshBuffer(void *objectPtr, UInt64 index);
+OSStatus RMSCacheFetchNext(void *cachePtr, float *dstPtr);
 OSStatus RMSCacheFetch(void *cachePtr, UInt64 index, float *dstPtr);
 
 @end

@@ -92,6 +92,30 @@ OSStatus RMSCacheFetch(void *cachePtr, UInt64 index, float *dstPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+OSStatus RMSCacheFetchNext(void *cachePtr, float *dstPtr)
+{
+	__unsafe_unretained RMSCache *rmsCache = \
+	(__bridge __unsafe_unretained RMSCache *)cachePtr;
+	
+	UInt64 index = rmsCache->mFetchIndex;
+	UInt64 indexMask = rmsCache->mCacheSize-1;
+	
+	if ((index&indexMask)==0)
+	{
+		OSStatus error = RMSCacheRefreshBuffer(cachePtr, index);
+		if (error != noErr) return error;
+	}
+		
+	dstPtr[0] = rmsCache->mSampleData[0][index&indexMask];
+	dstPtr[1] = rmsCache->mSampleData[1][index&indexMask];
+	
+	rmsCache->mFetchIndex += 1;
+	
+	return noErr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 static OSStatus renderCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus error = noErr;

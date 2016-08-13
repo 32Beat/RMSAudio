@@ -48,7 +48,7 @@
 @property (nonatomic) RMSSource *inputSource;
 @property (nonatomic, weak) IBOutlet NSProgressIndicator *progressIndicator;
 
-@property (nonatomic) RMSVarispeed *resampler;
+@property (nonatomic) RMSResampler *resampler;
 @property (nonatomic, weak) IBOutlet NSSlider *parameterSlider;
 @property (nonatomic, weak) IBOutlet NSButton *filterButton;
 
@@ -332,7 +332,7 @@
 				// change source to resampler with original source
 				source = [RMSResampler instanceWithSource:source];
 				
-				self.resampler = (RMSVarispeed *)source;
+				self.resampler = (RMSResampler *)source;
 				self.resampler.parameter = self.parameterSlider.floatValue;
 				self.resampler.shouldFilter = self.filterButton.intValue;
 			}

@@ -25,9 +25,9 @@
 #import "RMSDevice.h"
 #import "RMSFileRecorder.h"
 
+#import "RMSLink.h"
 #import "RMSCallback.h"
 #import "RMSSource.h"
-#import "RMSLink.h"
 #import "RMSMixer.h"
 #import "RMSClip.h"
 
@@ -40,6 +40,10 @@
 #import "RMSInput.h"
 #import "RMSOutput.h"
 
+
+#import "RMSCache.h"
+#import "RMSResampler.h"
+#import "RMSVarispeed.h"
 #import "RMSVarispeed.h"
 #import "RMSVolume.h"
 #import "RMSAutoPan.h"

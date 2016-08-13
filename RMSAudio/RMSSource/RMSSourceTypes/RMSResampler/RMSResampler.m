@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*
-	RMSVarispeed
+	RMSResampler
 	
 	Created by 32BT on 15/11/15.
 	Copyright © 2015 32BT. All rights reserved.
@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#import "RMSVarispeed.h"
+#import "RMSResampler.h"
 #import "RMSUtilities.h"
 #import "RMSBezierInterpolator.h"
 #import "rmssum.h"
@@ -178,7 +178,7 @@ void RMSTestRun(rmstest_t *F, float *ptr, uint32_t N)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-@interface RMSVarispeed ()
+@interface RMSResampler ()
 {
 	UInt64 mSrcIndex;
 	UInt64 mSrcIndexMask;
@@ -205,7 +205,7 @@ void RMSTestRun(rmstest_t *F, float *ptr, uint32_t N)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-@implementation RMSVarispeed
+@implementation RMSResampler
 ////////////////////////////////////////////////////////////////////////////////
 /*
 static OSStatus ApplyFilter(void *objectPtr, const RMSCallbackInfo *infoPtr)
@@ -230,8 +230,8 @@ static OSStatus ApplyFilter_(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
 
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
+	__unsafe_unretained RMSResampler *rmsSource = \
+	(__bridge __unsafe_unretained RMSResampler *)objectPtr;
 
 	rmsSource->mTest[0].Q = rmsSource->_parameter;
 	rmsSource->mTest[1].Q = rmsSource->_parameter;
@@ -259,8 +259,8 @@ static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UIn
 {
 	OSStatus result = noErr;
 
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
+	__unsafe_unretained RMSResampler *rmsSource = \
+	(__bridge __unsafe_unretained RMSResampler *)objectPtr;
 
 	float *ptrL = bufferListPtr->mBuffers[0].mData;
 	RMSFilterRun(&rmsSource->mFilterL[0], ptrL, N);
@@ -285,8 +285,8 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 {
 	OSStatus result = noErr;
 
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
+	__unsafe_unretained RMSResampler *rmsSource = \
+	(__bridge __unsafe_unretained RMSResampler *)objectPtr;
 
 	UInt64 srcIndex = rmsSource->mSrcIndex;
 	Float64 srcFraction = rmsSource->mSrcFraction;
@@ -340,8 +340,8 @@ static OSStatus DecimateSource(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
 
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)objectPtr;
+	__unsafe_unretained RMSResampler *rmsSource = \
+	(__bridge __unsafe_unretained RMSResampler *)objectPtr;
 
 	Float32 *srcPtrL = rmsSource->mCacheBuffer.buffer[0].mData;
 	Float32 *srcPtrR = rmsSource->mCacheBuffer.buffer[1].mData;
@@ -415,8 +415,8 @@ static OSStatus DecimateSourceByN(void *rmsObject, const RMSCallbackInfo *infoPt
 {
 	OSStatus result = noErr;
 
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
+	__unsafe_unretained RMSResampler *rmsSource = \
+	(__bridge __unsafe_unretained RMSResampler *)rmsObject;
 
 	Float32 *srcPtrL = rmsSource->mCacheBuffer.buffer[0].mData;
 	Float32 *srcPtrR = rmsSource->mCacheBuffer.buffer[1].mData;
@@ -461,8 +461,8 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
 
-	__unsafe_unretained RMSVarispeed *rmsSource = \
-	(__bridge __unsafe_unretained RMSVarispeed *)rmsObject;
+	__unsafe_unretained RMSResampler *rmsSource = \
+	(__bridge __unsafe_unretained RMSResampler *)rmsObject;
 	
 	if (rmsSource->mResampleProc != nil)
 	{ result = rmsSource->mResampleProc(rmsObject, infoPtr); }

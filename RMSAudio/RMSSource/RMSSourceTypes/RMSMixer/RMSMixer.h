@@ -9,6 +9,8 @@
 
 #import "RMSSource.h"
 
+// TODO: derive RMSMixer from RMSCache
+
 @interface RMSMixer : RMSSource
 
 @end

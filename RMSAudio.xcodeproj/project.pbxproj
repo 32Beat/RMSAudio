@@ -77,6 +77,8 @@
 		13C2F9071D4CB26800B35F3E /* RMSAudioUnitConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */; };
 		13C2F90B1D4CD28300B35F3E /* RMSMixer.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F90A1D4CD28300B35F3E /* RMSMixer.m */; };
 		13C2F90C1D4CD28300B35F3E /* RMSMixer.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C2F90A1D4CD28300B35F3E /* RMSMixer.m */; };
+		13C4AFAF1D5F950B002EDE32 /* RMSResampler.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C4AFAE1D5F950B002EDE32 /* RMSResampler.m */; };
+		13C4AFB01D5F950B002EDE32 /* RMSResampler.m in Sources */ = {isa = PBXBuildFile; fileRef = 13C4AFAE1D5F950B002EDE32 /* RMSResampler.m */; };
 		13CFA1CF1D4E0C9C00728B03 /* RMSClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 13CFA1CE1D4E0C9C00728B03 /* RMSClip.m */; };
 		13CFA1D01D4E0C9C00728B03 /* RMSClip.m in Sources */ = {isa = PBXBuildFile; fileRef = 13CFA1CE1D4E0C9C00728B03 /* RMSClip.m */; };
 		13CFA1D41D4E279400728B03 /* RMSFileRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 13CFA1D31D4E279400728B03 /* RMSFileRecorder.m */; };
@@ -163,6 +165,8 @@
 		13C2F9051D4CB26800B35F3E /* RMSAudioUnitConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSAudioUnitConverter.m; sourceTree = "<group>"; };
 		13C2F9091D4CD28300B35F3E /* RMSMixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSMixer.h; sourceTree = "<group>"; };
 		13C2F90A1D4CD28300B35F3E /* RMSMixer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSMixer.m; sourceTree = "<group>"; };
+		13C4AFAD1D5F950B002EDE32 /* RMSResampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSResampler.h; sourceTree = "<group>"; };
+		13C4AFAE1D5F950B002EDE32 /* RMSResampler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSResampler.m; sourceTree = "<group>"; };
 		13CFA1CD1D4E0C9C00728B03 /* RMSClip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSClip.h; sourceTree = "<group>"; };
 		13CFA1CE1D4E0C9C00728B03 /* RMSClip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSClip.m; sourceTree = "<group>"; };
 		13CFA1D21D4E279400728B03 /* RMSFileRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSFileRecorder.h; sourceTree = "<group>"; };
@@ -239,6 +243,7 @@
 		13488BAA1D447031009E99D6 /* RMSSourceTypes */ = {
 			isa = PBXGroup;
 			children = (
+				13C4AFAC1D5F950B002EDE32 /* RMSResampler */,
 				13BAC0C11D52FB4600E14AD0 /* RMSCache */,
 				13CFA1CC1D4E0C9C00728B03 /* RMSClip */,
 				13C2F9081D4CD28300B35F3E /* RMSMixer */,
@@ -490,6 +495,15 @@
 			path = RMSMixer;
 			sourceTree = "<group>";
 		};
+		13C4AFAC1D5F950B002EDE32 /* RMSResampler */ = {
+			isa = PBXGroup;
+			children = (
+				13C4AFAD1D5F950B002EDE32 /* RMSResampler.h */,
+				13C4AFAE1D5F950B002EDE32 /* RMSResampler.m */,
+			);
+			path = RMSResampler;
+			sourceTree = "<group>";
+		};
 		13CFA1CC1D4E0C9C00728B03 /* RMSClip */ = {
 			isa = PBXGroup;
 			children = (
@@ -615,6 +629,7 @@
 				1305C0CF1D44712B0062E2CA /* main.m in Sources */,
 				137EA07D1D4DCF9A00961DBA /* RMSLink.m in Sources */,
 				13488C0F1D447032009E99D6 /* RMSIndexView.m in Sources */,
+				13C4AFAF1D5F950B002EDE32 /* RMSResampler.m in Sources */,
 				13488BEB1D447032009E99D6 /* RMSAudioUnitFilePlayer.m in Sources */,
 				13488BE91D447032009E99D6 /* RMSAudioUnit.m in Sources */,
 				13488BF71D447032009E99D6 /* RMSAutoPan.m in Sources */,
@@ -656,6 +671,7 @@
 				13488C101D447032009E99D6 /* RMSIndexView.m in Sources */,
 				137EA07E1D4DCFA100961DBA /* RMSLink.m in Sources */,
 				13488BEC1D447032009E99D6 /* RMSAudioUnitFilePlayer.m in Sources */,
+				13C4AFB01D5F950B002EDE32 /* RMSResampler.m in Sources */,
 				137CB2C21D4385DA00AA241A /* ViewController.m in Sources */,
 				13488BEA1D447032009E99D6 /* RMSAudioUnit.m in Sources */,
 				13488BF81D447032009E99D6 /* RMSAutoPan.m in Sources */,

@@ -10,8 +10,7 @@
 #import "RMSCache.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// TODO: this is currently a resampler/converter not a varispeed
-// TODO: probably requires renaming
+// TODO: derive RMSVarispeed from RMSResampler
 
 @interface RMSVarispeed : RMSCache
 {

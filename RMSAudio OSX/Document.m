@@ -330,7 +330,7 @@
 			if (source.sampleRate != output.sampleRate) \
 			{
 				// change source to resampler with original source
-				source = [RMSVarispeed instanceWithSource:source];
+				source = [RMSResampler instanceWithSource:source];
 				
 				self.resampler = (RMSVarispeed *)source;
 				self.resampler.parameter = self.parameterSlider.floatValue;

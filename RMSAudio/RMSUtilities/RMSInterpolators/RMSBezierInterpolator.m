@@ -89,9 +89,9 @@ void RMSResamplerWriteWithParameter(rmscrb_t *ptr, double S, double P)
 double RMSResamplerFetch(rmscrb_t *ptr, double t)
 {
 //	return RMSResamplerNearestFetch(ptr, t);
-	return RMSResamplerJitteredFetch(ptr, t);
+//	return RMSResamplerJitteredFetch(ptr, t);
 //	return RMSResamplerLinearFetch(ptr, t);
-//	return RMSResamplerSplineFetch(ptr, t);
+	return RMSResamplerSplineFetch(ptr, t);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

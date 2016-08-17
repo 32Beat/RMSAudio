@@ -65,18 +65,6 @@ static OSStatus renderCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (instancetype) init
-{
-	self = [super init];
-	if (self != nil)
-	{
-	}
-	
-	return self;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 + (instancetype) sineWaveWithLength:(UInt64)N
 {
 	RMSClip *sineWave = [[self alloc] initWithLength:N];
@@ -112,6 +100,11 @@ static OSStatus renderCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	
 	return clip;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (instancetype) init
+{ return [self initWithLength:512]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

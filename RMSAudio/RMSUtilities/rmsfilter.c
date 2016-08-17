@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "rmsfilter.h"
+#include "rmsavg.h"
 #include <math.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +26,17 @@ double RMSFilterAdjustMultiplier(double M, int order)
 ////////////////////////////////////////////////////////////////////////////////
 
 rmsfilter_t RMSFilterInitWithMultiplier(double M)
-{ return (rmsfilter_t){ .A = 0.0, .M = M }; }
+{
+	return (rmsfilter_t)
+	{
+		.V = 0.0,
+		.M = M,
+		.E = 0.0,
+		.R = 0.0
+	};
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 rmsfilter_t RMSFilterInitWithRateChange(double srcRate, double dstRate)
 {
@@ -40,6 +51,23 @@ rmsfilter_t RMSFilterInitWithCutoff(double Fc, double Fs)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+static inline float RMSTestApply(rmsfilter_t *F, float S)
+{
+	double E = S - F->V;
+
+	F->E *= (1.0-F->M);
+	E *= F->M;
+	F->V += F->E * F->R;
+	F->E += E;
+	F->V += E;
+	
+	return F->V;
+}
+*/
+
+
+
 
 static inline float FMA(float A, float B, float C)
 {
@@ -50,18 +78,30 @@ static inline float FMA(float A, float B, float C)
 #endif
 }
 
-static inline float RMSFilterApply(rmsfilter_t *F, float S)
-{
-	F->A = S = FMA(F->M, S - F->A, F->A);
-	return S;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void RMSFilterRun(rmsfilter_t *F, float *ptr, uint32_t N)
 {
-	for (uint32_t n=0; n!=N; n++)
-	{ ptr[n] = RMSFilterApply(F, ptr[n]); }
+	for(uint32_t n=0; n!=N; n++)
+	{
+		double S = ptr[n];
+		double E = S - F->V;
+		F->E += (E - F->E) * F->M;
+		E *= F->M;
+		E += (F->E - E) * F->R;
+		F->V += E;
+		ptr[n] = F->V;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSFilterApply(rmsfilter_t *F, float *ptr, uint32_t N)
+{
+	if (F->R > 0.0)
+	{ RMSFilterRun(F, ptr, N); }
+	else
+	{ RMSAverageRun(&F->avg, ptr, N); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

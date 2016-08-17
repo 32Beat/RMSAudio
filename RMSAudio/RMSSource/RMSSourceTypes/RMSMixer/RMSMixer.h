@@ -7,10 +7,10 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-#import "RMSSource.h"
+#import "RMSClip.h"
 
 // TODO: derive RMSMixer from RMSCache
 
-@interface RMSMixer : RMSSource
+@interface RMSMixer : RMSClip
 
 @end

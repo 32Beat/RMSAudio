@@ -10,19 +10,50 @@
 #ifndef rmsfilter_t_h
 #define rmsfilter_t_h
 
-#include <stddef.h>
-#include <stdint.h>
+#include "rmsavg.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
 	usage indication:
 */
 ////////////////////////////////////////////////////////////////////////////////
+/*	
+	V = value
+	M = multiplier,
 
-typedef struct rmsfilter_t
+	E = error
+	R = resonance,
+	(Q is technically more like resonance decay time, 
+	which is not controlled by this parameter)
+	
+	
+	// error = current sample - previous filter value
+	E = S - F->V
+	
+	// update proportional error
+	E *= F->M; // = normal filter response y[n] = ax[n] + by[n-1], b = 1-a, a = M
+
+	// update running average error
+	F->E += (E - F->E) * F->M // = resonant response
+	
+	// adjust between Ep & Ei
+	E += (F->E - E) * F->R;
+	
+	// update filter value
+	F->V += E;
+	
+	return F->V
+*/
+
+typedef union rmsfilter_t
 {
-	float A;
-	float M;
+	rmsavg_t avg;
+	struct {
+	double V;
+	double M;
+	double E;
+	double R;
+	};
 }
 rmsfilter_t;
 

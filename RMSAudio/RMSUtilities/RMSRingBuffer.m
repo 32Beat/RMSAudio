@@ -79,7 +79,18 @@ static inline bool TestSamples(
 
 bool RMSRingBufferTestSamples(RMSRingBuffer *buffer)
 {
-	return TestSamples(buffer->dataPtrL, buffer->dataPtrR, buffer->frameCount);
+	float *srcPtrL = buffer->dataPtrL;
+	float *srcPtrR = buffer->dataPtrR;
+	
+	for (UInt32 n=0; n!=buffer->frameCount; n++)
+	{
+		if (srcPtrL[n] != srcPtrR[n])
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -164,9 +175,11 @@ void RMSRingBufferReport(RMSRingBuffer *buffer)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void RMSRingBufferReadStereoData0(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount);
+static void RMSRingBufferReadStereoData0
+(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount);
 
-void RMSRingBufferReadStereoData(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount)
+void RMSRingBufferReadStereoData
+(RMSRingBuffer *buffer, AudioBufferList *dstAudio, UInt32 frameCount)
 {
 	if (buffer->writeIndex < frameCount) return;
 	

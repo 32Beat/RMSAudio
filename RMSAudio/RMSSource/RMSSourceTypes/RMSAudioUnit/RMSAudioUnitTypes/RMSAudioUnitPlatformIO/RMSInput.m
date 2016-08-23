@@ -33,9 +33,6 @@ RMSRateInfo;
 	RMSRateInfo mInputRate;
 	RMSRateInfo mOutputRate;
 	
-	UInt32 mInputIsBusy;
-	UInt32 mOutputIsBusy;
-	
 	UInt64 mIndex;
 	UInt32 mMaxFrameCount;
 	RMSRingBuffer mRingBuffer;
@@ -82,26 +79,34 @@ static OSStatus inputCallback(
 	__unsafe_unretained RMSInput *rmsObject =
 	(__bridge __unsafe_unretained RMSInput *)refCon;
 
-	rmsObject->mInputIsBusy = 1;
+	// incoming bufferListPtr is nil,
+	// let AudioUnitRender process directly to ring buffer
+	RMSAudioBufferList stereoBuffer =
+	RMSRingBufferGetWriteBufferList(&rmsObject->mRingBuffer);
 
-		// bufferListPtr is nil, use AudioUnitRender to render directly to ring buffer
-		RMSAudioBufferList stereoBuffer =
-		RMSRingBufferGetWriteBufferList(&rmsObject->mRingBuffer);
-		
-		result = AudioUnitRender(rmsObject->mAudioUnit, \
-		actionFlagsPtr, timeStampPtr, busNumber, frameCount, &stereoBuffer.list);
-	
-		if (rmsObject->mChannelCount == 1)
-		{
-			RMSAudioBufferList_CopyBuffer
-			(&stereoBuffer.list, 0, &stereoBuffer.list, 1, frameCount);
-		}
-	
-		RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
-	
-	rmsObject->mInputIsBusy = 0;
+	/*
+		Following works if and only if the stereoBuffer size is a multiple
+		of the requested frameCount. AudioUnitRender will only render
+		an inputmodule if framecount == device buffer size.
+		So the stereoBuffer size should be set in accordance with the 
+		deviceBuffer size. (see "prepareBuffers" below).
+	*/
+	result = AudioUnitRender(rmsObject->mAudioUnit, \
+	actionFlagsPtr, timeStampPtr, busNumber, frameCount, &stereoBuffer.list);
 
+	/*
+		If the inputstream only delivers a single channel, 
+		the first channel will be copied to the second channel.
+	*/
+	if (rmsObject->mChannelCount == 1)
+	{
+		RMSAudioBufferList_CopyBuffer
+		(&stereoBuffer.list, 0, &stereoBuffer.list, 1, frameCount);
+	}
 
+	// update write index
+	RMSRingBufferMoveWriteIndex(&rmsObject->mRingBuffer, frameCount);
+	
 	return result;
 }
 
@@ -112,21 +117,8 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 	__unsafe_unretained RMSInput *rmsObject =
 	(__bridge __unsafe_unretained RMSInput *)rmsSource;
 	
-	// This should raise an exception
-	UInt32 frameCount = infoPtr->frameCount;
-	UInt32 maxFrameCount = rmsObject->mMaxFrameCount;
-	if (frameCount > maxFrameCount)
-	{
-		/*
-			If the inputscope-samplerate of the audioengine output audiounit
-			does not match the device-samplerate, this may happen.
-		*/
-		NSLog(@"Output frameCount (%d) > kBufferSize (%d)", frameCount, maxFrameCount);
-		return paramErr;
-	}
-	
 	RMSRingBufferReadStereoData
-	(&rmsObject->mRingBuffer, infoPtr->bufferListPtr, frameCount);
+	(&rmsObject->mRingBuffer, infoPtr->bufferListPtr, infoPtr->frameCount);
 
 	return noErr;
 }

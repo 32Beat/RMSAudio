@@ -64,6 +64,9 @@
 @interface RMSSource : RMSCallback
 {
 	Float64 mSampleRate;
+	
+	UInt64 mStart;
+	UInt64 mIndex;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

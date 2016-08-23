@@ -103,8 +103,7 @@ void *RMSLinkGetLink(void *linkPtr)
 
 void RMSLinkUpdateTrash(void *linkPtr)
 {
-	__unsafe_unretained RMSLink *link =
-	(__bridge __unsafe_unretained RMSLink *)linkPtr;
+	__unsafe_unretained RMSLink *link = RMSLinkBridge(linkPtr);
 
 	if (link != nil && link->mTrash != nil)
 	{

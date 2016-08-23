@@ -72,6 +72,8 @@
 
 OSStatus RunRMSCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
+	RMSLinkUpdateTrash(objectPtr);
+	
 	RMSCallbackProcPtr procPtr = RMSCallbackBridge(objectPtr)->mCallbackProcPtr;
 	RMSCallbackDataPtr dataPtr = RMSCallbackBridge(objectPtr)->mCallbackDataPtr;
 	return procPtr(dataPtr, infoPtr);

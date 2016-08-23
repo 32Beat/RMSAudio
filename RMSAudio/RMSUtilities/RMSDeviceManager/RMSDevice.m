@@ -12,6 +12,7 @@
 #import "RMSUtilities.h"
 #import "RMSAudioUnitUtilities.h"
 
+////////////////////////////////////////////////////////////////////////////////
 
 @interface RMSDevice ()
 {
@@ -33,6 +34,9 @@
 { return [[self alloc] initWithDeviceID:deviceID]; }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+- (instancetype) init
+{ return [self initWithDeviceID:0]; }
 
 - (instancetype) initWithDeviceID:(AudioDeviceID)deviceID
 {
@@ -67,7 +71,7 @@
 - (OSStatus) getName
 {
 	// get device name
-	const AudioObjectPropertyAddress propertyAddress = {
+	static const AudioObjectPropertyAddress propertyAddress = {
 	kAudioObjectPropertyName,
 	kAudioObjectPropertyScopeGlobal,
 	kAudioObjectPropertyElementMaster };
@@ -98,7 +102,7 @@
 
 - (OSStatus) getUniqueID
 {
-	const AudioObjectPropertyAddress propertyAddress = {
+	static const AudioObjectPropertyAddress propertyAddress = {
 	kAudioDevicePropertyDeviceUID,
 	kAudioObjectPropertyScopeGlobal,
 	kAudioObjectPropertyElementMaster };
@@ -138,43 +142,37 @@
 
 - (void) getChannelCounts
 {
-	[self getInputChannelCount];
-	[self getOutputChannelCount];
+	_inputChannelCount = [self getInputChannelCount];
+	_outputChannelCount = [self getOutputChannelCount];
 	mChannelCount = _inputChannelCount+_outputChannelCount;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) getInputChannelCount
-{
-	// get input stream config
-	const AudioObjectPropertyAddress propertyAddress = {
-	kAudioDevicePropertyStreamConfiguration,
-	kAudioObjectPropertyScopeInput, 0 };
-	
-	AudioBufferList *bufferList = [self getPropertyData:&propertyAddress];
-	if (bufferList != nil)
-	{
-		_inputChannelCount = RMSAudioBufferList_GetTotalChannelCount(bufferList);
-		free(bufferList);
-	}
-}
+- (UInt32) getInputChannelCount
+{ return [self getChannelCountForScope:kAudioObjectPropertyScopeInput]; }
+
+- (UInt32) getOutputChannelCount
+{ return [self getChannelCountForScope:kAudioObjectPropertyScopeOutput]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) getOutputChannelCount
+- (UInt32) getChannelCountForScope:(AudioObjectPropertyScope)scope
 {
-	// get output stream config
-	const AudioObjectPropertyAddress propertyAddress = {
-	kAudioDevicePropertyStreamConfiguration,
-	kAudioObjectPropertyScopeOutput, 0 };
+	UInt32 channelCount = 0;
+	
+	// get input stream config
+	AudioObjectPropertyAddress propertyAddress =
+	{ kAudioDevicePropertyStreamConfiguration, scope, 0 };
 	
 	AudioBufferList *bufferList = [self getPropertyData:&propertyAddress];
 	if (bufferList != nil)
 	{
-		_outputChannelCount = RMSAudioBufferList_GetTotalChannelCount(bufferList);
+		channelCount = RMSAudioBufferList_GetTotalChannelCount(bufferList);
 		free(bufferList);
 	}
+	
+	return channelCount;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

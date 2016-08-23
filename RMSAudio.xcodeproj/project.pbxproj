@@ -61,6 +61,8 @@
 		13488C101D447032009E99D6 /* RMSIndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BE21D447032009E99D6 /* RMSIndexView.m */; };
 		13488C111D447032009E99D6 /* RMSResultView.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BE41D447032009E99D6 /* RMSResultView.m */; };
 		13488C121D447032009E99D6 /* RMSResultView.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BE41D447032009E99D6 /* RMSResultView.m */; };
+		137C07D31D6C761800D4B7E0 /* RMSInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 137C07D21D6C761800D4B7E0 /* RMSInterpolator.m */; };
+		137C07D41D6C761800D4B7E0 /* RMSInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 137C07D21D6C761800D4B7E0 /* RMSInterpolator.m */; };
 		137CB2BC1D4385DA00AA241A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 137CB2BB1D4385DA00AA241A /* main.m */; };
 		137CB2BF1D4385DA00AA241A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 137CB2BE1D4385DA00AA241A /* AppDelegate.m */; };
 		137CB2C21D4385DA00AA241A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 137CB2C11D4385DA00AA241A /* ViewController.m */; };
@@ -147,6 +149,8 @@
 		13488BE31D447032009E99D6 /* RMSResultView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSResultView.h; sourceTree = "<group>"; };
 		13488BE41D447032009E99D6 /* RMSResultView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSResultView.m; sourceTree = "<group>"; };
 		135720281D1BEF22002FFE64 /* RMSAudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RMSAudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		137C07D11D6C761800D4B7E0 /* RMSInterpolator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSInterpolator.h; sourceTree = "<group>"; };
+		137C07D21D6C761800D4B7E0 /* RMSInterpolator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSInterpolator.m; sourceTree = "<group>"; };
 		137CB2B81D4385DA00AA241A /* RMSAudio iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RMSAudio iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		137CB2BB1D4385DA00AA241A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		137CB2BD1D4385DA00AA241A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -377,6 +381,7 @@
 		13488BCD1D447032009E99D6 /* RMSUtilities */ = {
 			isa = PBXGroup;
 			children = (
+				137C07D01D6C761800D4B7E0 /* RMSInterpolator */,
 				1304E81F1D62677600217682 /* rmsavg.c */,
 				1304E8201D62677600217682 /* rmsavg.h */,
 				138A0AA91D59E0EF007B735F /* rmssum.c */,
@@ -448,6 +453,15 @@
 				137CB2B81D4385DA00AA241A /* RMSAudio iOS.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		137C07D01D6C761800D4B7E0 /* RMSInterpolator */ = {
+			isa = PBXGroup;
+			children = (
+				137C07D11D6C761800D4B7E0 /* RMSInterpolator.h */,
+				137C07D21D6C761800D4B7E0 /* RMSInterpolator.m */,
+			);
+			path = RMSInterpolator;
 			sourceTree = "<group>";
 		};
 		137CB2B91D4385DA00AA241A /* RMSAudio iOS */ = {
@@ -635,6 +649,7 @@
 				1305C0CF1D44712B0062E2CA /* main.m in Sources */,
 				137EA07D1D4DCF9A00961DBA /* RMSLink.m in Sources */,
 				13488C0F1D447032009E99D6 /* RMSIndexView.m in Sources */,
+				137C07D31D6C761800D4B7E0 /* RMSInterpolator.m in Sources */,
 				13C4AFAF1D5F950B002EDE32 /* RMSResampler.m in Sources */,
 				13488BEB1D447032009E99D6 /* RMSAudioUnitFilePlayer.m in Sources */,
 				13488BE91D447032009E99D6 /* RMSAudioUnit.m in Sources */,
@@ -678,6 +693,7 @@
 				13488C101D447032009E99D6 /* RMSIndexView.m in Sources */,
 				137EA07E1D4DCFA100961DBA /* RMSLink.m in Sources */,
 				13488BEC1D447032009E99D6 /* RMSAudioUnitFilePlayer.m in Sources */,
+				137C07D41D6C761800D4B7E0 /* RMSInterpolator.m in Sources */,
 				13C4AFB01D5F950B002EDE32 /* RMSResampler.m in Sources */,
 				137CB2C21D4385DA00AA241A /* ViewController.m in Sources */,
 				13488BEA1D447032009E99D6 /* RMSAudioUnit.m in Sources */,

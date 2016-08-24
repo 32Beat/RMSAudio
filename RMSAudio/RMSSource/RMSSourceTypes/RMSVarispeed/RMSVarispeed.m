@@ -10,7 +10,7 @@
 
 #import "RMSVarispeed.h"
 #import "RMSUtilities.h"
-#import "RMSBezierInterpolator.h"
+#import "RMSInterpolator.h"
 #import "rmssum.h"
 #import "rmsfilter.h"
 

@@ -47,8 +47,6 @@
 		13488C021D447032009E99D6 /* RMSDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BD21D447032009E99D6 /* RMSDevice.m */; };
 		13488C031D447032009E99D6 /* RMSDeviceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BD41D447032009E99D6 /* RMSDeviceManager.m */; };
 		13488C041D447032009E99D6 /* RMSDeviceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BD41D447032009E99D6 /* RMSDeviceManager.m */; };
-		13488C051D447032009E99D6 /* RMSBezierInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BD71D447032009E99D6 /* RMSBezierInterpolator.m */; };
-		13488C061D447032009E99D6 /* RMSBezierInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BD71D447032009E99D6 /* RMSBezierInterpolator.m */; };
 		13488C071D447032009E99D6 /* rmslevels.c in Sources */ = {isa = PBXBuildFile; fileRef = 13488BD81D447032009E99D6 /* rmslevels.c */; };
 		13488C081D447032009E99D6 /* rmslevels.c in Sources */ = {isa = PBXBuildFile; fileRef = 13488BD81D447032009E99D6 /* rmslevels.c */; };
 		13488C091D447032009E99D6 /* RMSRingBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BDB1D447032009E99D6 /* RMSRingBuffer.m */; };
@@ -134,8 +132,6 @@
 		13488BD21D447032009E99D6 /* RMSDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSDevice.m; sourceTree = "<group>"; };
 		13488BD31D447032009E99D6 /* RMSDeviceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSDeviceManager.h; sourceTree = "<group>"; };
 		13488BD41D447032009E99D6 /* RMSDeviceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSDeviceManager.m; sourceTree = "<group>"; };
-		13488BD61D447032009E99D6 /* RMSBezierInterpolator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSBezierInterpolator.h; sourceTree = "<group>"; };
-		13488BD71D447032009E99D6 /* RMSBezierInterpolator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSBezierInterpolator.m; sourceTree = "<group>"; };
 		13488BD81D447032009E99D6 /* rmslevels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rmslevels.c; sourceTree = "<group>"; };
 		13488BD91D447032009E99D6 /* rmslevels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rmslevels.h; sourceTree = "<group>"; };
 		13488BDA1D447032009E99D6 /* RMSRingBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSRingBuffer.h; sourceTree = "<group>"; };
@@ -390,7 +386,6 @@
 				137D946E1D59B7040033A8AB /* rmsfilter.h */,
 				13CFA1D11D4E279400728B03 /* RMSFileRecorder */,
 				13488BD01D447032009E99D6 /* RMSDeviceManager */,
-				13488BD51D447032009E99D6 /* RMSInterpolators */,
 				13488BD81D447032009E99D6 /* rmslevels.c */,
 				13488BD91D447032009E99D6 /* rmslevels.h */,
 				13488BCE1D447032009E99D6 /* rmsbuffer.c */,
@@ -414,15 +409,6 @@
 				13488BD41D447032009E99D6 /* RMSDeviceManager.m */,
 			);
 			path = RMSDeviceManager;
-			sourceTree = "<group>";
-		};
-		13488BD51D447032009E99D6 /* RMSInterpolators */ = {
-			isa = PBXGroup;
-			children = (
-				13488BD61D447032009E99D6 /* RMSBezierInterpolator.h */,
-				13488BD71D447032009E99D6 /* RMSBezierInterpolator.m */,
-			);
-			path = RMSInterpolators;
 			sourceTree = "<group>";
 		};
 		13488BE01D447032009E99D6 /* RMSViews */ = {
@@ -670,7 +656,6 @@
 				138A0AAB1D59E0EF007B735F /* rmssum.c in Sources */,
 				13488BE71D447032009E99D6 /* RMSSource.m in Sources */,
 				13488BF31D447032009E99D6 /* RMSAudioUnitVarispeed.m in Sources */,
-				13488C051D447032009E99D6 /* RMSBezierInterpolator.m in Sources */,
 				13488BF91D447032009E99D6 /* RMSVolume.m in Sources */,
 				13488BEF1D447032009E99D6 /* RMSInput.m in Sources */,
 				13488BF51D447032009E99D6 /* RMSAudioUnitUtilities.m in Sources */,
@@ -715,7 +700,6 @@
 				13488BE81D447032009E99D6 /* RMSSource.m in Sources */,
 				13488BF41D447032009E99D6 /* RMSAudioUnitVarispeed.m in Sources */,
 				137CB2BC1D4385DA00AA241A /* main.m in Sources */,
-				13488C061D447032009E99D6 /* RMSBezierInterpolator.m in Sources */,
 				13488BFA1D447032009E99D6 /* RMSVolume.m in Sources */,
 				13488BF01D447032009E99D6 /* RMSInput.m in Sources */,
 				1304E8221D62677600217682 /* rmsavg.c in Sources */,

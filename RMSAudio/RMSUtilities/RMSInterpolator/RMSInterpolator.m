@@ -11,6 +11,175 @@
 #import "RMSInterpolator.h"
 #import <math.h>
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+rmsdecimator_t RMSDecimatorInitWithSize(double size)
+{ return (rmsdecimator_t){ .A0 = 0.0, .A1 = 0.0, .M = 1.0/size }; }
+
+void RMSDecimatorUpdate(rmsdecimator_t *decimator, double S)
+{
+	S = decimator->A1 + (S - decimator->A1) * decimator->M;
+	decimator->A0 = decimator->A1;
+	decimator->A1 = S;
+}
+
+double RMSDecimatorFetch(rmsdecimator_t *decimator, double t)
+{ return decimator->A0 + t * (decimator->A1 - decimator->A0); }
+/*
+void RMSDecimatorUpdateSum(rmsdecimator_t *decimator, float S)
+{
+	decimator->S0 += decimator->S1;
+	decimator->S1 = S;
+}
+
+double RMSDecimatorFetchAvg(rmsdecimator_t *decimator, double t)
+{
+	double S = t * decimator->S1;
+	decimator->S0 += S;
+	decimator->S1 -= S;
+
+	double D = decimator->S0;
+	decimator->S0 = 0.0;
+
+	return decimator->M * D;
+}
+*/
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSInterpolatorWriteJittered(rmsinterpolator_t *info, double S);
+void RMSInterpolatorWriteNearest(rmsinterpolator_t *info, double S);
+void RMSInterpolatorWriteLinear(rmsinterpolator_t *info, double S);
+void RMSInterpolatorWriteSpline(rmsinterpolator_t *info, double S);
+
+double RMSInterpolatorFetchNearest(rmsinterpolator_t *ptr, double t);
+double RMSInterpolatorFetchJittered(rmsinterpolator_t *ptr, double t);
+double RMSInterpolatorFetchLinear(rmsinterpolator_t *ptr, double t);
+double RMSInterpolatorFetchSpline(rmsinterpolator_t *ptr, double t);
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+rmsinterpolator_t RMSInterpolatorInitWithProcs(void *write, void *fetch)
+{
+	return (rmsinterpolator_t)
+	{
+		write,
+		fetch,
+		0.0, 0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0, 0.0
+	};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+rmsinterpolator_t RMSJitteredInterpolator(void)
+{
+	return RMSInterpolatorInitWithProcs(
+	RMSInterpolatorWriteJittered,
+	RMSInterpolatorFetchJittered);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+rmsinterpolator_t RMSNearestInterpolator(void)
+{
+	return RMSInterpolatorInitWithProcs(
+	RMSInterpolatorWriteNearest,
+	RMSInterpolatorFetchNearest);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+rmsinterpolator_t RMSLinearInterpolator(void)
+{
+	return RMSInterpolatorInitWithProcs(
+	RMSInterpolatorWriteLinear,
+	RMSInterpolatorFetchLinear);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+rmsinterpolator_t RMSSplineInterpolator(void)
+{
+	return RMSInterpolatorInitWithProcs(
+	RMSInterpolatorWriteSpline,
+	RMSInterpolatorFetchSpline);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSInterpolatorUpdate(rmsinterpolator_t *info, double S)
+{ info->write(info, S); }
+
+double RMSInterpolatorFetch(rmsinterpolator_t *info, double t)
+{ return info->fetch(info, t); }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSInterpolatorWriteJittered(rmsinterpolator_t *info, double S)
+{
+	info->P1 = info->P2;
+	info->P2 = S;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSInterpolatorFetchJittered(rmsinterpolator_t *ptr, double t)
+{
+	// compensate previous offset
+	if ((t+ptr->e) < 0.5)
+	{
+		ptr->e = +t;
+		return ptr->P1;
+		
+	}
+	else
+	{
+		ptr->e = -(1.0-t);
+		return ptr->P2;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSInterpolatorWriteNearest(rmsinterpolator_t *info, double S)
+{
+	info->P1 = info->P2;
+	info->P2 = S;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSInterpolatorFetchNearest(rmsinterpolator_t *ptr, double t)
+{ return t < 0.5 ? ptr->P1 : ptr->P2; }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSInterpolatorWriteLinear(rmsinterpolator_t *info, double S)
+{
+	info->P1 = info->P2;
+	info->P2 = S;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSInterpolatorFetchLinear(rmsinterpolator_t *info, double t)
+{ return info->P1 + t * (info->P2 - info->P1); }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 /*
 	Given equally spaced samples P0, P1, P2, P3, 
@@ -46,7 +215,7 @@
 	
 	Currently S needs to be 2 samples ahead of the source index.
 */
-void RMSInterpolatorUpdate(rmsinterpolator_t *ptr, double S)
+void RMSInterpolatorWriteSpline(rmsinterpolator_t *ptr, double S)
 {
 	ptr->P0 = ptr->P1;
 	ptr->P1 = ptr->P2;
@@ -68,61 +237,6 @@ void RMSInterpolatorUpdate(rmsinterpolator_t *ptr, double S)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RMSInterpolatorUpdateWithParameter(rmsinterpolator_t *ptr, double S, double P)
-{
-	ptr->P0 = ptr->P1;
-	ptr->P1 = ptr->P2;
-	ptr->P2 = ptr->P3;
-	ptr->P3 = S;
-	
-	ptr->C1 = ptr->P1 - (ptr->C2 - ptr->P1);
-
-	double D1 = ptr->P2 - ptr->P1;
-	double D2 = ptr->P3 - ptr->P2;
-	double D = 0.5 * (D1+D2);
-		
-	ptr->C2 = ptr->P2 - P*D;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-double RMSInterpolatorFetch(rmsinterpolator_t *ptr, double t)
-{
-	return RMSInterpolatorFetchSpline(ptr, t);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-double RMSInterpolatorFetchNearest(rmsinterpolator_t *ptr, double t)
-{ return t < 0.5 ? ptr->P1 : ptr->P2; }
-
-////////////////////////////////////////////////////////////////////////////////
-
-double RMSInterpolatorFetchJittered(rmsinterpolator_t *ptr, double t)
-{
-	// compensate previous offset
-	if ((t+ptr->e) < 0.5)
-	{
-		ptr->e = +t;
-		return ptr->P1;
-		
-	}
-	else
-	{
-		ptr->e = -(1.0-t);
-		return ptr->P2;
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-double RMSInterpolatorFetchLinear(rmsinterpolator_t *ptr, double t)
-{
-	return ptr->P1 + t * (ptr->P2 - ptr->P1);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 double RMSInterpolatorFetchSpline(rmsinterpolator_t *ptr, double t)
 {
 	double P1 = ptr->P1;
@@ -140,6 +254,19 @@ double RMSInterpolatorFetchSpline(rmsinterpolator_t *ptr, double t)
 	P1 += t * (C1-P1);
 
 	return P1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSInterpolatorUpdateWithParameter(rmsinterpolator_t *ptr, double S, double P)
+{
+	ptr->P0 = ptr->P1;
+	ptr->P1 = ptr->P2;
+	ptr->P2 = ptr->P3;
+	ptr->P3 = S;
+	
+	ptr->C1 = ptr->P1 - (ptr->C2 - ptr->P1);
+	ptr->C2 = ptr->P2 - (ptr->P3 - ptr->P1)*(P);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

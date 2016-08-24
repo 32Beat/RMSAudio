@@ -16,10 +16,11 @@
 #import "rmsfilter.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
+	convenience struct for 2 channel interpolation
+*/
 typedef struct RMSStereoInterpolator
 {
-	double (*fetchProc)(rmsinterpolator_t *ptr, double t);
 	rmsinterpolator_t L;
 	rmsinterpolator_t R;
 }
@@ -30,9 +31,8 @@ static RMSStereoInterpolator RMSStereoInterpolatorInit(void)
 {
 	return (RMSStereoInterpolator)
 	{
-		.fetchProc = RMSInterpolatorFetchSpline,
-		.L = RMSInterpolatorInit(),
-		.R = RMSInterpolatorInit()
+		.L = RMSSplineInterpolator(),
+		.R = RMSSplineInterpolator(),
 	};
 }
 
@@ -50,74 +50,20 @@ static void RMSStereoInterpolatorUpdateWithParameter
 	RMSInterpolatorUpdateWithParameter(&ptr->R, srcPtr[1], P);
 }
 
-
 static void RMSStereoInterpolatorFetch
 (RMSStereoInterpolator *ptr, double t, AudioBufferList *dst, UInt32 index)
 {
 	Float32 *dstPtrL = dst->mBuffers[0].mData;
-	dstPtrL[index] = ptr->fetchProc(&ptr->L, t);
+	dstPtrL[index] = RMSInterpolatorFetch(&ptr->L, t);
 
 	Float32 *dstPtrR = dst->mBuffers[1].mData;
-	dstPtrR[index] = ptr->fetchProc(&ptr->R, t);
+	dstPtrR[index] = RMSInterpolatorFetch(&ptr->R, t);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
-/*
-	rmsdecimator_t is simply a linear rmsinterpolator with avg built in
-*/
-typedef struct rmsdecimator_t
-{
-	double M;
-	double S0;
-	double S1;
-}
-rmsdecimator_t;
 
-rmsdecimator_t RMSDecimatorInit(double M)
-{ return (rmsdecimator_t){ .M = M, 0.0, 0.0 }; }
-
-/*
-	Oddly enough, the running average seems to be slightly quicker than 
-	the summing average below, even for 8.5x downsampling...
-*/
-void RMSDecimatorUpdate(rmsdecimator_t *decimator, float S)
-{
-	double A = decimator->S1 + (S - decimator->S1) * decimator->M;
-	decimator->S0 = decimator->S1;
-	decimator->S1 = A;
-}
-
-double RMSDecimatorFetch(rmsdecimator_t *decimator, double t)
-{ return decimator->S0 + t * (decimator->S1 - decimator->S0); }
-
-
-
-
-void RMSDecimatorUpdateSum(rmsdecimator_t *decimator, float S)
-{
-	decimator->S0 += decimator->S1;
-	decimator->S1 = S;
-}
-
-double RMSDecimatorFetchAvg(rmsdecimator_t *decimator, double t)
-{
-	double S = t * decimator->S1;
-	decimator->S0 += S;
-	decimator->S1 -= S;
-
-	double D = decimator->S0;
-	decimator->S0 = 0.0;
-
-	return decimator->M * D;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark
-////////////////////////////////////////////////////////////////////////////////
 
 @interface RMSResampler ()
 {
@@ -127,7 +73,7 @@ double RMSDecimatorFetchAvg(rmsdecimator_t *decimator, double t)
 	Float64 mSrcStep;
 	
 	RMSCallbackProcPtr mResampleProc;
-	RMSStereoInterpolator mInterpolator;
+	rmsinterpolator_t mInterpolator[2];
 	
 	rmsdecimator_t mDecimator[2];
 	rmsavg_t mAvg[2];
@@ -205,11 +151,9 @@ static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UIn
 }
 //*/
 ////////////////////////////////////////////////////////////////////////////////
-/*
-static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UInt32 N)
-{
-	OSStatus result = noErr;
 
+static void ApplyAverage(void *objectPtr, AudioBufferList *bufferListPtr, UInt32 N)
+{
 	__unsafe_unretained RMSResampler *rmsSource = \
 	(__bridge __unsafe_unretained RMSResampler *)objectPtr;
 
@@ -218,10 +162,8 @@ static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UIn
 	
 	float *ptrR = bufferListPtr->mBuffers[1].mData;
 	RMSAverageRun(&rmsSource->mAvg[1], ptrR, N);
-	
-	return result;
 }
-//*/
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 #pragma mark Interpolation
@@ -243,6 +185,9 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 	Float64 srcFraction = rmsSource->mSrcFraction;
 	const Float64 srcStep = rmsSource->mSrcStep;
 
+	Float32 *dstPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
+	Float32 *dstPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
+
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
 		// test if next src sample is required
@@ -254,10 +199,8 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 			RMSCacheFetch(objectPtr, srcIndex, src);
 			
 			// update interpolator with sample
-			RMSStereoInterpolatorUpdate \
-			(&rmsSource->mInterpolator, src);
-//			RMSStereoInterpolatorUpdateWithParameter \
-			(&rmsSource->mInterpolator, src, rmsSource->_parameter);
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[0], src[0]);
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[1], src[1]);
 			
 			// update src index
 			srcIndex += 1;
@@ -267,8 +210,8 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 		}
 		
 		// fetch interpolated value
-		RMSStereoInterpolatorFetch
-		(&rmsSource->mInterpolator, srcFraction, infoPtr->bufferListPtr, n);
+		dstPtrL[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[0], srcFraction);
+		dstPtrR[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[1], srcFraction);
 		
 		// increase fraction by 1 dst sample
 		srcFraction += srcStep;
@@ -318,17 +261,20 @@ static OSStatus DecimateSource(void *objectPtr, const RMSCallbackInfo *infoPtr)
 			{
 				result = RMSCacheRefreshBuffer(objectPtr, index);
 				if (result != noErr) return result;
+
+				if (rmsSource->_shouldFilter)
+				{ ApplyAverage(objectPtr, &rmsSource->mCacheBuffer.list, rmsSource->mCacheSize); }
 			}
 			
-			RMSDecimatorUpdate(&rmsSource->mDecimator[0], srcPtrL[index&indexMask]);
-			RMSDecimatorUpdate(&rmsSource->mDecimator[1], srcPtrR[index&indexMask]);
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[0], srcPtrL[index&indexMask]);
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[1], srcPtrR[index&indexMask]);
 			
 			index += 1;
 		}
 
 		// fetch interpolated value
-		dstPtrL[n] = RMSDecimatorFetch(&rmsSource->mDecimator[0], srcT);
-		dstPtrR[n] = RMSDecimatorFetch(&rmsSource->mDecimator[1], srcT);
+		dstPtrL[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[0], srcT);
+		dstPtrR[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[1], srcT);
 		
 		srcT += rmsSource->mSrcStep;
 	}
@@ -496,20 +442,21 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 		// interpolators can be primed with 3 samples before first fetch
 		mSrcFraction = 3.0;
 		mResampleProc = InterpolateSource;
-		mInterpolator = RMSStereoInterpolatorInit();
+		mInterpolator[0] = RMSSplineInterpolator();
+		mInterpolator[1] = RMSSplineInterpolator();
 	}
 	else
 	if (mSrcStep > 1.0)
 	{
 		mAvg[0] = RMSAverageInitWithSize(mSrcStep);
 		mAvg[1] = RMSAverageInitWithSize(mSrcStep);
-		mDecimator[0] = RMSDecimatorInit(1.0 / mSrcStep);
-		mDecimator[1] = RMSDecimatorInit(1.0 / mSrcStep);
 		
 		// decimator needs to be primed with 1 sample,
 		// and first step should be mSrcStep
 		mSrcFraction = 1.0 + mSrcStep;
 		mResampleProc = DecimateSource;
+		mInterpolator[0] = RMSLinearInterpolator();
+		mInterpolator[1] = RMSLinearInterpolator();
 		
 		double N = log2(mSrcStep);
 		if ((N-floor(N))==0.0)

@@ -10,6 +10,22 @@
 #ifndef RMSInterpolator_h
 #define RMSInterpolator_h
 
+#include <stddef.h>
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef struct rmsdecimator_t
+{
+	double A0;
+	double A1;
+	double M;
+}
+rmsdecimator_t;
+
+rmsdecimator_t RMSDecimatorInitWithSize(double size);
+void RMSDecimatorUpdate(rmsdecimator_t *decimator, double S);
+double RMSDecimatorFetch(rmsdecimator_t *decimator, double t);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 enum RMSInterpolatorType
@@ -20,9 +36,13 @@ enum RMSInterpolatorType
 	kRMSInterpolatorTypeSpline
 };
 
+typedef struct rmsinterpolator_t rmsinterpolator_t;
 
-typedef struct rmsinterpolator_t
+struct rmsinterpolator_t
 {
+	void (*write)(rmsinterpolator_t *info, double S);
+	double (*fetch)(rmsinterpolator_t *info, double t);
+	
 	// equally spaced samples, interpolation occurs from P1 to P2
 	double P0;
 	double P1;
@@ -33,23 +53,19 @@ typedef struct rmsinterpolator_t
 	double e; 	// error for jittered fetch
 	double C1; 	// control points for spline fetch
 	double C2;
-}
-rmsinterpolator_t;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline rmsinterpolator_t RMSInterpolatorInit(void)
-{ return (rmsinterpolator_t){ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; }
-
+rmsinterpolator_t RMSJitteredInterpolator(void);
+rmsinterpolator_t RMSNearestInterpolator(void);
+rmsinterpolator_t RMSLinearInterpolator(void);
+rmsinterpolator_t RMSSplineInterpolator(void);
 
 void RMSInterpolatorUpdate(rmsinterpolator_t *ptr, double S);
 void RMSInterpolatorUpdateWithParameter(rmsinterpolator_t *ptr, double S, double P);
 
 double RMSInterpolatorFetch(rmsinterpolator_t *ptr, double t);
-double RMSInterpolatorFetchNearest(rmsinterpolator_t *ptr, double t);
-double RMSInterpolatorFetchJittered(rmsinterpolator_t *ptr, double t);
-double RMSInterpolatorFetchLinear(rmsinterpolator_t *ptr, double t);
-double RMSInterpolatorFetchSpline(rmsinterpolator_t *ptr, double t);
 
 ////////////////////////////////////////////////////////////////////////////////
 

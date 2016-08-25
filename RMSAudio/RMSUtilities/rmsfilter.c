@@ -79,29 +79,67 @@ static inline float FMA(float A, float B, float C)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void RMSFilterRun(rmsfilter_t *F, float *ptr, uint32_t N)
+/*
+double RMSOscillatorNext(rmsfilter_t *F)
 {
+	double E = 0.0 - F->V;
+	F->E += E * F->R;
+	F->V += F->E;
+	return F->V;
+}
+
+resonance
+resonant
+averaged
+average
+default
+
+
+*/
+
+void RMSFilterRunRES(rmsfilter_t *F, float *ptr, uint32_t N)
+{
+	const double M = F->M;
+	const double R = F->R;
+	
 	for(uint32_t n=0; n!=N; n++)
 	{
+		// fetch source
 		double S = ptr[n];
+		
+		// compute errors
 		double E = S - F->V;
-		F->E += (E - F->E) * F->M;
-		E *= F->M;
-		E += (F->E - E) * F->R;
-		F->V += E;
+		double Ep = E * M;
+		double Ei = F->E + (E - F->E) * M;
+		
+		// interpolate between flat error and resonant error
+		E = Ep + (Ei - Ep) * R;
+
+		// update filter
+		F->E = Ei;
+		F->V = F->V + E;
+		
+		// write result
 		ptr[n] = F->V;
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RMSFilterApply(rmsfilter_t *F, float *ptr, uint32_t N)
+void RMSFilterRunAVG(rmsfilter_t *F, float *ptr, uint32_t N)
+{
+	for(uint32_t n=0; n!=N; n++)
+	{ ptr[n] = (F->V += (ptr[n] - F->V) * F->M); }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSFilterRun(rmsfilter_t *F, float *ptr, uint32_t N)
 {
 	if (F->R > 0.0)
-	{ RMSFilterRun(F, ptr, N); }
+	{ RMSFilterRunRES(F, ptr, N); }
 	else
-	{ RMSAverageRun(&F->avg, ptr, N); }
+	{ RMSFilterRunAVG(F, ptr, N); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

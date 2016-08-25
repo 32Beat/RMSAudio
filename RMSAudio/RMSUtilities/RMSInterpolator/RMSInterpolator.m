@@ -13,7 +13,9 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
+	decimator is simply a linear interpolator with running average build in
+*/
 rmsdecimator_t RMSDecimatorInitWithSize(double size)
 { return (rmsdecimator_t){ .A0 = 0.0, .A1 = 0.0, .M = 1.0/size }; }
 
@@ -67,10 +69,10 @@ rmsinterpolator_t RMSInterpolatorInitWithProcs(void *write, void *fetch)
 {
 	return (rmsinterpolator_t)
 	{
-		write,
-		fetch,
 		0.0, 0.0, 0.0, 0.0,
-		0.0, 0.0, 0.0, 0.0
+		0.0, 0.0, 0.0, 0.0,
+		.write = write,
+		.fetch = fetch,
 	};
 }
 

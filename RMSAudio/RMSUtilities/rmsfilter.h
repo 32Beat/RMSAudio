@@ -10,7 +10,8 @@
 #ifndef rmsfilter_t_h
 #define rmsfilter_t_h
 
-#include "rmsavg.h"
+#include <stddef.h>
+#include <stdint.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -45,15 +46,12 @@
 	return F->V
 */
 
-typedef union rmsfilter_t
+typedef struct rmsfilter_t
 {
-	rmsavg_t avg;
-	struct {
 	double V;
 	double M;
 	double E;
 	double R;
-	};
 }
 rmsfilter_t;
 
@@ -64,6 +62,8 @@ rmsfilter_t RMSFilterInitWithRateChange(double srcRate, double dstRate);
 rmsfilter_t RMSFilterInitWithCutoff(double Fc, double Fs);
 
 void RMSFilterRun(rmsfilter_t *filterInfo, float *ptr, uint32_t N);
+
+double RMSOscillatorNext(rmsfilter_t *F);
 
 ////////////////////////////////////////////////////////////////////////////////
 #endif // rmslevels_h

@@ -40,9 +40,6 @@ typedef struct rmsinterpolator_t rmsinterpolator_t;
 
 struct rmsinterpolator_t
 {
-	void (*write)(rmsinterpolator_t *info, double S);
-	double (*fetch)(rmsinterpolator_t *info, double t);
-	
 	// equally spaced samples, interpolation occurs from P1 to P2
 	double P0;
 	double P1;
@@ -53,6 +50,9 @@ struct rmsinterpolator_t
 	double e; 	// error for jittered fetch
 	double C1; 	// control points for spline fetch
 	double C2;
+
+	void (*write)(rmsinterpolator_t *info, double S);
+	double (*fetch)(rmsinterpolator_t *info, double t);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

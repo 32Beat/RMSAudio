@@ -17,49 +17,25 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
-	convenience struct for 2 channel interpolation
-*/
-typedef struct RMSStereoInterpolator
+static void RMSInterpolatorUpdateStereo
+(rmsinterpolator_t *ptr, AudioBufferList *src, UInt32 index)
 {
-	rmsinterpolator_t L;
-	rmsinterpolator_t R;
-}
-RMSStereoInterpolator;
-
-
-static RMSStereoInterpolator RMSStereoInterpolatorInit(void)
-{
-	return (RMSStereoInterpolator)
-	{
-		.L = RMSSplineInterpolator(),
-		.R = RMSSplineInterpolator(),
-	};
+	Float32 *srcPtrL = src->mBuffers[0].mData;
+	RMSInterpolatorUpdate(&ptr[0], srcPtrL[index]);
+	Float32 *srcPtrR = src->mBuffers[1].mData;
+	RMSInterpolatorUpdate(&ptr[1], srcPtrR[index]);
 }
 
-static void RMSStereoInterpolatorUpdate
-(RMSStereoInterpolator *ptr, float *srcPtr)
-{
-	RMSInterpolatorUpdate(&ptr->L, srcPtr[0]);
-	RMSInterpolatorUpdate(&ptr->R, srcPtr[1]);
-}
-
-static void RMSStereoInterpolatorUpdateWithParameter
-(RMSStereoInterpolator *ptr, float *srcPtr, float P)
-{
-	RMSInterpolatorUpdateWithParameter(&ptr->L, srcPtr[0], P);
-	RMSInterpolatorUpdateWithParameter(&ptr->R, srcPtr[1], P);
-}
-
-static void RMSStereoInterpolatorFetch
-(RMSStereoInterpolator *ptr, double t, AudioBufferList *dst, UInt32 index)
+static void RMSInterpolatorFetchStereo
+(rmsinterpolator_t *ptr, double t, AudioBufferList *dst, UInt32 index)
 {
 	Float32 *dstPtrL = dst->mBuffers[0].mData;
-	dstPtrL[index] = RMSInterpolatorFetch(&ptr->L, t);
+	dstPtrL[index] = RMSInterpolatorFetch(&ptr[0], t);
 
 	Float32 *dstPtrR = dst->mBuffers[1].mData;
-	dstPtrR[index] = RMSInterpolatorFetch(&ptr->R, t);
+	dstPtrR[index] = RMSInterpolatorFetch(&ptr[1], t);
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +116,7 @@ static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UIn
 	double R = rmsSource->_parameter;
 	rmsSource->mFilter[0].R = R;
 	rmsSource->mFilter[1].R = R;
-
+	
 	float *ptrL = bufferListPtr->mBuffers[0].mData;
 	RMSFilterRun(&rmsSource->mFilter[0], ptrL, N);
 	
@@ -181,9 +157,13 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 	__unsafe_unretained RMSResampler *rmsSource = \
 	(__bridge __unsafe_unretained RMSResampler *)objectPtr;
 
-	UInt64 srcIndex = rmsSource->mSrcIndex;
-	Float64 srcFraction = rmsSource->mSrcFraction;
+	UInt64 index = rmsSource->mSrcIndex;
+	UInt64 indexMask = rmsSource->mSrcIndexMask;
+	Float64 srcT = rmsSource->mSrcFraction;
 	const Float64 srcStep = rmsSource->mSrcStep;
+
+	Float32 *srcPtrL = rmsSource->mCacheBuffer.buffer[0].mData;
+	Float32 *srcPtrR = rmsSource->mCacheBuffer.buffer[1].mData;
 
 	Float32 *dstPtrL = infoPtr->bufferListPtr->mBuffers[0].mData;
 	Float32 *dstPtrR = infoPtr->bufferListPtr->mBuffers[1].mData;
@@ -191,34 +171,34 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 	for (UInt32 n=0; n!=infoPtr->frameCount; n++)
 	{
 		// test if next src sample is required
-		while (srcFraction >= 1.0)
+		while (srcT >= 1.0)
 		{
-			// fetch next sample from cache
-			// (this will trigger rendercycle on source if necessary)
-			float src[2];
-			RMSCacheFetch(objectPtr, srcIndex, src);
+			srcT -= 1.0;
 			
-			// update interpolator with sample
-			RMSInterpolatorUpdate(&rmsSource->mInterpolator[0], src[0]);
-			RMSInterpolatorUpdate(&rmsSource->mInterpolator[1], src[1]);
+			// test if next buffer is required
+			if ((index & indexMask) == 0)
+			{
+				result = RMSCacheRefreshBuffer(objectPtr, index);
+				if (result != noErr) return result;
+			}
+			
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[0], srcPtrL[index&indexMask]);
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[1], srcPtrR[index&indexMask]);
 			
 			// update src index
-			srcIndex += 1;
-			
-			// update fraction
-			srcFraction -= 1.0;
+			index += 1;
 		}
 		
 		// fetch interpolated value
-		dstPtrL[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[0], srcFraction);
-		dstPtrR[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[1], srcFraction);
+		dstPtrL[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[0], srcT);
+		dstPtrR[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[1], srcT);
 		
 		// increase fraction by 1 dst sample
-		srcFraction += srcStep;
+		srcT += srcStep;
 	}
 	
-	rmsSource->mSrcIndex = srcIndex;
-	rmsSource->mSrcFraction = srcFraction;
+	rmsSource->mSrcIndex = index;
+	rmsSource->mSrcFraction = srcT;
 	
 	// apply post-filtering if desired
 	if (rmsSource->_shouldFilter)
@@ -437,8 +417,9 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	
 	if (mSrcStep < 1.0)
 	{
-		mFilter[0].M = mSrcStep;
-		mFilter[1].M = mSrcStep;
+		mFilter[0] = RMSFilterInitWithMultiplier(mSrcStep);
+		mFilter[1] = RMSFilterInitWithMultiplier(mSrcStep);
+
 		// interpolators can be primed with 3 samples before first fetch
 		mSrcFraction = 3.0;
 		mResampleProc = InterpolateSource;

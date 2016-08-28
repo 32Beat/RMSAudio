@@ -87,11 +87,13 @@ void RMSInterpolatorWriteJittered(rmsinterpolator_t *info, double S);
 void RMSInterpolatorWriteNearest(rmsinterpolator_t *info, double S);
 void RMSInterpolatorWriteLinear(rmsinterpolator_t *info, double S);
 void RMSInterpolatorWriteSpline(rmsinterpolator_t *info, double S);
+void RMSInterpolatorWritePolynomial(rmsinterpolator_t *info, double S);
 
 double RMSInterpolatorFetchNearest(rmsinterpolator_t *ptr, double t);
 double RMSInterpolatorFetchJittered(rmsinterpolator_t *ptr, double t);
 double RMSInterpolatorFetchLinear(rmsinterpolator_t *ptr, double t);
 double RMSInterpolatorFetchSpline(rmsinterpolator_t *ptr, double t);
+double RMSInterpolatorFetchPolynomial(rmsinterpolator_t *ptr, double t);
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
@@ -142,6 +144,15 @@ rmsinterpolator_t RMSSplineInterpolator(void)
 	return RMSInterpolatorInitWithProcs(
 	RMSInterpolatorWriteSpline,
 	RMSInterpolatorFetchSpline);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+rmsinterpolator_t RMSPolynomialInterpolator(void)
+{
+	return RMSInterpolatorInitWithProcs(
+	RMSInterpolatorWritePolynomial,
+	RMSInterpolatorFetchPolynomial);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -288,6 +299,35 @@ double RMSInterpolatorFetchSpline(rmsinterpolator_t *ptr, double t)
 	P1 += t * (C1-P1);
 
 	return P1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSInterpolatorWritePolynomial(rmsinterpolator_t *ptr, double S)
+{
+	RMSInterpolatorWriteSpline(ptr, S);
+	
+	double d = ptr->P1;
+	double c = 3*(ptr->C1-ptr->P1);
+	double b = 3*(ptr->C2-ptr->C1) - c;
+	double a = (ptr->P2-ptr->P1) - b - c;
+	
+	ptr->d = d;
+	ptr->c = c;
+	ptr->b = b;
+	ptr->a = a;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+double RMSInterpolatorFetchPolynomial(rmsinterpolator_t *ptr, double t)
+{
+	double a = ptr->a;
+	double b = ptr->b;
+	double c = ptr->c;
+	double d = ptr->d;
+	
+	return ((a*t+b)*t+c)*t+d;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

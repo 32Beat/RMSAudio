@@ -380,9 +380,8 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	double srcRate = [[self sourceAtIndex:0] sampleRate];
 	double dstRate = [self sampleRate];
 	
-	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
 	
-	if (mSrcStep != 1.0)
+	if (srcRate < dstRate)
 	{
 		/*
 			spline interpolator should be primed with 3 samples,
@@ -391,6 +390,16 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 			
 			this will start decimation by 2 at t = 0.5
 		*/
+		mSrcStep = srcRate / dstRate;
+		mSrcFraction = 3.0 + 0.5 * mSrcStep - 0.5;
+		mResampleProc = InterpolateSource;
+		mInterpolator[0] = RMSPolynomialInterpolator();
+		mInterpolator[1] = RMSPolynomialInterpolator();
+	}
+	else
+	if (srcRate > dstRate)
+	{
+		mSrcStep = srcRate / dstRate;
 		mSrcFraction = 3.0 + 0.5 * mSrcStep - 0.5;
 		mResampleProc = InterpolateSource;
 		mInterpolator[0] = RMSSplineInterpolator();
@@ -406,4 +415,9 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 ////////////////////////////////////////////////////////////////////////////////
 @end
 ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 

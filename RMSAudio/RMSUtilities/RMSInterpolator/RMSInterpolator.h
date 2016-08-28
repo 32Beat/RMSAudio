@@ -48,10 +48,19 @@ struct rmsinterpolator_t
 	double P2;
 	double P3;
 
-	double A; 	// parameter value
-	double e; 	// error for jittered fetch
-	double C1; 	// control points for spline fetch
+	// control points for spline fetch
+	double C1;
 	double C2;
+
+	// polynomial coefficients
+	double a;
+	double b;
+	double c;
+	double d;
+
+	// error for jittered fetch
+	double e;
+	double A; 	// parameter value
 
 	void (*write)(rmsinterpolator_t *info, double S);
 	double (*fetch)(rmsinterpolator_t *info, double t);
@@ -59,10 +68,11 @@ struct rmsinterpolator_t
 
 ////////////////////////////////////////////////////////////////////////////////
 
-rmsinterpolator_t RMSJitteredInterpolator(void);
 rmsinterpolator_t RMSNearestInterpolator(void);
+rmsinterpolator_t RMSJitteredInterpolator(void);
 rmsinterpolator_t RMSLinearInterpolator(void);
 rmsinterpolator_t RMSSplineInterpolator(void);
+rmsinterpolator_t RMSPolynomialInterpolator(void);
 
 void RMSInterpolatorUpdate(rmsinterpolator_t *ptr, double S);
 void RMSInterpolatorUpdateWithParameter(rmsinterpolator_t *ptr, double S, double P);

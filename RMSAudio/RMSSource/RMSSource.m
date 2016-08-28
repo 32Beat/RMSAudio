@@ -209,9 +209,12 @@ void *RMSSourceGetMonitor(void *source)
 
 - (void) setSource:(RMSSource *)source
 {
-	if (self.shouldUpdateSource == YES)
-	{ [source setSampleRate:self.sampleRate]; }
-	[self.source setLink:source];
+	if ((mSource != nil)||(source != nil))
+	{
+		if (self.shouldUpdateSource == YES)
+		{ [source setSampleRate:self.sampleRate]; }
+		[self.source setLink:source];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

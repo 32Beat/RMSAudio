@@ -38,7 +38,7 @@ rmssum_t *RMSSumNew(uint32_t N)
 	if (sumPtr != NULL)
 	{
 		sumPtr->S = 0.0;
-		sumPtr->M = 1.0/N;
+		sumPtr->M = N & 0x01 ? 1.0/N : 1.0/(N+N);
 		sumPtr->N = N;
 		sumPtr->index = 0;
 		for (int n=0; n!=N; n++)
@@ -60,7 +60,7 @@ void RMSSumRelease(rmssum_t *sumPtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-float RMSSumUpdate(rmssum_t *sum, float S)
+static inline float RMSSumUpdate(rmssum_t *sum, float S)
 {
 	uint32_t i = sum->index;
 	
@@ -81,8 +81,16 @@ float RMSSumUpdate(rmssum_t *sum, float S)
 
 void RMSSumRunAverage(rmssum_t *sumPtr, float *ptr, size_t N)
 {
-	for (size_t n=0; n!=N; n++)
-	{ ptr[n] = sumPtr->M * RMSSumUpdate(sumPtr, ptr[n]); }
+	if (sumPtr->N & 0x01)
+	{
+		for (size_t n=0; n!=N; n++)
+		{ ptr[n] = sumPtr->M * RMSSumUpdate(sumPtr, ptr[n]); }
+	}
+	else
+	{
+		for (size_t n=0; n!=N; n++)
+		{ ptr[n] = sumPtr->M * (sumPtr->S + RMSSumUpdate(sumPtr, ptr[n])); }
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

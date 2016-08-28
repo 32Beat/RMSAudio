@@ -52,6 +52,8 @@
 @property (nonatomic, weak) IBOutlet NSSlider *parameterSlider;
 @property (nonatomic, weak) IBOutlet NSButton *filterButton;
 
+@property (nonatomic) RMSFilter *filter;
+
 
 
 @end
@@ -327,14 +329,20 @@
 			self.resampler = nil;
 			
 			// check for sampleRate conversion
-			if (source.sampleRate != output.sampleRate) \
+			if (source.sampleRate < output.sampleRate)
 			{
+				double M = source.sampleRate / output.sampleRate;
+				
 				// change source to resampler with original source
 				source = [RMSResampler instanceWithSource:source];
 				
 				self.resampler = (RMSResampler *)source;
-				self.resampler.parameter = self.parameterSlider.floatValue;
-				self.resampler.shouldFilter = self.filterButton.intValue;
+				
+				self.filter = [RMSFilter new];
+				self.filter.cutOff = M;
+				self.filter.resonance = self.parameterSlider.floatValue;
+				
+				[self.resampler addFilter:self.filter];
 			}
 //*/
 
@@ -523,7 +531,8 @@
 
 - (IBAction) didAdjustParameter:(NSSlider *)slider
 {
-	[self.resampler setParameter:slider.floatValue];
+//	[self.resampler setParameter:slider.floatValue];
+	self.filter.resonance = slider.floatValue;
 }
 
 - (IBAction) didSelectFilterButton:(NSButton *)button

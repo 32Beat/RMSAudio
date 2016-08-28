@@ -14,20 +14,52 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
-	decimator is simply a linear interpolator with running average build in
 */
-rmsdecimator_t RMSDecimatorInitWithSize(double size)
-{ return (rmsdecimator_t){ .A0 = 0.0, .A1 = 0.0, .M = 1.0/size }; }
+rmsdecimator_t RMSDecimatorInit(void)
+{ return (rmsdecimator_t){ .A0 = 0.0, .A1 = 0.0 }; }
 
-void RMSDecimatorUpdate(rmsdecimator_t *decimator, double S)
+double RMSDecimatorUpdate_(float *ptr, size_t N)
 {
-	S = decimator->A1 + (S - decimator->A1) * decimator->M;
-	decimator->A0 = decimator->A1;
-	decimator->A1 = S;
+	return ((N>>=1) == 0)?
+	0.5 * (ptr[0] + ptr[1]):
+	0.5 *
+	RMSDecimatorUpdate_(&ptr[0], N)+
+	RMSDecimatorUpdate_(&ptr[N], N);
 }
 
-double RMSDecimatorFetch(rmsdecimator_t *decimator, double t)
-{ return decimator->A0 + t * (decimator->A1 - decimator->A0); }
+
+double RMSDecimatorUpdate2(double *decimator, float *ptr)
+{
+	double S0 = decimator[0];
+	double S1 = ptr[0];
+	double S2 = ptr[1];
+	decimator[0] = S2;
+	
+	return 0.25*(S0+S1+S1+S2);
+}
+
+double RMSDecimatorUpdate4(double *decimator, float *ptr)
+{
+	double A0 = decimator[0];
+	double A1 = RMSDecimatorUpdate2(&decimator[1], &ptr[0]);
+	double A2 = RMSDecimatorUpdate2(&decimator[1], &ptr[2]);
+	decimator[0] = A2;
+
+	return 0.25*(A0+A1+A1+A2);
+}
+
+double RMSDecimatorUpdate8(double *decimator, float *ptr)
+{
+	double A0 = decimator[0];
+	double A1 = RMSDecimatorUpdate4(&decimator[1], &ptr[0]);
+	double A2 = RMSDecimatorUpdate4(&decimator[1], &ptr[4]);
+	decimator[0] = A2;
+
+	return 0.25*(A0+A1+A1+A2);
+}
+
+
+
 /*
 void RMSDecimatorUpdateSum(rmsdecimator_t *decimator, float S)
 {

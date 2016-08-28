@@ -27,8 +27,6 @@ typedef struct rmssum_t rmssum_t;
 rmssum_t *RMSSumNew(uint32_t N);
 void RMSSumRelease(rmssum_t *sumPtr);
 
-float RMSSumUpdate(rmssum_t *sumPtr, float S);
-
 //void RMSSumRun(rmssum_t *sumPtr, float *ptr, size_t N);
 void RMSSumRunAverage(rmssum_t *sumPtr, float *ptr, size_t N);
 void RMSSumRunAverage2(rmssum_t **sumPtr, float *ptr, size_t N);

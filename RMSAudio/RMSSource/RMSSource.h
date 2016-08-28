@@ -121,10 +121,10 @@ void *RMSSourceGetMonitor(void *source);
 */
 OSStatus RunRMSSource(void *rmsObject, const RMSCallbackInfo *infoPtr);
 
+OSStatus RunRMSChain(void *link, const RMSCallbackInfo *infoPtr);
 OSStatus RunRMSSourceChain(void *source, const RMSCallbackInfo *infoPtr);
 OSStatus RunRMSFilterChain(void *source, const RMSCallbackInfo *infoPtr);
 OSStatus RunRMSMonitorChain(void *source, const RMSCallbackInfo *infoPtr);
-OSStatus RunRMSChain(void *link, const RMSCallbackInfo *infoPtr);
 
 ////////////////////////////////////////////////////////////////////////////////
 

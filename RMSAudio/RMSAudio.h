@@ -44,7 +44,7 @@
 #import "RMSCache.h"
 #import "RMSResampler.h"
 #import "RMSVarispeed.h"
-#import "RMSVarispeed.h"
+#import "RMSFilter.h"
 #import "RMSVolume.h"
 #import "RMSAutoPan.h"
 

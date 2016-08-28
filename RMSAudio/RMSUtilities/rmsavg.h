@@ -38,6 +38,7 @@ rmsavg_t RMSAverageInitWithRateChange(double srcRate, double dstRate);
 
 float RMSAverageUpdate(rmsavg_t *avgPtr, float S);
 void RMSAverageRun(rmsavg_t *avgPtr, float *ptr, uint32_t N);
+void RMSAverageRun121(rmsavg_t *avgPtr, float *ptr, uint32_t N);
 
 ////////////////////////////////////////////////////////////////////////////////
 #endif // rmsavg_t_h

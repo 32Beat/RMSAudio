@@ -63,7 +63,34 @@ void RMSAverageRun(rmsavg_t *avgPtr, float *ptr, uint32_t N)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/*
+	r = 4 - ratio
+	P0+r*P1+P2/(2.0+r)
+ 
+	P0 += P2;
+	P1 *= r;
+	return (1.0/(2.0+r)) * (P0+P1);
+	
+*/
 
 
+void RMSAverageRun121(rmsavg_t *avgPtr, float *ptr, uint32_t N)
+{
+	double S0 = avgPtr->A;
+	double S1 = avgPtr->M;
+	
+	for (uint32_t n=0; n!=N; n++)
+	{
+		double S2 = ptr[n];
+		ptr[n] = 0.25 * (S0 + S1 + S1 + S2);
+		S0 = S1;
+		S1 = S2;
+	}
+	
+	avgPtr->A = S0;
+	avgPtr->M = S1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 

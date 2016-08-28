@@ -18,14 +18,16 @@ typedef struct rmsdecimator_t
 {
 	double A0;
 	double A1;
-	double M;
 }
 rmsdecimator_t;
 
 rmsdecimator_t RMSDecimatorInitWithSize(double size);
 void RMSDecimatorUpdate(rmsdecimator_t *decimator, double S);
-double RMSDecimatorFetch(rmsdecimator_t *decimator, double t);
+double RMSDecimatorFetch(rmsdecimator_t *decimator);
 
+
+double RMSDecimatorUpdate2(double *decimator, float *ptr);
+double RMSDecimatorUpdate4(double *decimator, float *ptr);
 ////////////////////////////////////////////////////////////////////////////////
 
 enum RMSInterpolatorType

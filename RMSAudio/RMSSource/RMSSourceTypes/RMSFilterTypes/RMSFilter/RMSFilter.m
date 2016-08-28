@@ -25,7 +25,7 @@
 @implementation RMSFilter
 ////////////////////////////////////////////////////////////////////////////////
 
-static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UInt32 N)
+static OSStatus RunFilter(void *objectPtr, AudioBufferList *bufferListPtr, UInt32 N)
 {
 	OSStatus result = noErr;
 
@@ -39,11 +39,16 @@ static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UIn
 	rmsSource->mFilter[0].R = R;
 	rmsSource->mFilter[1].R = R;
 	
-	float *ptrL = bufferListPtr->mBuffers[0].mData;
-	RMSFilterRun(&rmsSource->mFilter[0], ptrL, N);
-	
-	float *ptrR = bufferListPtr->mBuffers[1].mData;
-	RMSFilterRun(&rmsSource->mFilter[1], ptrR, N);
+	if (rmsSource->_active == YES)
+	{
+		
+		float *ptrL = bufferListPtr->mBuffers[0].mData;
+		//RMSFilterRun(&rmsSource->mFilter[0], ptrL, N);
+		
+		float *ptrR = bufferListPtr->mBuffers[1].mData;
+		memcpy(ptrR, ptrL, N * sizeof(float));
+		RMSFilterRun(&rmsSource->mFilter[1], ptrR, N);
+	}
 	
 	return result;
 }
@@ -53,16 +58,10 @@ static OSStatus ApplyFilter(void *objectPtr, AudioBufferList *bufferListPtr, UIn
 static OSStatus renderCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
 	OSStatus result = noErr;
-
-	__unsafe_unretained RMSFilter *rmsSource = \
-	(__bridge __unsafe_unretained RMSFilter *)objectPtr;
 	
-	void *source = RMSSourceGetSource(objectPtr);
-	if (source != nil)
-	{ result = RunRMSSourceChain(objectPtr, infoPtr); }
+	result = RunRMSSourceChain(objectPtr, infoPtr);
 
-	if (rmsSource->_active)
-	{ ApplyFilter(objectPtr, infoPtr->bufferListPtr, infoPtr->frameCount); }
+	RunFilter(objectPtr, infoPtr->bufferListPtr, infoPtr->frameCount);
 	
 	return result;
 }
@@ -91,9 +90,10 @@ static OSStatus renderCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 	if (self != nil)
 	{
 		if (source != nil)
-		{ [self setSource:source]; }
-
-		self.shouldUpdateSource = YES;
+		{
+			self.sampleRate = source.sampleRate;
+			[self setSource:source];
+		}
 
 		self.active = YES;
 		mFilter[0] = RMSFilterInitWithMultiplier(1.0);

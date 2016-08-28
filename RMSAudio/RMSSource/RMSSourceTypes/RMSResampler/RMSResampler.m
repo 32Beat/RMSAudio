@@ -68,10 +68,9 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 	__unsafe_unretained RMSResampler *rmsSource = \
 	(__bridge __unsafe_unretained RMSResampler *)objectPtr;
 
+	Float64 srcT = rmsSource->mSrcFraction;
 	UInt64 index = rmsSource->mSrcIndex;
 	UInt64 indexMask = rmsSource->mSrcIndexMask;
-	Float64 srcT = rmsSource->mSrcFraction;
-	const Float64 srcStep = rmsSource->mSrcStep;
 
 	Float32 *srcPtrL = rmsSource->mCacheBuffer.buffer[0].mData;
 	Float32 *srcPtrR = rmsSource->mCacheBuffer.buffer[1].mData;
@@ -86,15 +85,17 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 		{
 			srcT -= 1.0;
 			
+			UInt64 maskedIndex = index & indexMask;
+			
 			// test if next buffer is required
-			if ((index & indexMask) == 0)
+			if (maskedIndex == 0)
 			{
 				result = RMSCacheRefreshBuffer(objectPtr, index);
 				if (result != noErr) return result;
 			}
 			
-			RMSInterpolatorUpdate(&rmsSource->mInterpolator[0], srcPtrL[index&indexMask]);
-			RMSInterpolatorUpdate(&rmsSource->mInterpolator[1], srcPtrR[index&indexMask]);
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[0], srcPtrL[maskedIndex]);
+			RMSInterpolatorUpdate(&rmsSource->mInterpolator[1], srcPtrR[maskedIndex]);
 			
 			// update src index
 			index += 1;
@@ -105,7 +106,7 @@ static OSStatus InterpolateSource(void *objectPtr, const RMSCallbackInfo *infoPt
 		dstPtrR[n] = RMSInterpolatorFetch(&rmsSource->mInterpolator[1], srcT);
 		
 		// increase fraction by 1 dst sample
-		srcT += srcStep;
+		srcT += rmsSource->mSrcStep;
 	}
 	
 	rmsSource->mSrcIndex = index;
@@ -381,41 +382,19 @@ static OSStatus renderCallback(void *rmsObject, const RMSCallbackInfo *infoPtr)
 	
 	mSrcStep = dstRate ? srcRate / dstRate : 1.0;
 	
-	if (mSrcStep < 1.0)
+	if (mSrcStep != 1.0)
 	{
-		// interpolators can be primed with 3 samples before first fetch
-		mSrcFraction = 3.0;
+		/*
+			spline interpolator should be primed with 3 samples,
+			center of destination sample = half of srcStep,
+			center of source sample = 0.5
+			
+			this will start decimation by 2 at t = 0.5
+		*/
+		mSrcFraction = 3.0 + 0.5 * mSrcStep - 0.5;
 		mResampleProc = InterpolateSource;
 		mInterpolator[0] = RMSSplineInterpolator();
 		mInterpolator[1] = RMSSplineInterpolator();
-	}
-	else
-	if (mSrcStep > 1.0)
-	{
-		// decimator needs to be primed with 1 sample,
-		// and first step should be mSrcStep
-		mSrcFraction = 1.0 + mSrcStep;
-		mResampleProc = DecimateSource;
-		mInterpolator[0] = RMSLinearInterpolator();
-		mInterpolator[1] = RMSLinearInterpolator();
-		
-		if (mSrcStep == 2.0)
-		{
-			mResampleProc = DecimateSourceBy2;
-		}
-		else
-		if (mSrcStep == 4.0)
-		{
-			mResampleProc = DecimateSourceBy4;
-		}
-		else
-		{
-			double N = log2(mSrcStep);
-			if ((N-floor(N))==0.0)
-			{
-				mResampleProc = DecimateSourceByN;
-			}
-		}
 	}
 	else
 	{

@@ -329,6 +329,19 @@
 			self.resampler = nil;
 			
 			// check for sampleRate conversion
+			if (source.sampleRate > output.sampleRate)
+			{
+/*
+				double M = output.sampleRate / source.sampleRate;
+				self.filter = [RMSFilter instanceWithSource:source];
+				self.filter.active = self.filterButton.intValue;
+				self.filter.cutOff = M;
+				self.filter.resonance = self.parameterSlider.floatValue;
+*/				
+				source = [RMSResampler instanceWithSource:source];
+				self.resampler = (RMSResampler *)source;
+			}
+			else
 			if (source.sampleRate < output.sampleRate)
 			{
 				double M = source.sampleRate / output.sampleRate;
@@ -339,6 +352,7 @@
 				self.resampler = (RMSResampler *)source;
 				
 				self.filter = [RMSFilter new];
+				self.filter.active = self.filterButton.intValue;
 				self.filter.cutOff = M;
 				self.filter.resonance = self.parameterSlider.floatValue;
 				
@@ -537,14 +551,7 @@
 
 - (IBAction) didSelectFilterButton:(NSButton *)button
 {
-	if (button.intValue != 0)
-	{
-		self.resampler.shouldFilter = YES;
-	}
-	else
-	{
-		self.resampler.shouldFilter = NO;
-	}
+	self.filter.active = (button.intValue != 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

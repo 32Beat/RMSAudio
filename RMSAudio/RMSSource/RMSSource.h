@@ -72,7 +72,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 @property (nonatomic, assign) BOOL shouldUpdateSource;
 
-- (RMSLink *) source;
 - (RMSSource *) sourceAtIndex:(UInt32)n;
 
 - (void) setSource:(RMSSource *)source;

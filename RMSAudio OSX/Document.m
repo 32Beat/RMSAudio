@@ -8,6 +8,8 @@
 
 #import "Document.h"
 
+#import "FSItem.h"
+#import "RMSMusicLibrary.h"
 #import "RMSAudio.h"
 #import "RMSResultView.h"
 
@@ -20,6 +22,7 @@
 	RMSStereoLevels mLevels;
 }
 
+@property (nonatomic) RMSMusicLibrary *musicLibrary;
 
 @property (nonatomic) RMSOutput *audioOutput;
 
@@ -314,7 +317,7 @@
 			}
 //*/
 
-/*
+//*
 // RMSAudioUnitConverter test
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
@@ -324,22 +327,14 @@
 			}
 //*/
 
-//*
+/*
 // RMSVarispeed test
 			self.resampler = nil;
 			
 			// check for sampleRate conversion
 			if (source.sampleRate > output.sampleRate)
 			{
-/*
-				double M = output.sampleRate / source.sampleRate;
-				self.filter = [RMSFilter instanceWithSource:source];
-				self.filter.active = self.filterButton.intValue;
-				self.filter.cutOff = M;
-				self.filter.resonance = self.parameterSlider.floatValue;
-*/				
 				source = [RMSResampler instanceWithSource:source];
-				self.resampler = (RMSResampler *)source;
 			}
 			else
 			if (source.sampleRate < output.sampleRate)
@@ -351,7 +346,12 @@
 				
 				self.resampler = (RMSResampler *)source;
 				
-				self.filter = [RMSFilter new];
+				if (self.filter == nil)
+				{
+					self.filter = [RMSFilter new];
+					self.filterButton.intValue = 1;
+					self.parameterSlider.floatValue = 0.5;
+				}
 				self.filter.active = self.filterButton.intValue;
 				self.filter.cutOff = M;
 				self.filter.resonance = self.parameterSlider.floatValue;
@@ -556,6 +556,52 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
+#pragma mark Select Directory
+////////////////////////////////////////////////////////////////////////////////
+/*
+*/
+
+- (IBAction) didSelectLibraryButton:(NSButton *)button
+{ [self selectLibrary:nil]; }
+
+- (IBAction) selectLibrary:(id)sender
+{
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	
+	panel.canChooseDirectories = YES;
+	panel.canChooseFiles = NO;
+	
+	// start selection sheet ...
+	[panel beginSheetModalForWindow:self.windowForSheet
+
+		// ... with result block
+		completionHandler:^(NSInteger result)
+		{
+			if (result == NSFileHandlingPanelOKButton)
+			{
+				if ([panel URLs].count != 0)
+				{
+					NSURL *url = [panel URLs][0];
+					NSLog(@"%@", url);
+
+					[self setLibraryURL:url];
+				}
+			}
+		}];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setLibraryURL:(NSURL *)url
+{
+	self.musicLibrary = [RMSMusicLibrary itemWithURL:url];
+	
+	[self.libraryView setDataSource:self.musicLibrary];
+	[self.libraryView reloadData];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
 #pragma mark Select Audio File
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -607,6 +653,8 @@
 
 - (IBAction) didSelectOutputFileButton:(NSButton *)button
 {
+	[self didSelectLibraryButton:button];
+	return;
 	if (self.outputFile != nil)
 	{
 		self.outputFile = nil;

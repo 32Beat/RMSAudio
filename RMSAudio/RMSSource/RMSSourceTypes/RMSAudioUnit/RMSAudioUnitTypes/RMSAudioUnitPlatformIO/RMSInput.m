@@ -287,6 +287,9 @@ static OSStatus outputCallback(void *rmsSource, const RMSCallbackInfo *infoPtr)
 		// Attach device on inputside of inputstream
 		result = AudioUnitAttachDevice(mAudioUnit, device.deviceID);
 		if (result != noErr) return result;
+		
+		result = RMSAudioUnitSetMaximumFramesPerSlice(mAudioUnit, 32);
+		if (result != noErr) return result;
 	}
 	
 #endif

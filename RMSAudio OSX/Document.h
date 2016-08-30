@@ -11,6 +11,7 @@
 @interface Document : NSDocument
 
 @property (nonatomic) IBOutlet NSTextView *logView;
+@property (nonatomic, weak) IBOutlet NSOutlineView *libraryView;
 
 @end
 

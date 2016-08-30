@@ -96,6 +96,21 @@ default
 
 */
 
+
+static inline double RMSFilterApply(rmsfilter_t *F, double S)
+{
+	double E = (S - F->V) * F->M;
+
+	if (F->R != 0.0)
+	{
+		F->E *= (1.0 - F->M);
+		F->E += E;
+		E += (F->E - E) * F->R;
+	}
+	
+	return F->V += E;
+}
+
 void RMSFilterRunRES(rmsfilter_t *F, float *ptr, uint32_t N)
 {
 	const double M = F->M;
@@ -132,13 +147,41 @@ void RMSFilterRunAVG(rmsfilter_t *F, float *ptr, uint32_t N)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void RMSFilterRun(rmsfilter_t *F, float *ptr, uint32_t N)
-{
+/*
 	if (F->R > 0.0)
 	{ RMSFilterRunRES(F, ptr, N); }
 	else
 	{ RMSFilterRunAVG(F, ptr, N); }
+*/
+
+void RMSFilterRun(rmsfilter_t *F, float *ptr, uint32_t N)
+{
+	for(uint32_t n=0; n!=N; n++)
+	{ ptr[n] = RMSFilterApply(F, ptr[n]); }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RMSFilterRunWithAdjustment(rmsfilter_t *F, double M, double R, float *ptr, uint32_t N)
+{
+	double dM = (M - F->M);
+	double dR = (R - F->R);
+	if ((dM == 0.0)&&(dR == 0.0))
+	{
+		for(uint32_t n=0; n!=N; n++)
+		{ ptr[n] = RMSFilterApply(F, ptr[n]); }
+	}
+	else
+	{
+		dM /= N;
+		dR /= N;
+		for(uint32_t n=0; n!=N; n++)
+		{
+			ptr[n] = RMSFilterApply(F, ptr[n]);
+			F->M += dM;
+			F->R += dR;
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

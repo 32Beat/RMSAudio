@@ -28,8 +28,8 @@
 */
 @interface RMSSource ()
 {
-	RMSLink *mSource;
-	RMSLink *mFilter;
+	RMSLink *mSourceChain;
+	RMSLink *mFilterChain;
 	RMSLink *mMonitor;
 }
 @end
@@ -163,10 +163,10 @@ static OSStatus renderCallback(void *sourcePtr, const RMSCallbackInfo *infoPtr)
 ////////////////////////////////////////////////////////////////////////////////
 
 void *RMSSourceGetSource(void *source)
-{ return (__bridge void *)RMSSourceBridge(source)->mSource; }
+{ return (__bridge void *)RMSSourceBridge(source)->mSourceChain; }
 
 void *RMSSourceGetFilter(void *source)
-{ return (__bridge void *)RMSSourceBridge(source)->mFilter; }
+{ return (__bridge void *)RMSSourceBridge(source)->mFilterChain; }
 
 void *RMSSourceGetMonitor(void *source)
 { return (__bridge void *)RMSSourceBridge(source)->mMonitor; }
@@ -175,23 +175,23 @@ void *RMSSourceGetMonitor(void *source)
 #pragma mark
 ////////////////////////////////////////////////////////////////////////////////
 
-- (RMSLink *) source
+- (RMSLink *) sourceChain
 {
-	if (mSource == nil)
-	{ mSource = [RMSLink new]; }
-	return mSource;
+	if (mSourceChain == nil)
+	{ mSourceChain = [RMSLink new]; }
+	return mSourceChain;
 }
 
 - (RMSSource *) sourceAtIndex:(UInt32)n
-{ return [mSource linkAtIndex:n]; }
+{ return [mSourceChain linkAtIndex:n]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-- (RMSLink *) filter
+- (RMSLink *) filterChain
 {
-	if (mFilter == nil)
-	{ mFilter = [RMSLink new]; }
-	return mFilter;
+	if (mFilterChain == nil)
+	{ mFilterChain = [RMSLink new]; }
+	return mFilterChain;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,11 +209,11 @@ void *RMSSourceGetMonitor(void *source)
 
 - (void) setSource:(RMSSource *)source
 {
-	if ((mSource != nil)||(source != nil))
+	if ((mSourceChain != nil)||(source != nil))
 	{
 		if (self.shouldUpdateSource == YES)
 		{ [source setSampleRate:self.sampleRate]; }
-		[self.source setLink:source];
+		[self.sourceChain setLink:source];
 	}
 }
 
@@ -223,7 +223,7 @@ void *RMSSourceGetMonitor(void *source)
 {
 	if (self.shouldUpdateSource == YES)
 	{ [source setSampleRate:self.sampleRate]; }
-	[self.source addLink:source];
+	[self.sourceChain addLink:source];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,18 +232,18 @@ void *RMSSourceGetMonitor(void *source)
 {
 	if (self.shouldUpdateSource == YES)
 	{ [source setSampleRate:self.sampleRate]; }
-	[self.source insertLink:source];
+	[self.sourceChain insertLink:source];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeSource:(RMSSource *)source
-{ [mSource removeLink:source]; }
+{ [mSourceChain removeLink:source]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeSource
-{ [mSource removeLink]; }
+{ [mSourceChain removeLink]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark 
@@ -251,8 +251,11 @@ void *RMSSourceGetMonitor(void *source)
 
 - (void) setFilter:(RMSSource *)filter
 {
-	[filter setSampleRate:self.sampleRate];
-	[self setLink:filter];
+	if ((mFilterChain != nil)||(filter != nil))
+	{
+		[filter setSampleRate:self.sampleRate];
+		[self.filterChain setLink:filter];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +263,7 @@ void *RMSSourceGetMonitor(void *source)
 - (void) addFilter:(RMSSource *)filter
 {
 	[filter setSampleRate:self.sampleRate];
-	[self.filter addLink:filter];
+	[self.filterChain addLink:filter];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,18 +271,18 @@ void *RMSSourceGetMonitor(void *source)
 - (void) insertFilter:(RMSSource *)filter
 {
 	[filter setSampleRate:self.sampleRate];
-	[self.filter insertLink:filter];
+	[self.filterChain insertLink:filter];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeFilter:(RMSSource *)filter
-{ [mFilter removeLink:filter]; }
+{ [mFilterChain removeLink:filter]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void) removeFilter
-{ [mFilter removeLink]; }
+{ [mFilterChain removeLink]; }
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark 
@@ -342,13 +345,13 @@ void *RMSSourceGetMonitor(void *source)
 
 - (void) setSourceSampleRate:(Float64)sampleRate
 {
-	[mSource iterateLinksUsingBlock:^(RMSLink *link)
+	[mSourceChain iterateLinksUsingBlock:^(RMSLink *link)
 	{ ((RMSSource *)link).sampleRate = sampleRate; }];
 }
 
 - (void) setFilterSampleRate:(Float64)sampleRate
 {
-	[mFilter iterateLinksUsingBlock:^(RMSLink *link)
+	[mFilterChain iterateLinksUsingBlock:^(RMSLink *link)
 	{ ((RMSSource *)link).sampleRate = sampleRate; }];
 }
 

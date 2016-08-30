@@ -62,6 +62,7 @@ rmsfilter_t RMSFilterInitWithRateChange(double srcRate, double dstRate);
 rmsfilter_t RMSFilterInitWithCutoff(double Fc, double Fs);
 
 void RMSFilterRun(rmsfilter_t *filterInfo, float *ptr, uint32_t N);
+void RMSFilterRunWithAdjustment(rmsfilter_t *F, double M, double R, float *ptr, uint32_t N);
 
 double RMSOscillatorNext(rmsfilter_t *F);
 

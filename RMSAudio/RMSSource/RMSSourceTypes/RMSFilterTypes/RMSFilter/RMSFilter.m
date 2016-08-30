@@ -18,7 +18,6 @@
 {
 	rmsfilter_t mFilter[2];
 }
-
 @end
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,22 +32,23 @@ static OSStatus RunFilter(void *objectPtr, AudioBufferList *bufferListPtr, UInt3
 	(__bridge __unsafe_unretained RMSFilter *)objectPtr;
 
 	double M = rmsSource->_cutOff;
-	rmsSource->mFilter[0].M = M;
-	rmsSource->mFilter[1].M = M;
 	double R = rmsSource->_resonance;
-	rmsSource->mFilter[0].R = R;
-	rmsSource->mFilter[1].R = R;
 	
 	if (rmsSource->_active == YES)
 	{
-		
 		float *ptrL = bufferListPtr->mBuffers[0].mData;
 		//RMSFilterRun(&rmsSource->mFilter[0], ptrL, N);
+		RMSFilterRunWithAdjustment(&rmsSource->mFilter[0], M, R, ptrL, N);
 		
 		float *ptrR = bufferListPtr->mBuffers[1].mData;
-		memcpy(ptrR, ptrL, N * sizeof(float));
-		RMSFilterRun(&rmsSource->mFilter[1], ptrR, N);
+		//RMSFilterRun(&rmsSource->mFilter[1], ptrR, N);
+		RMSFilterRunWithAdjustment(&rmsSource->mFilter[1], M, R, ptrR, N);
 	}
+	
+	rmsSource->mFilter[0].M = M;
+	rmsSource->mFilter[1].M = M;
+	rmsSource->mFilter[0].R = R;
+	rmsSource->mFilter[1].R = R;
 	
 	return result;
 }
@@ -57,11 +57,10 @@ static OSStatus RunFilter(void *objectPtr, AudioBufferList *bufferListPtr, UInt3
 
 static OSStatus renderCallback(void *objectPtr, const RMSCallbackInfo *infoPtr)
 {
-	OSStatus result = noErr;
-	
-	result = RunRMSSourceChain(objectPtr, infoPtr);
+	OSStatus result = RunRMSSourceChain(objectPtr, infoPtr);
 
-	RunFilter(objectPtr, infoPtr->bufferListPtr, infoPtr->frameCount);
+	if (result == noErr)
+	{ RunFilter(objectPtr, infoPtr->bufferListPtr, infoPtr->frameCount); }
 	
 	return result;
 }

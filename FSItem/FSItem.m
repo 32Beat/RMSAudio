@@ -44,12 +44,12 @@
 	NSError *errorPtr = nil;
 
 	NSDictionary *values =
-	[self.url resourceValuesForKeys:@[
-	NSURLLocalizedNameKey,
-	NSURLIsRegularFileKey,
-	NSURLIsDirectoryKey,
-	NSURLIsHiddenKey] error:&errorPtr];
-	
+		[self.url resourceValuesForKeys:@[
+			NSURLLocalizedNameKey,
+			NSURLIsRegularFileKey,
+			NSURLIsDirectoryKey,
+			NSURLIsHiddenKey] error:&errorPtr];
+		
 	mContainer = [[values valueForKey:NSURLIsDirectoryKey] boolValue];
 	mName = [values valueForKey:NSURLLocalizedNameKey];
 	
@@ -85,11 +85,13 @@
 		NSMutableArray *items = [NSMutableArray new];
 		
 		NSError *errorPtr = nil;
-		NSArray *urlArray = [[NSFileManager defaultManager]
-			contentsOfDirectoryAtURL:self.url
-			includingPropertiesForKeys:nil
-			options:NSDirectoryEnumerationSkipsHiddenFiles
-			error:&errorPtr];
+		
+		NSArray *urlArray =
+			[[NSFileManager defaultManager]
+				contentsOfDirectoryAtURL:self.url
+				includingPropertiesForKeys:nil
+				options:NSDirectoryEnumerationSkipsHiddenFiles
+				error:&errorPtr];
 		
 		for (NSURL *url in urlArray)
 		{

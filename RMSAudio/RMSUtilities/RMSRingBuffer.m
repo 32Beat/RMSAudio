@@ -189,7 +189,7 @@ void RMSRingBufferReadStereoData
 	if (buffer->readIndex + frameCount > buffer->writeIndex)
 	{
 		NSLog(@"%@", @"RMSRingBuffer: readIndex too close to writeIndex!");
-		buffer->readIndex = buffer->writeIndex - frameCount;
+		buffer->readIndex = buffer->writeIndex - 2*frameCount;
 	}
 
 	if (buffer->readIndex + buffer->frameCount < buffer->writeIndex)

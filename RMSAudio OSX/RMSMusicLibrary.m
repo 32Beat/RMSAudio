@@ -18,6 +18,17 @@
 @implementation RMSMusicLibrary
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void) attachToOutlineView:(NSOutlineView *)outlineView
+{
+	outlineView.target = self;
+	outlineView.doubleAction = @selector(outlineViewDoubleClicked:);
+	outlineView.delegate = self;
+	outlineView.dataSource = self;
+	[outlineView reloadData];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 	if (item == nil)
@@ -63,6 +74,28 @@
 	return nil;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark Delegate
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)outlineViewSelectionDidChange:(NSNotification *)notification
+{
+	NSOutlineView *outlineView = notification.object;
+	FSItem *item = [outlineView itemAtRow:outlineView.selectedRow];
+	
+	NSLog(@"%@", item.localizedName);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) outlineViewDoubleClicked:(id)sender
+{
+	NSOutlineView *outlineView = sender;
+	FSItem *item = [outlineView itemAtRow:outlineView.clickedRow];
+	
+	NSLog(@"%@", item.localizedName);
+}
 ////////////////////////////////////////////////////////////////////////////////
 @end
 ////////////////////////////////////////////////////////////////////////////////

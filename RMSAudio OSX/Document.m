@@ -109,6 +109,8 @@
 	name:NSPopUpButtonWillPopUpNotification object:self.outputMenu];
 	
 	//NSMenuDidEndTrackingNotification
+	
+	[self setLibraryURL:nil];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -317,7 +319,7 @@
 			}
 //*/
 
-//*
+/*
 // RMSAudioUnitConverter test
 			// check for sampleRate conversion
 			if (source.sampleRate != output.sampleRate) \
@@ -327,8 +329,8 @@
 			}
 //*/
 
-/*
-// RMSVarispeed test
+//*
+// RMSResampler test
 			self.resampler = nil;
 			
 			// check for sampleRate conversion
@@ -594,10 +596,23 @@
 
 - (void) setLibraryURL:(NSURL *)url
 {
+	if (url == nil)
+	{
+		NSFileManager *fileManager = [NSFileManager defaultManager];
+		NSArray *musicURLs = [fileManager URLsForDirectory:NSMusicDirectory
+		inDomains:NSUserDomainMask];
+		if (musicURLs.count != 0)
+		{ url = musicURLs[0]; }
+	}
+
 	self.musicLibrary = [RMSMusicLibrary itemWithURL:url];
+	[self.musicLibrary attachToOutlineView:self.libraryView];
 	
+/*
+	[self.libraryView setDelegate:self.musicLibrary];
 	[self.libraryView setDataSource:self.musicLibrary];
 	[self.libraryView reloadData];
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

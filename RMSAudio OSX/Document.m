@@ -22,8 +22,6 @@
 	RMSStereoLevels mLevels;
 }
 
-@property (nonatomic) RMSMusicLibrary *musicLibrary;
-
 @property (nonatomic) RMSOutput *audioOutput;
 
 @property (nonatomic) RMSMixer *mixer;
@@ -107,10 +105,6 @@
 	[[NSNotificationCenter defaultCenter]
 	addObserver:self selector:@selector(outputMenuWillPopUp:)
 	name:NSPopUpButtonWillPopUpNotification object:self.outputMenu];
-	
-	//NSMenuDidEndTrackingNotification
-	
-	[self setLibraryURL:nil];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -558,65 +552,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark
-#pragma mark Select Directory
-////////////////////////////////////////////////////////////////////////////////
-/*
-*/
-
-- (IBAction) didSelectLibraryButton:(NSButton *)button
-{ [self selectLibrary:nil]; }
-
-- (IBAction) selectLibrary:(id)sender
-{
-	NSOpenPanel *panel = [NSOpenPanel openPanel];
-	
-	panel.canChooseDirectories = YES;
-	panel.canChooseFiles = NO;
-	
-	// start selection sheet ...
-	[panel beginSheetModalForWindow:self.windowForSheet
-
-		// ... with result block
-		completionHandler:^(NSInteger result)
-		{
-			if (result == NSFileHandlingPanelOKButton)
-			{
-				if ([panel URLs].count != 0)
-				{
-					NSURL *url = [panel URLs][0];
-					NSLog(@"%@", url);
-
-					[self setLibraryURL:url];
-				}
-			}
-		}];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-- (void) setLibraryURL:(NSURL *)url
-{
-	if (url == nil)
-	{
-		NSFileManager *fileManager = [NSFileManager defaultManager];
-		NSArray *musicURLs = [fileManager URLsForDirectory:NSMusicDirectory
-		inDomains:NSUserDomainMask];
-		if (musicURLs.count != 0)
-		{ url = musicURLs[0]; }
-	}
-
-	self.musicLibrary = [RMSMusicLibrary itemWithURL:url];
-	[self.musicLibrary attachToOutlineView:self.libraryView];
-	
-/*
-	[self.libraryView setDelegate:self.musicLibrary];
-	[self.libraryView setDataSource:self.musicLibrary];
-	[self.libraryView reloadData];
-*/
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark
 #pragma mark Select Audio File
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -668,8 +603,6 @@
 
 - (IBAction) didSelectOutputFileButton:(NSButton *)button
 {
-	[self didSelectLibraryButton:button];
-	return;
 	if (self.outputFile != nil)
 	{
 		self.outputFile = nil;

@@ -59,8 +59,6 @@
 		13488C101D447032009E99D6 /* RMSIndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BE21D447032009E99D6 /* RMSIndexView.m */; };
 		13488C111D447032009E99D6 /* RMSResultView.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BE41D447032009E99D6 /* RMSResultView.m */; };
 		13488C121D447032009E99D6 /* RMSResultView.m in Sources */ = {isa = PBXBuildFile; fileRef = 13488BE41D447032009E99D6 /* RMSResultView.m */; };
-		137256DD1D75B6CE00441134 /* RMSMusicLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 137256DC1D75B6CE00441134 /* RMSMusicLibrary.m */; };
-		137256DE1D75B6CE00441134 /* RMSMusicLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 137256DC1D75B6CE00441134 /* RMSMusicLibrary.m */; };
 		137A0FA11D72EDFC004C95D6 /* RMSFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 137A0FA01D72EDFC004C95D6 /* RMSFilter.m */; };
 		137A0FA21D72EDFC004C95D6 /* RMSFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 137A0FA01D72EDFC004C95D6 /* RMSFilter.m */; };
 		137C07D31D6C761800D4B7E0 /* RMSInterpolator.m in Sources */ = {isa = PBXBuildFile; fileRef = 137C07D21D6C761800D4B7E0 /* RMSInterpolator.m */; };
@@ -75,6 +73,8 @@
 		137DF7881D72E7E300AFFA7A /* rmsfilter_t.c in Sources */ = {isa = PBXBuildFile; fileRef = 137DF7851D72E7E300AFFA7A /* rmsfilter_t.c */; };
 		137EA07D1D4DCF9A00961DBA /* RMSLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 137EA07C1D4DCF9A00961DBA /* RMSLink.m */; };
 		137EA07E1D4DCFA100961DBA /* RMSLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 137EA07C1D4DCF9A00961DBA /* RMSLink.m */; };
+		138848411D795CA10036BE04 /* RMSMusicLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 1388483E1D795CA10036BE04 /* RMSMusicLibrary.m */; };
+		138848421D795CA10036BE04 /* RMSMusicLibraryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 138848401D795CA10036BE04 /* RMSMusicLibraryVC.m */; };
 		138A0AAB1D59E0EF007B735F /* rmssum.c in Sources */ = {isa = PBXBuildFile; fileRef = 138A0AA91D59E0EF007B735F /* rmssum.c */; };
 		138A0AAC1D59E0EF007B735F /* rmssum.c in Sources */ = {isa = PBXBuildFile; fileRef = 138A0AA91D59E0EF007B735F /* rmssum.c */; };
 		13BAC0C41D52FB4600E14AD0 /* RMSCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 13BAC0C31D52FB4600E14AD0 /* RMSCache.m */; };
@@ -151,8 +151,6 @@
 		13488BE31D447032009E99D6 /* RMSResultView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSResultView.h; sourceTree = "<group>"; };
 		13488BE41D447032009E99D6 /* RMSResultView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSResultView.m; sourceTree = "<group>"; };
 		135720281D1BEF22002FFE64 /* RMSAudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RMSAudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		137256DB1D75B6CE00441134 /* RMSMusicLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSMusicLibrary.h; sourceTree = "<group>"; };
-		137256DC1D75B6CE00441134 /* RMSMusicLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSMusicLibrary.m; sourceTree = "<group>"; };
 		137A0F9F1D72EDFC004C95D6 /* RMSFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSFilter.h; sourceTree = "<group>"; };
 		137A0FA01D72EDFC004C95D6 /* RMSFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSFilter.m; sourceTree = "<group>"; };
 		137C07D11D6C761800D4B7E0 /* RMSInterpolator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSInterpolator.h; sourceTree = "<group>"; };
@@ -171,6 +169,10 @@
 		137DF7861D72E7E300AFFA7A /* rmsfilter_t.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rmsfilter_t.h; sourceTree = "<group>"; };
 		137EA07B1D4DCF9A00961DBA /* RMSLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RMSLink.h; path = RMSSourceTypes/RMSMixer/RMSLink.h; sourceTree = "<group>"; };
 		137EA07C1D4DCF9A00961DBA /* RMSLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RMSLink.m; path = RMSSourceTypes/RMSMixer/RMSLink.m; sourceTree = "<group>"; };
+		1388483D1D795CA10036BE04 /* RMSMusicLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSMusicLibrary.h; sourceTree = "<group>"; };
+		1388483E1D795CA10036BE04 /* RMSMusicLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSMusicLibrary.m; sourceTree = "<group>"; };
+		1388483F1D795CA10036BE04 /* RMSMusicLibraryVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSMusicLibraryVC.h; sourceTree = "<group>"; };
+		138848401D795CA10036BE04 /* RMSMusicLibraryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMSMusicLibraryVC.m; sourceTree = "<group>"; };
 		138A0AA91D59E0EF007B735F /* rmssum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rmssum.c; sourceTree = "<group>"; };
 		138A0AAA1D59E0EF007B735F /* rmssum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rmssum.h; sourceTree = "<group>"; };
 		13BAC0C21D52FB4600E14AD0 /* RMSCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMSCache.h; sourceTree = "<group>"; };
@@ -210,8 +212,7 @@
 		1305C0BD1D44712B0062E2CA /* RMSAudio OSX */ = {
 			isa = PBXGroup;
 			children = (
-				137256DB1D75B6CE00441134 /* RMSMusicLibrary.h */,
-				137256DC1D75B6CE00441134 /* RMSMusicLibrary.m */,
+				1388483C1D795CA10036BE04 /* RMSMusicLibrary */,
 				1305C0BE1D44712B0062E2CA /* AppDelegate.h */,
 				1305C0BF1D44712B0062E2CA /* AppDelegate.m */,
 				1305C0C51D44712B0062E2CA /* Document.h */,
@@ -507,6 +508,17 @@
 			path = RMSTypes;
 			sourceTree = "<group>";
 		};
+		1388483C1D795CA10036BE04 /* RMSMusicLibrary */ = {
+			isa = PBXGroup;
+			children = (
+				1388483D1D795CA10036BE04 /* RMSMusicLibrary.h */,
+				1388483E1D795CA10036BE04 /* RMSMusicLibrary.m */,
+				1388483F1D795CA10036BE04 /* RMSMusicLibraryVC.h */,
+				138848401D795CA10036BE04 /* RMSMusicLibraryVC.m */,
+			);
+			path = RMSMusicLibrary;
+			sourceTree = "<group>";
+		};
 		13BAC0C11D52FB4600E14AD0 /* RMSCache */ = {
 			isa = PBXGroup;
 			children = (
@@ -687,6 +699,7 @@
 				13488BF11D447032009E99D6 /* RMSOutput.m in Sources */,
 				13488C0B1D447032009E99D6 /* RMSTimer.m in Sources */,
 				137DF7871D72E7E300AFFA7A /* rmsfilter_t.c in Sources */,
+				138848421D795CA10036BE04 /* RMSMusicLibraryVC.m in Sources */,
 				13BAC0C41D52FB4600E14AD0 /* RMSCache.m in Sources */,
 				13488C0D1D447032009E99D6 /* RMSUtilities.m in Sources */,
 				1305C0CD1D44712B0062E2CA /* Document.m in Sources */,
@@ -706,7 +719,7 @@
 				1304E8211D62677600217682 /* rmsavg.c in Sources */,
 				13488BFB1D447032009E99D6 /* RMSSampleMonitor.m in Sources */,
 				13488C071D447032009E99D6 /* rmslevels.c in Sources */,
-				137256DD1D75B6CE00441134 /* RMSMusicLibrary.m in Sources */,
+				138848411D795CA10036BE04 /* RMSMusicLibrary.m in Sources */,
 				1305C0C91D44712B0062E2CA /* AppDelegate.m in Sources */,
 				13488C031D447032009E99D6 /* RMSDeviceManager.m in Sources */,
 				13488BFD1D447032009E99D6 /* RMSVarispeed.m in Sources */,
@@ -752,7 +765,6 @@
 				1304E8221D62677600217682 /* rmsavg.c in Sources */,
 				13488BF61D447032009E99D6 /* RMSAudioUnitUtilities.m in Sources */,
 				13488BFC1D447032009E99D6 /* RMSSampleMonitor.m in Sources */,
-				137256DE1D75B6CE00441134 /* RMSMusicLibrary.m in Sources */,
 				13488C081D447032009E99D6 /* rmslevels.c in Sources */,
 				13488C041D447032009E99D6 /* RMSDeviceManager.m in Sources */,
 				13488BFE1D447032009E99D6 /* RMSVarispeed.m in Sources */,

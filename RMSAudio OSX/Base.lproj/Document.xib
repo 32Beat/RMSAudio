@@ -12,7 +12,7 @@
                 <outlet property="balanceControl" destination="4p1-TH-d6i" id="fpf-Gh-DDj"/>
                 <outlet property="filterButton" destination="jqb-AM-gv1" id="g6d-AW-wf2"/>
                 <outlet property="gainControl" destination="UJC-Ko-b6Z" id="mUz-99-Wj9"/>
-                <outlet property="libraryView" destination="61Y-sq-a6C" id="TdW-jO-nTP"/>
+                <outlet property="libraryVC" destination="rmA-tR-1zc" id="cr7-uE-0y8"/>
                 <outlet property="logView" destination="gFb-O5-cO1" id="RRe-FU-gwk"/>
                 <outlet property="outputMenu" destination="L8w-2t-PU0" id="1or-ac-caB"/>
                 <outlet property="parameterSlider" destination="mG5-eV-hoR" id="SkS-Gh-45F"/>
@@ -306,5 +306,10 @@
             </connections>
             <point key="canvasLocation" x="-3269.5" y="376.5"/>
         </window>
+        <customObject id="rmA-tR-1zc" customClass="RMSMusicLibraryVC">
+            <connections>
+                <outlet property="listView" destination="61Y-sq-a6C" id="ZRC-XD-MfY"/>
+            </connections>
+        </customObject>
     </objects>
 </document>

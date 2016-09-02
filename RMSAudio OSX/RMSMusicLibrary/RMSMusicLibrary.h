@@ -11,9 +11,6 @@
 #import "FSItem.h"
 
 @interface RMSMusicLibrary : FSItem
-<NSOutlineViewDataSource, NSOutlineViewDelegate>
-
-- (void) attachToOutlineView:(NSOutlineView *)outlineView;
 
 @end
 

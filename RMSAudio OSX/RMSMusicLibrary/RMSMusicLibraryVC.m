@@ -7,32 +7,86 @@
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+#import "RMSMusicLibraryVC.h"
 #import "RMSMusicLibrary.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-@interface RMSMusicLibrary () 
+@interface RMSMusicLibraryVC ()
+@property (nonatomic) RMSMusicLibrary *musicLibrary;
 @end
 
 
 ////////////////////////////////////////////////////////////////////////////////
-@implementation RMSMusicLibrary
+@implementation RMSMusicLibraryVC
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) attachToOutlineView:(NSOutlineView *)outlineView
+- (void) awakeFromNib
 {
-	outlineView.target = self;
-	outlineView.doubleAction = @selector(outlineViewDoubleClicked:);
-	outlineView.delegate = self;
-	outlineView.dataSource = self;
-	[outlineView reloadData];
+	self.listView.target = self;
+	self.listView.doubleAction = @selector(outlineViewDoubleClicked:);
+	self.listView.delegate = self;
+	self.listView.dataSource = self;
+	
+	[self setLibraryURL:nil];
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction) didSelectLibraryButton:(NSButton *)button
+{ [self selectLibrary:nil]; }
+
+- (IBAction) selectLibrary:(id)sender
+{
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	
+	panel.canChooseDirectories = YES;
+	panel.canChooseFiles = NO;
+	
+	// start selection sheet ...
+	[panel beginSheetModalForWindow:self.listView.window
+
+		// ... with result block
+		completionHandler:^(NSInteger result)
+		{
+			if (result == NSFileHandlingPanelOKButton)
+			{
+				if ([panel URLs].count != 0)
+				{
+					NSURL *url = [panel URLs][0];
+					NSLog(@"%@", url);
+
+					[self setLibraryURL:url];
+				}
+			}
+		}];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) setLibraryURL:(NSURL *)url
+{
+	if (url == nil)
+	{
+		NSFileManager *fileManager = [NSFileManager defaultManager];
+		NSArray *musicURLs = [fileManager URLsForDirectory:NSMusicDirectory
+		inDomains:NSUserDomainMask];
+		if (musicURLs.count != 0)
+		{ url = musicURLs[0]; }
+	}
+
+	self.musicLibrary = [RMSMusicLibrary itemWithURL:url];
+	[self.listView reloadData];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark
+#pragma mark DataSource
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 	if (item == nil)
-	{ item = self; }
+	{ item = self.musicLibrary; }
 
 	return [item isContainer];
 }
@@ -42,7 +96,7 @@
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
 	if (item == nil)
-	{ item = self; }
+	{ item = self.musicLibrary; }
 	
 	return ((FSItem *)item).containerItems.count;
 }
@@ -52,7 +106,7 @@
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
 	if (item == nil)
-	{ item = self; }
+	{ item = self.musicLibrary; }
 
 	return ((FSItem *)item).containerItems[index];
 }
@@ -64,7 +118,7 @@
 	byItem:(id)item
 {
 	if (item == nil)
-	{ item = self; }
+	{ item = self.musicLibrary; }
 
 	if ([[tableColumn identifier] isEqualToString:@"name"])
 	{

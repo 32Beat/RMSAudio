@@ -7,11 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "RMSMusicLibraryVC.h"
 
 @interface Document : NSDocument
 
 @property (nonatomic) IBOutlet NSTextView *logView;
-@property (nonatomic, weak) IBOutlet NSOutlineView *libraryView;
+@property (nonatomic, weak) IBOutlet RMSMusicLibraryVC *libraryVC;
 
 @end
 

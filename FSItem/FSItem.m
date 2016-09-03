@@ -18,7 +18,7 @@
 	BOOL mInfo;
 	BOOL mContainer;
 	NSString *mName;
-	NSArray *mContainerItems;
+	NSMutableArray *mContainerItems;
 }
 
 @end
@@ -82,8 +82,6 @@
 {
 	if (mContainerItems == nil)
 	{
-		NSMutableArray *items = [NSMutableArray new];
-		
 		NSError *errorPtr = nil;
 		
 		NSArray *urlArray =
@@ -95,13 +93,31 @@
 		
 		for (NSURL *url in urlArray)
 		{
-			[items addObject:[FSItem itemWithURL:url]];
+			FSItem *item = [[self class] itemWithURL:url];
+			if ([self shouldAddItem:item])
+			{
+				[self addItem:item];
+			}
 		}
-		
-		mContainerItems = [items copy];
 	}
 	
 	return mContainerItems;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (BOOL) shouldAddItem:(FSItem *)item
+{
+	return YES;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) addItem:(FSItem *)item
+{
+	if (mContainerItems == nil)
+	{ mContainerItems = [NSMutableArray new]; }
+	[mContainerItems addObject:item];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

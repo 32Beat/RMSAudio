@@ -149,6 +149,12 @@
 	FSItem *item = [outlineView itemAtRow:outlineView.clickedRow];
 	
 	NSLog(@"%@", item.localizedName);
+	
+	if (!item.isContainer)
+	{
+		self.selectedItem = item;
+		[self.delegate musicLibraryController:self didSelectItem:item];
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////
 @end

@@ -10,11 +10,13 @@
 
 #import "FSItem.h"
 #import "RMSMusicLibrary.h"
+#import "RMSMusicLibraryVC.h"
 #import "RMSAudio.h"
 #import "RMSResultView.h"
 
 
-@interface Document () <RMSOutputDelegate, RMSTimerProtocol>
+@interface Document ()
+<RMSOutputDelegate, RMSTimerProtocol, RMSMusicLibraryControllerDelegate>
 {
 	NSTimer *mReportTimer;
 	
@@ -105,6 +107,16 @@
 	[[NSNotificationCenter defaultCenter]
 	addObserver:self selector:@selector(outputMenuWillPopUp:)
 	name:NSPopUpButtonWillPopUpNotification object:self.outputMenu];
+	
+	self.libraryVC.delegate = self;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+- (void) musicLibraryController:(id)controller didSelectItem:(FSItem *)item
+{
+	id source = [RMSAudioUnitFilePlayer instanceWithURL:[item url]];
+	[self setSource:source];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

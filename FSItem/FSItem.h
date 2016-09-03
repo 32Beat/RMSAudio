@@ -25,6 +25,9 @@
 - (NSString *) localizedName;
 - (NSArray *) containerItems;
 
+- (BOOL) shouldAddItem:(FSItem *)item;
+- (void) addItem:(FSItem *)item;
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////
